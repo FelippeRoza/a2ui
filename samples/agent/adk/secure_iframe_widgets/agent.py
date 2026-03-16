@@ -211,14 +211,12 @@ class SecureWidgetAgent:
       query_lower = query.lower().strip()
       
       # We must ensure we don't accidentally intercept internal ACTION translation payloads
-      # Provide an exact match subset for demo purposes to avoid swallowing rich internal queries.
       is_mtv_weather = query_lower in [
           "weather in mountain view", "mountain view weather", "weather mountain view", "what is the weather in mountain view", "weather in mtv"
       ]
-      is_goog_stock = query_lower in [
-          "goog stock", "what is goog stock at?", "google stock", "how is goog doing", "goog"
-      ]
-      
+      is_goog_stock = query_lower == "goog" or query_lower == "goog stock" or query_lower == "stock price for goog"
+      is_restaurant = "restaurant" in query_lower or "places to eat" in query_lower
+
       if is_mtv_weather:
         logger.info("--- Fast-path triggered for Mountain View weather ---")
         yield {
@@ -250,6 +248,41 @@ class SecureWidgetAgent:
                                     ]
                                 },
                                 "htmlContent": self.widget_cache.get("weather", {}).get("htmlContent")
+                            }}
+                        }]
+                    }
+                })
+            ]
+        }
+        return
+
+      if is_restaurant:
+        logger.info("--- Fast-path triggered for Local Restaurants ---")
+        yield {
+            "is_task_complete": True,
+            "parts": [
+                Part(root=TextPart(text="Here are some great places to eat nearby. You can search or filter by category directly in the widget!")),
+                create_a2ui_part({
+                    "beginRendering": {"surfaceId": "restaurants_fast_1", "root": "root_frame"}
+                }),
+                create_a2ui_part({
+                    "surfaceUpdate": {
+                        "surfaceId": "restaurants_fast_1",
+                        "components": [{
+                            "id": "root_frame",
+                            "component": {"SecureIframe": {
+                                "widgetType": "restaurants",
+                                "widgetData": {
+                                    "location": "Mountain View, CA",
+                                    "restaurants": [
+                                        {"id": "r1", "name": "Castro St Sushi", "cuisine": "Sushi", "category": "Casual", "rating": 4.8, "priceRange": "$$", "imageUrl": "http://localhost:10004/static/news.jpg"},
+                                        {"id": "r2", "name": "La Trattoria", "cuisine": "Italian", "category": "Fine Dining", "rating": 4.6, "priceRange": "$$$", "imageUrl": "http://localhost:10004/static/weather.jpg"},
+                                        {"id": "r3", "name": "Burger Joint", "cuisine": "American", "category": "Fast Food", "rating": 4.2, "priceRange": "$", "imageUrl": "http://localhost:10004/static/news.jpg"},
+                                        {"id": "r4", "name": "Spicy Thai Fast", "cuisine": "Thai", "category": "Casual", "rating": 4.5, "priceRange": "$$", "imageUrl": "http://localhost:10004/static/weather.jpg"},
+                                        {"id": "r5", "name": "Steakhouse Prime", "cuisine": "Steakhouse", "category": "Fine Dining", "rating": 4.9, "priceRange": "$$$$", "imageUrl": "http://localhost:10004/static/news.jpg"}
+                                    ]
+                                },
+                                "htmlContent": self.widget_cache.get("restaurants", {}).get("htmlContent")
                             }}
                         }]
                     }

@@ -330,6 +330,279 @@ STOCKS_WIDGET_HTML = """
 </html>
 """
 
+RESTAURANT_WIDGET_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin: 0; padding: 16px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: transparent; }
+        .app-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px;
+            color: #1f2937;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 440px;
+            margin: 0 auto;
+            border: 1px solid #f3f4f6;
+        }
+        .header { display: flex; flex-direction: column; gap: 8px; }
+        .title { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px; color: #111827;}
+        .subtitle { font-size: 14px; color: #6b7280; margin: 0; }
+        
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-input {
+            width: 100%;
+            padding: 14px 14px 14px 44px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            font-size: 15px;
+            background: #f9fafb;
+            transition: all 0.2s;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .search-input:focus {
+            background: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            color: #9ca3af;
+            width: 20px;
+            height: 20px;
+        }
+
+        .category-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: #f3f4f6;
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .pill:hover { background: #e5e7eb; }
+        .pill.active { background: #3b82f6; color: white; }
+
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .list-container::-webkit-scrollbar { width: 6px; }
+        .list-container::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+
+        .restaurant-item {
+            display: flex;
+            gap: 16px;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid #f3f4f6;
+            transition: all 0.2s;
+            cursor: pointer;
+            align-items: center;
+        }
+        .restaurant-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-color: #e5e7eb;
+            transform: translateY(-1px);
+        }
+        .r-image {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #f3f4f6;
+            flex-shrink: 0;
+        }
+        .r-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .r-name { font-size: 16px; font-weight: 700; color: #111827; margin: 0; }
+        .r-meta { font-size: 13px; color: #6b7280; display: flex; align-items: center; gap: 6px; }
+        .rating { color: #f59e0b; font-weight: 700; display: flex; align-items: center; gap: 2px;}
+        .star { width: 12px; height: 12px; fill: currentColor; }
+        
+        .no-results {
+            padding: 32px 0;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        window.__STATE__ = {
+            data: null,
+            searchQuery: '',
+            activeCategory: 'All'
+        };
+
+        function setCategory(cat) {
+            window.__STATE__.activeCategory = cat;
+            renderList();
+            renderCategories();
+        }
+
+        function handleSearch(e) {
+            window.__STATE__.searchQuery = e.target.value.toLowerCase();
+            renderList();
+        }
+
+        function handleRestaurantClick(id, name) {
+            window.parent.postMessage({
+                type: 'a2ui-action',
+                detail: {
+                    action: {
+                        type: 'Action',
+                        name: 'reserve_table',
+                        context: [
+                            { key: 'restaurantId', value: { literalString: String(id) } },
+                            { key: 'restaurantName', value: { literalString: String(name) } }
+                        ]
+                    }
+                }
+            }, '*');
+        }
+
+        function extractCategories(list) {
+            const cats = new Set(['All']);
+            list.forEach(r => { if(r.category) cats.add(r.category); });
+            return Array.from(cats);
+        }
+
+        function renderCategories() {
+            const data = window.__STATE__.data;
+            if (!data || !data.restaurants) return;
+            
+            const categories = extractCategories(data.restaurants);
+            const container = document.getElementById('categoryContainer');
+            if (categories.length <= 1) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = categories.map(cat => {
+                const isActive = window.__STATE__.activeCategory === cat ? 'active' : '';
+                return `<div class="pill ${isActive}" onclick="setCategory('${cat}')">${cat}</div>`;
+            }).join('');
+        }
+
+        function renderList() {
+            const data = window.__STATE__.data;
+            if (!data || !data.restaurants) return;
+            
+            const query = window.__STATE__.searchQuery;
+            const cat = window.__STATE__.activeCategory;
+            
+            const filtered = data.restaurants.filter(r => {
+                const matchesSearch = (r.name || '').toLowerCase().includes(query) || 
+                                      (r.cuisine || '').toLowerCase().includes(query);
+                const matchesCat = cat === 'All' || r.category === cat;
+                return matchesSearch && matchesCat;
+            });
+
+            const listEl = document.getElementById('listContainer');
+            const emptyEl = document.getElementById('emptyState');
+            
+            if (filtered.length === 0) {
+                listEl.style.display = 'none';
+                emptyEl.style.display = 'block';
+            } else {
+                listEl.style.display = 'flex';
+                emptyEl.style.display = 'none';
+                listEl.innerHTML = filtered.map(r => `
+                    <div class="restaurant-item" onclick="handleRestaurantClick('${r.id}', '${r.name}')">
+                        <img class="r-image" src="${r.imageUrl || 'http://localhost:10004/static/news.jpg'}" alt="${r.name}">
+                        <div class="r-info">
+                            <h3 class="r-name">${r.name}</h3>
+                            <div class="r-meta">
+                                <span class="rating">
+                                    <svg class="star" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    ${r.rating}
+                                </span>
+                                <span>•</span>
+                                <span>${r.cuisine}</span>
+                                <span>•</span>
+                                <span>${r.priceRange}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function render(data) {
+            const root = document.getElementById('root');
+            if (!data) {
+                root.innerHTML = '<div style="padding: 24px; color: #666">Loading Guides...</div>';
+                return;
+            }
+            window.__STATE__.data = data;
+            const location = data.location || "Nearby";
+
+            root.innerHTML = `
+                <div class="app-card">
+                    <div class="header">
+                        <h2 class="title">Places to eat in ${location}</h2>
+                        <p class="subtitle">Filter and search local spots</p>
+                    </div>
+
+                    <div class="search-container">
+                        <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                        <input type="text" class="search-input" placeholder="Search by name or cuisine..." onkeyup="handleSearch(event)">
+                    </div>
+
+                    <div class="category-scroll" id="categoryContainer"></div>
+
+                    <div class="list-container" id="listContainer"></div>
+                    <div class="no-results" id="emptyState">No restaurants found matching your criteria.</div>
+                </div>
+            `;
+            
+            renderCategories();
+            renderList();
+        }
+
+        const handler = (event) => {
+            if (event.data && event.data.type === 'UPDATE_DATA') {
+                render(event.data.data || event.data.widgetData);
+            }
+        };
+        window.addEventListener('message', handler);
+        window.parent.postMessage({ type: 'REQUEST_DATA' }, '*');
+        
+        render(null);
+    </script>
+</body>
+</html>
+"""
+
 WEATHER_WIDGET_SCHEMA = {
   "location": "string (e.g. Sunnyvale, CA)",
   "temperature": "number or string (e.g. 72)",
@@ -355,6 +628,21 @@ STOCKS_WIDGET_SCHEMA = {
   "news": ["string array of 2 recent short headlines related to the company"]
 }
 
+RESTAURANT_WIDGET_SCHEMA = {
+  "location": "string (e.g. San Francisco, CA)",
+  "restaurants": [
+    { 
+      "id": "string (unique identifier)",
+      "name": "string",
+      "cuisine": "string (e.g. Italian, Sushi, American)",
+      "category": "string (broad grouping e.g. Fine Dining, Casual, Fast Food)",
+      "rating": "number (e.g. 4.5)",
+      "priceRange": "string (e.g. $$, $$$)",
+      "imageUrl": "string absolute URL (must use `http://localhost:10004/static/weather.jpg` if unsure)"
+    }
+  ]
+}
+
 CANNED_WIDGETS = {
     "weather": {
         "htmlContent": WEATHER_WIDGET_HTML,
@@ -364,4 +652,8 @@ CANNED_WIDGETS = {
         "htmlContent": STOCKS_WIDGET_HTML,
         "schema": STOCKS_WIDGET_SCHEMA
     },
+    "restaurants": {
+        "htmlContent": RESTAURANT_WIDGET_HTML,
+        "schema": RESTAURANT_WIDGET_SCHEMA
+    }
 }
