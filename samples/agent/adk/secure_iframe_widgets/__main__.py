@@ -1,0 +1,113 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import logging
+import os
+
+import click
+from a2a.server.apps import A2AStarletteApplication
+from a2a.server.request_handlers import DefaultRequestHandler
+from a2a.server.tasks import InMemoryTaskStore
+from agent import SecureWidgetAgent
+from agent_executor import SecureWidgetAgentExecutor
+from dotenv import load_dotenv
+from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import HTMLResponse
+from starlette.staticfiles import StaticFiles
+import json
+
+load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+class MissingAPIKeyError(Exception):
+  """Exception for missing API key."""
+
+
+@click.command()
+@click.option("--host", default="localhost")
+@click.option("--port", default=10004)
+def main(host, port):
+  try:
+    # Check for API key only if Vertex AI is not configured
+    if not os.getenv("GOOGLE_GENAI_USE_VERTEXAI") == "TRUE":
+      if not os.getenv("GEMINI_API_KEY"):
+        raise MissingAPIKeyError(
+            "GEMINI_API_KEY environment variable not set and"
+            " GOOGLE_GENAI_USE_VERTEXAI is not TRUE."
+        )
+
+    base_url = f"http://{host}:{port}"
+
+    agent = SecureWidgetAgent(base_url=base_url, use_ui=True)
+
+    agent_executor = SecureWidgetAgentExecutor(agent=agent)
+
+    request_handler = DefaultRequestHandler(
+        agent_executor=agent_executor,
+        task_store=InMemoryTaskStore(),
+    )
+    server = A2AStarletteApplication(
+        agent_card=agent.get_agent_card(), http_handler=request_handler
+    )
+    import uvicorn
+
+    app = server.build()
+
+    async def get_widget(request):
+        widget_id = request.path_params["widget_id"]
+        payload = agent.widget_cache.get(widget_id)
+        if not payload:
+            return HTMLResponse("Widget not found", status_code=404)
+        
+        html = f"""<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cached Widget</title>
+</head>
+<body style="margin: 0; padding: 0; background: transparent; overflow: auto; height: 100vh; width: 100vw; box-sizing: border-box;">
+    <script>
+        window.INITIAL_PAYLOAD = {json.dumps(payload)};
+    </script>
+    <script type="module" src="http://localhost:5173/ui/sandbox.ts"></script>
+</body>
+</html>"""
+        return HTMLResponse(html)
+
+    app.add_route("/widgets/{widget_id}", get_widget, methods=["GET"])
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    app.mount("/static", StaticFiles(directory="images"), name="static")
+
+    uvicorn.run(app, host=host, port=port)
+  except MissingAPIKeyError as e:
+    logger.error(f"Error: {e}")
+    exit(1)
+  except Exception as e:
+    logger.error(f"An error occurred during server startup: {e}")
+    exit(1)
+
+
+if __name__ == "__main__":
+  main()
