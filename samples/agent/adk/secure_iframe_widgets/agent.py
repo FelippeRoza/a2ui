@@ -208,7 +208,10 @@ class SecureWidgetAgent:
         return
 
       # --- Fast-Path Demo Queries for Zero Latency ---
-      query_lower = query.lower().strip()
+      # The query might contain a system suffix injected by agent_executor.py
+      # We extract just the actual user query for accurate pattern matching.
+      user_query = query.split("\n\n[SYSTEM:")[0]
+      query_lower = user_query.lower().strip()
       
       # We must ensure we don't accidentally intercept internal ACTION translation payloads
       is_mtv_weather = query_lower in [

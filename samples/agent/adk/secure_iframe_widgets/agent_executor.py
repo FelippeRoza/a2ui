@@ -142,6 +142,10 @@ class SecureWidgetAgentExecutor(AgentExecutor):
         condition = ctx.get("condition", "")
         query = f"Show me an interactive detailed weather forecast widget for {location} on {day} ({condition})"
 
+      elif action == "reserve_table":
+        restaurant_name = ctx.get("restaurantName", "the restaurant")
+        query = f"The user has selected to reserve a table at {restaurant_name}. You MUST reply EXACTLY with 'Great choice. Am booking a table at the {restaurant_name}' and proceed with the booking."
+
       elif action == "dismiss_modal" or action == "close_modal":
         query = "ACTION: close_modal"
 
