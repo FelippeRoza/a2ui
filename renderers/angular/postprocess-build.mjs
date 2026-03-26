@@ -33,11 +33,17 @@ const packageJson = parsePackageJson(packageJsonPath);
 if (!packageJson.dependencies['@a2ui/web_core']) {
   throw new Error(
     'Angular package does not depend on the Core library. ' +
-    'Either update the package.json or remove this script.',
+      'Either update the package.json or remove this script.',
   );
 }
 
 packageJson.dependencies['@a2ui/web_core'] = '^' + coreVersion;
+
+// Remove scripts and properties that should not be in the published package
+delete packageJson.scripts;
+delete packageJson.prepublishOnly;
+delete packageJson.files;
+
 writeFileSync(packageJsonPath, JSON.stringify(packageJson, undefined, 2));
 
 copyFileSync(join(dirname, '../../LICENSE'), join(dirname, './dist/LICENSE'));
