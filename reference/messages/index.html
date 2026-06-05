@@ -3467,9 +3467,14 @@
 </thead>
 <tbody>
 <tr>
+<td>Surface already exists</td>
+<td><code>surfaceId</code> is already in use</td>
+<td>Ensure <code>surfaceId</code> is globally unique for the renderer's lifetime. If using an orchestrator with subagents, the orchestrator is empowered to manage surface IDs as needed to avoid conflicts.</td>
+</tr>
+<tr>
 <td>Surface not found</td>
 <td><code>surfaceId</code> does not exist</td>
-<td>Ensure a unique <code>surfaceId</code> is used consistently for a given surface. Surfaces are implicitly created on first update.</td>
+<td>Ensure <code>surfaceId</code> matches the created surface. In v0.8, surfaces are implicit, but v0.9+ requires <code>createSurface</code>.</td>
 </tr>
 <tr>
 <td>Invalid component type</td>

@@ -12,7 +12,7 @@
         <meta name="author" content="Google">
       
       
-        <link rel="canonical" href="https://a2ui.org/specification/v0_10/docs/evolution_guide/">
+        <link rel="canonical" href="https://a2ui.org/specification/v0_10/docs/renderer_guide/">
       
       
       
@@ -25,7 +25,7 @@
     
     
       
-        <title>A2UI Protocol Evolution Guide: v0.9 to v0.10 - A2UI</title>
+        <title>Macro Rendering Error - A2UI</title>
       
     
     
@@ -153,7 +153,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#a2ui-protocol-evolution-guide-v09-to-v010" class="md-skip">
+        <a href="#macro-rendering-error" class="md-skip">
           Skip to content
         </a>
       
@@ -188,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              A2UI Protocol Evolution Guide: v0.9 to v0.10
+              Macro Rendering Error
             
           </span>
         </div>
@@ -1898,152 +1898,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-executive-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Executive Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Changes
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#21-catalog-definition-schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.1. Catalog Definition Schema
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#22-server-to-client-message-list-schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.2. Server-to-Client Message List Schema
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#23-client-to-server-message-list-schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.3. Client-to-Server Message List Schema
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#24-client-capabilities-schema" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.4. Client Capabilities Schema
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#25-agentcard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.5. AgentCard
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#26-data-encoding" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.6. Data Encoding
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#27-processing-rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.7. Processing Rules
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#28-server-to-client-messages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.8. Server-to-Client Messages
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#29-client-to-server-events" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2.9. Client-to-Server Events
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-migration-guide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Migration Guide
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -2071,69 +1925,30 @@
     
       
     
-    <a href="https://github.com/a2ui-project/a2ui/raw/main/docs/specification/v0_10/docs/evolution_guide.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/a2ui-project/a2ui/raw/main/docs/specification/v0_10/docs/renderer_guide.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="a2ui-protocol-evolution-guide-v09-to-v010">A2UI Protocol Evolution Guide: v0.9 to v0.10<a class="headerlink" href="#a2ui-protocol-evolution-guide-v09-to-v010" title="Permanent link">&para;</a></h1>
-<p>This document serves as a comprehensive guide to the changes between A2UI version 0.9 and version 0.10. It details the shifts in philosophy, architecture, and implementation, providing a reference for stakeholders and developers migrating between versions.</p>
-<h2 id="1-executive-summary">1. Executive Summary<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
-<p>Version 0.10 differs from 0.9 in the following ways:</p>
-<ul>
-<li><strong>Client-to-Server RPC</strong>: Introduced <code>actionResponse</code> enabling synchronous responses to client-initiated actions. Added <code>actionId</code> for response correlation.</li>
-<li><strong>Surface Properties Refactoring</strong>: Renamed <code>theme</code> to <code>surfaceProperties</code> at both the message and catalog level. Removed the <code>primaryColor</code> property entirely to decouple structural UI layout and branding customization from surface definition.</li>
-</ul>
-<h2 id="2-changes">2. Changes<a class="headerlink" href="#2-changes" title="Permanent link">&para;</a></h2>
-<h3 id="21-catalog-definition-schema">2.1. Catalog Definition Schema<a class="headerlink" href="#21-catalog-definition-schema" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Added <code>posterUrl</code> property to the <code>Video</code> component in <code>catalogs/basic/catalog.json</code>, allowing a preview image to be displayed before the video plays.</li>
-<li>Added <code>placeholder</code> prop to the <code>TextField</code> component schema.</li>
-<li>Renamed the <code>$defs/theme</code> schema to <code>$defs/surfaceProperties</code> in both the basic and minimal catalogs, and removed the <code>primaryColor</code> property from it.</li>
-</ul>
-<h3 id="22-server-to-client-message-list-schema">2.2. Server-to-Client Message List Schema<a class="headerlink" href="#22-server-to-client-message-list-schema" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Added <code>ActionResponseMessage</code> to allow the server to respond to a specific action call using an <code>actionId</code>.</li>
-<li><TBD></li>
-</ul>
-<h3 id="23-client-to-server-message-list-schema">2.3. Client-to-Server Message List Schema<a class="headerlink" href="#23-client-to-server-message-list-schema" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Added <code>actionId</code> to the <code>action</code> message properties, which the client generates if a response is expected (<code>wantResponse: true</code>).</li>
-<li><TBD></li>
-</ul>
-<h3 id="24-client-capabilities-schema">2.4. Client Capabilities Schema<a class="headerlink" href="#24-client-capabilities-schema" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Renamed <code>theme</code> capability block to <code>surfaceProperties</code> within the Catalog definition in <code>client_capabilities.json</code>.</li>
-</ul>
-<h3 id="25-agentcard">2.5. AgentCard<a class="headerlink" href="#25-agentcard" title="Permanent link">&para;</a></h3>
-<ul>
-<li><TBD></li>
-</ul>
-<h3 id="26-data-encoding">2.6. Data Encoding<a class="headerlink" href="#26-data-encoding" title="Permanent link">&para;</a></h3>
-<ul>
-<li><TBD></li>
-</ul>
-<h3 id="27-processing-rules">2.7. Processing Rules<a class="headerlink" href="#27-processing-rules" title="Permanent link">&para;</a></h3>
-<ul>
-<li><TBD></li>
-</ul>
-<h3 id="28-server-to-client-messages">2.8. Server-to-Client Messages<a class="headerlink" href="#28-server-to-client-messages" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Added <code>actionResponse</code> message structure to support synchronous responses with a <code>value</code> or <code>error</code>.</li>
-<li>Updated <code>createSurface</code> message to rename the <code>theme</code> field to <code>surfaceProperties</code> (pointing to catalog surface properties definitions).</li>
-</ul>
-<h3 id="29-client-to-server-events">2.9. Client-to-Server Events<a class="headerlink" href="#29-client-to-server-events" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Updated <code>action</code> message to include <code>actionId</code>.</li>
-<li>Updated <code>Action</code> type in <code>common_types.json</code> to include <code>wantResponse</code> and <code>responsePath</code> on event triggers.</li>
-<li><TBD></li>
-</ul>
-<h2 id="3-migration-guide">3. Migration Guide<a class="headerlink" href="#3-migration-guide" title="Permanent link">&para;</a></h2>
-<ul>
-<li><TBD></li>
-</ul>
+<h1 id="macro-rendering-error"><em>Macro Rendering Error</em><a class="headerlink" href="#macro-rendering-error" title="Permanent link">&para;</a></h1>
+<p><em>File</em>: <code>specification/v0_10/docs/renderer_guide.md</code></p>
+<p><em>UndefinedError</em>: 'props' is undefined</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Traceback (most recent call last):
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  File &quot;/opt/hostedtoolcache/Python/3.13.13/x64/lib/python3.13/site-packages/mkdocs_macros/plugin.py&quot;, line 703, in render
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    return md_template.render(**page_variables)
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  File &quot;/opt/hostedtoolcache/Python/3.13.13/x64/lib/python3.13/site-packages/jinja2/environment.py&quot;, line 1295, in render
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    self.environment.handle_exception()
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  File &quot;/opt/hostedtoolcache/Python/3.13.13/x64/lib/python3.13/site-packages/jinja2/environment.py&quot;, line 942, in handle_exception
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    raise rewrite_traceback_stack(source=source)
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  File &quot;&lt;template&gt;&quot;, line 560, in top-level template code
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  File &quot;/opt/hostedtoolcache/Python/3.13.13/x64/lib/python3.13/site-packages/jinja2/environment.py&quot;, line 490, in getattr
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    return getattr(obj, attribute)
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>jinja2.exceptions.UndefinedError: &#39;props&#39; is undefined
+</span></code></pre></div>
 
 
 
