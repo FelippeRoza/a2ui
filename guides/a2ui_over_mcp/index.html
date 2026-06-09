@@ -2957,15 +2957,18 @@
 </blockquote>
 <h3 id="option-b-running-the-recipe-client-web-app">Option B: Running the Recipe Client Web App<a class="headerlink" href="#option-b-running-the-recipe-client-web-app" title="Permanent link">&para;</a></h3>
 <p>For a fully rendered interactive experience that visually demonstrates A2UI over MCP, run the included web application:</p>
+<div class="admonition note">
+<p><strong>Package Manager Usage:</strong> Running the built-in sample applications within the A2UI repository requires Yarn (<code>yarn install</code> / <code>yarn dev</code>) as configured by Corepack workspaces. For your own regular usage and standalone projects outside this repository, use the package manager of your choice (e.g. npm, pnpm).</p>
+</div>
 <ol>
 <li>In a new terminal window, navigate to the client directory:
     <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span>client
 </span></code></pre></div></li>
 <li>Install Node.js dependencies:
-    <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>npm<span class="w"> </span>install
+    <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>yarn<span class="w"> </span>install
 </span></code></pre></div></li>
 <li>Start the Vite development server:
-    <div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>npm<span class="w"> </span>run<span class="w"> </span>dev
+    <div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>yarn<span class="w"> </span>dev
 </span></code></pre></div></li>
 <li>Open your browser to the URL displayed in your terminal (usually <code>http://localhost:5173</code>).</li>
 </ol>

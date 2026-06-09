@@ -1667,9 +1667,12 @@
 <ul>
 <li><strong>Python 3.10+</strong> — Required for the agent and MCP server backends</li>
 <li><strong><a href="https://docs.astral.sh/uv/">uv</a></strong> — Fast Python package manager (used to run all Python samples)</li>
-<li><strong>Node.js 18+</strong> and <strong>npm</strong> — Required for building and running the client apps</li>
+<li><strong>Node.js 18+</strong> and <strong>Yarn</strong> — Required for building and running the sample client apps within this monorepo workspace.</li>
 <li><strong>A <code>GEMINI_API_KEY</code></strong> — Required by all ADK-based agents. Get one from <a href="https://aistudio.google.com/apikey">Google AI Studio</a></li>
 </ul>
+<div class="admonition note">
+<p><strong>Package Manager Usage:</strong> Running the built-in sample applications within the A2UI repository requires Yarn as configured by Corepack workspaces. For your own regular usage and standalone projects outside this repository, use the package manager of your choice (e.g. npm, pnpm).</p>
+</div>
 <blockquote>
 <p>⚠️ <strong>Environment variable setup</strong>: You can either export <code>GEMINI_API_KEY</code> in your shell or create a <code>.env</code> file in each agent directory. The agents use <code>dotenv</code> to load <code>.env</code> files automatically.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="c1"># Option 1: Export in shell</span>
@@ -1693,8 +1696,8 @@
 <h4 id="step-2-start-the-client">Step 2: Start the Client<a class="headerlink" href="#step-2-start-the-client" title="Permanent link">¶</a></h4>
 <p>In a new terminal, navigate to the client directory and start the dev server (requires building the Lit renderer first):</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span>samples/client/lit/mcp-apps-in-a2ui-sample
-</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>npm<span class="w"> </span>install
-</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a>npm<span class="w"> </span>run<span class="w"> </span>dev
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>yarn<span class="w"> </span>install
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a>yarn<span class="w"> </span>dev
 </span></code></pre></div>
 <p>The client starts at <code>http://localhost:5173/</code>.</p>
 <h4 id="step-3-open-in-browser">Step 3: Open in Browser<a class="headerlink" href="#step-3-open-in-browser" title="Permanent link">¶</a></h4>
@@ -1720,14 +1723,13 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nb">cd</span><span class="w"> </span>samples/client/angular/
 </span><span id="__span-8-2"><a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a>
 </span><span id="__span-8-3"><a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="c1"># Build the renderers (required — Angular depends on local renderer packages)</span>
-</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a>npm<span class="w"> </span>run<span class="w"> </span>build:renderer
+</span><span id="__span-8-4"><a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a>yarn<span class="w"> </span>build:renderer
 </span><span id="__span-8-5"><a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a>
-</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a>npm<span class="w"> </span>install<span class="w"> </span>--include<span class="o">=</span>dev
-</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a>npm<span class="w"> </span>run<span class="w"> </span>build:sandbox
-</span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a>npm<span class="w"> </span>start<span class="w"> </span>--<span class="w"> </span>mcp_calculator
+</span><span id="__span-8-6"><a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a>yarn<span class="w"> </span>install
+</span><span id="__span-8-7"><a href="#__codelineno-8-7" id="__codelineno-8-7" name="__codelineno-8-7"></a>yarn<span class="w"> </span>build:sandbox
+</span><span id="__span-8-8"><a href="#__codelineno-8-8" id="__codelineno-8-8" name="__codelineno-8-8"></a>yarn<span class="w"> </span>start<span class="w"> </span>--<span class="w"> </span>mcp_calculator
 </span></code></pre></div>
 <blockquote>
-<p>⚠️ <strong><code>--include=dev</code> is required</strong>: The Angular CLI (<code>@angular/cli</code>) is a dev dependency. Without <code>--include=dev</code>, <code>ng serve</code> won't be available.</p>
 <p>⚠️ <strong><code>build:renderer</code> and <code>build:sandbox</code> are both required</strong>: <code>build:renderer</code> compiles the A2UI renderer packages that the Angular app depends on. <code>build:sandbox</code> bundles the sandbox proxy into the Angular project's public assets. Without either, the app won't work.</p>
 </blockquote>
 <p>The client starts at <code>http://localhost:4200/</code>.</p>
@@ -1776,12 +1778,12 @@
 <td>Install Python 3.13+ (required by that sample's <code>pyproject.toml</code>)</td>
 </tr>
 <tr>
-<td><code>npm run build:renderer</code> fails</td>
-<td>Make sure you ran <code>npm install</code> first in <code>samples/client/lit/</code></td>
+<td><code>yarn build:renderer</code> fails</td>
+<td>Make sure you ran <code>yarn install</code> first in <code>samples/client/lit/</code></td>
 </tr>
 <tr>
 <td>Angular client shows blank page</td>
-<td>Ensure you ran <code>npm run build:sandbox</code> before <code>npm start</code></td>
+<td>Ensure you ran <code>yarn build:sandbox</code> before <code>yarn start</code></td>
 </tr>
 <tr>
 <td>MCP app iframe doesn't load</td>
@@ -1789,7 +1791,7 @@
 </tr>
 <tr>
 <td><code>ng serve</code> not found</td>
-<td>Run <code>npm install --include=dev</code> to install dev dependencies including <code>@angular/cli</code></td>
+<td>Run <code>yarn install</code> to install dev dependencies including <code>@angular/cli</code></td>
 </tr>
 <tr>
 <td>"URL with hostname not allowed"</td>
