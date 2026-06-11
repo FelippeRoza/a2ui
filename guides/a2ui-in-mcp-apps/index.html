@@ -475,6 +475,29 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_6_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    A2UI + MCP
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_6_8_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_6_8">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    A2UI + MCP
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../a2ui_over_mcp/">
 <span class="md-ellipsis">
@@ -652,6 +675,9 @@
       
     </span>
 </a>
+</li>
+</ul>
+</nav>
 </li>
 </ul>
 </nav>
@@ -1242,6 +1268,13 @@
   </span>
 </a>
 </li>
+<li class="md-path__item">
+<a class="md-path__link" href="../a2ui_over_mcp/">
+<span class="md-ellipsis">
+    A2UI + MCP
+  </span>
+</a>
+</li>
 </ol>
 </nav>
 <article class="md-content__inner md-typeset">
@@ -1395,11 +1428,9 @@ flowchart TD
 <p>If your project uses Vite (common for React, Vue, or Lit), you can achieve the same single-file output automatically using plugins like <code>vite-plugin-singlefile</code>. This eliminates the need for a custom post-build script by handling the inlining during the build process itself.</p>
 <p><strong>How to use it:</strong></p>
 <ol>
-<li>
-<p><strong>Install the plugin</strong>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </span>vite-plugin-singlefile
-</span></code></pre></div>
-</li>
+<li><strong>Install the plugin</strong>:
+    <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </span>vite-plugin-singlefile
+</span></code></pre></div></li>
 <li>
 <p><strong>Configure Vite</strong>: Add the plugin to your <code>vite.config.ts</code> (or <code>.js</code>):</p>
 <div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="nx">defineConfig</span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'vite'</span><span class="p">;</span>
