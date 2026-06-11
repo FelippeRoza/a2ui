@@ -2472,7 +2472,7 @@
 <li>Added <code>posterUrl</code> property to the <code>Video</code> component in <code>catalogs/basic/catalog.json</code>, allowing a preview image to be displayed before the video plays.</li>
 <li>Added <code>placeholder</code> prop to the <code>TextField</code> component schema.</li>
 <li>Added a <code>steps</code> property to the <code>Slider</code> component schema to snap values to discrete intervals.</li>
-<li>Added an optional <code>instructions</code> field to the <code>Catalog</code> schema (<code>catalogs/basic/catalog.json</code>) to refer to an external guidelines/rules file (<code>instructions.md</code>) via relative file URI, renaming and updating the previous <code>rules.txt</code> file.</li>
+<li>Added an optional <code>instructions</code> field to the <code>Catalog</code> schema (<code>catalogs/basic/catalog.json</code>) to embed Markdown guidelines/rules directly, replacing the external <code>rules.txt</code> file.</li>
 <li>Renamed <code>svgPath</code> to <code>path</code> in the custom SVG icon definition object schema.</li>
 <li>Renamed <code>$defs/theme</code> to <code>$defs/surfaceProperties</code> in both the basic and minimal catalogs.</li>
 </ul>
@@ -2492,7 +2492,7 @@
 </ul>
 <h3 id="25-client-capabilities-schema">2.5. Client capabilities schema<a class="headerlink" href="#25-client-capabilities-schema" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added an optional <code>instructions</code> field to the <code>Catalog</code> object definition (<code>client_capabilities.json</code>) as a relative file URI reference (with format hint of <code>uri-reference</code>) to support external rules files associated with a catalog.</li>
+<li>Added an optional <code>instructions</code> field to the <code>Catalog</code> object definition (<code>client_capabilities.json</code>) as a plain Markdown string to embed design guidelines directly.</li>
 <li>Renamed <code>theme</code> capability block to <code>surfaceProperties</code> within the Catalog definition in <code>client_capabilities.json</code>.</li>
 <li>Added static <code>callableFrom</code> and <code>returnType</code> metadata properties to <code>FunctionDefinition</code> inside <code>client_capabilities.json</code> to advertise execution boundaries and return types to the server.</li>
 </ul>
