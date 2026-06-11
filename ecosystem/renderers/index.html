@@ -2743,6 +2743,14 @@ Looking for the <strong>official</strong> A2UI React renderer? See <a href="http
 <td><img alt="Stars" src="https://img.shields.io/github/stars/AGenUI/AGenUI?style=flat-square&amp;label=⭐" /> <img alt="Last commit" src="https://img.shields.io/github/last-commit/AGenUI/AGenUI?style=flat-square&amp;label=updated" /></td>
 <td><a href="https://github.com/AGenUI/AGenUI">GitHub</a> · <a href="https://genui.amap.com/">Official Website</a></td>
 </tr>
+<tr>
+<td><strong>lynx-family/lynx-stack</strong> (<code>@lynx-js/genui/a2ui</code>)</td>
+<td>Lynx (Mobile, Web, Desktop)</td>
+<td>❌</td>
+<td>✅</td>
+<td><img alt="Stars" src="https://img.shields.io/github/stars/lynx-family/lynx-stack?style=flat-square&amp;label=⭐" /> <img alt="Last commit" src="https://img.shields.io/github/last-commit/lynx-family/lynx-stack?path=packages%2Fgenui%2Fa2ui&amp;style=flat-square&amp;label=updated" /></td>
+<td><a href="https://github.com/lynx-family/lynx-stack/tree/main/packages/genui/a2ui">GitHub</a> · <a href="https://www.npmjs.com/package/@lynx-js/genui">npm</a> · <a href="https://lynxjs.org/next/react/genui/a2ui.html">Docs</a></td>
+</tr>
 </tbody>
 </table>
 <h3 id="notable-mentions">Notable Mentions<a class="headerlink" href="#notable-mentions" title="Permanent link">&para;</a></h3>
@@ -2783,6 +2791,7 @@ Looking for the <strong>official</strong> A2UI React renderer? See <a href="http
 <p><strong>BBC6BAE9/a2ui-swift</strong> (formerly <strong>a2ui-swiftui</strong>) is a native SwiftUI renderer supporting iOS, macOS, visionOS, watchOS, and tvOS. It covers all 18 basic A2UI components with dual v0.8 + v0.9 protocol support, includes JSONL streaming, and uses the Observation framework for reactivity.</p>
 <p><strong>TanXudong-Vivo/A2UI-Android-Renderer</strong> is a modular Android renderer built with Jetpack Compose and Material 3, and is the first Android implementation to support the A2UI v0.9 protocol. It covers 13 fully implemented components (including Image loading via Coil), streaming rendering from LLM token streams, data binding with <code>path</code> expressions and <code>formatDate</code>, and a pluggable Custom Catalog for registering additional component types. The demo app includes a live connection to the official <code>restaurant_finder</code> ADK agent.</p>
 <p><strong>AGenUI/AGenUI</strong> is a cross-platform native renderer for A2UI v0.9, supporting iOS, Android, and HarmonyOS through a shared C++ core. It is designed for high performance, extensibility, and cross-platform consistency. AGenUI fully implements A2UI v0.9 and provides runtime APIs for extending UI components and function calls. It also introduces a <a href="https://github.com/AGenUI/AGenUI/blob/main/agenui_catalog.json">custom Catalog</a> that extends the Basic Catalog with Table, Carousel, Web, RichText, and a Styles property for richer appearance and layout control, while staying aligned with A2UI’s extensible Catalog model. See the <a href="https://genui.amap.com/components">component demo</a>, the corresponding open-source <a href="https://github.com/AGenUI/AGenUI/tree/main/skills/a2ui-generation">A2UI Generation Skill</a>, and learn more on <a href="https://github.com/AGenUI/AGenUI">GitHub</a>.</p>
+<p><strong>lynx-family/lynx-stack</strong> (<code>@lynx-js/genui/a2ui</code>) provides the ReactLynx renderer for A2UI v0.9. It consumes validated server-to-client A2UI messages through a <code>MessageStore</code>, renders approved ReactLynx components from caller-supplied catalogs, and forwards generated UI actions through <code>onAction</code>. The published <code>@lynx-js/genui</code> package exposes the A2UI renderer via the <code>a2ui</code> subpath, while the GenUI CLI supports build-time catalog artifact and A2UI system prompt generation.</p>
 <h2 id="submitting-a-renderer">Submitting a Renderer<a class="headerlink" href="#submitting-a-renderer" title="Permanent link">&para;</a></h2>
 <p>If you have built an A2UI renderer, submit it to be listed here.</p>
 <h3 id="how-to-submit">How to submit<a class="headerlink" href="#how-to-submit" title="Permanent link">&para;</a></h3>
