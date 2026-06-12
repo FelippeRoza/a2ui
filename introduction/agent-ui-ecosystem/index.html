@@ -592,7 +592,7 @@
   <a href="#a2ui-vs-ag-ui-copilotkit" class="md-nav__link">
     <span class="md-ellipsis">
       
-        A2UI vs AG UI / CopilotKit
+        A2UI vs AG-UI / CopilotKit
       
     </span>
   </a>
@@ -2466,7 +2466,7 @@
   <a href="#a2ui-vs-ag-ui-copilotkit" class="md-nav__link">
     <span class="md-ellipsis">
       
-        A2UI vs AG UI / CopilotKit
+        A2UI vs AG-UI / CopilotKit
       
     </span>
   </a>
@@ -2591,7 +2591,7 @@
 <th></th>
 <th><strong>A2UI</strong></th>
 <th><strong>MCP Apps</strong></th>
-<th><strong>AG UI</strong></th>
+<th><strong>AG-UI</strong></th>
 </tr>
 </thead>
 <tbody>
@@ -2609,9 +2609,9 @@
 </tr>
 <tr>
 <td><strong>Styling</strong></td>
-<td>Host app controls — inherits design system</td>
-<td>Isolated — remote server controls appearance</td>
-<td>Developer controls — part of the host app</td>
+<td>Host app controls: inherits design system</td>
+<td>Isolated: remote server controls appearance</td>
+<td>Developer controls: part of the host app</td>
 </tr>
 <tr>
 <td><strong>Security</strong></td>
@@ -2646,24 +2646,24 @@
 </tbody>
 </table>
 <h2 id="a2ui-vs-mcp-apps">A2UI vs MCP Apps<a class="headerlink" href="#a2ui-vs-mcp-apps" title="Permanent link">&para;</a></h2>
-<p><a href="https://blog.modelcontextprotocol.io/posts/2025-11-21-mcp-apps/">MCP Apps</a> treat UI as a <strong>resource</strong> — servers provide pre-built HTML via <code>ui://</code> URIs, rendered in sandboxed iframes. The remote integration controls all content and appearance, with configuration happening through tool calling. A2UI takes a <strong>declarative UI</strong> approach — agents send component blueprints, but the host application controls styling, theming, and how those components are configured and rendered. Choose MCP Apps when the server should own the full UI experience; choose A2UI when you want dynamic, cross-platform UI that fits naturally into your app.</p>
-<h2 id="a2ui-vs-ag-ui-copilotkit">A2UI vs AG UI / CopilotKit<a class="headerlink" href="#a2ui-vs-ag-ui-copilotkit" title="Permanent link">&para;</a></h2>
-<p><a href="https://ag-ui.com/">AG UI</a> is a <strong>transport protocol</strong> connecting agent backends to frontends with real-time state sync. A2UI is a <strong>UI format</strong> — the payload that describes what to render. They're complementary: use AG UI as the pipe, A2UI as the content. AG UI is a project by the <a href="https://copilotkit.ai">CopilotKit</a> team, who also contributed the <a href="../../composer/">A2UI Composer</a>. AG UI has day-zero A2UI compatibility.</p>
+<p><a href="https://blog.modelcontextprotocol.io/posts/2025-11-21-mcp-apps/">MCP Apps</a> treat UI as a <strong>resource</strong>: servers provide pre-built HTML via <code>ui://</code> URIs, rendered in sandboxed iframes. The remote integration controls all content and appearance, with configuration happening through tool calling. A2UI takes a <strong>declarative UI</strong> approach: agents send component blueprints, but the host application controls styling, theming, and how those components are configured and rendered. Choose MCP Apps when the server should own the full UI experience; choose A2UI when you want dynamic, cross-platform UI that fits naturally into your app.</p>
+<h2 id="a2ui-vs-ag-ui-copilotkit">A2UI vs AG-UI / CopilotKit<a class="headerlink" href="#a2ui-vs-ag-ui-copilotkit" title="Permanent link">&para;</a></h2>
+<p><a href="https://ag-ui.com/">AG-UI</a> is a <strong>transport protocol</strong> connecting agent backends to frontends with real-time state sync. A2UI is a <strong>UI format</strong>: the payload that describes what to render. They're complementary: use AG-UI as the pipe, A2UI as the content. AG-UI is a project by the <a href="https://copilotkit.ai">CopilotKit</a> team, who also contributed the <a href="../../composer/">A2UI Composer</a>. AG-UI has day-zero A2UI compatibility.</p>
 <h2 id="a2ui-vs-chatkit-openai">A2UI vs ChatKit (OpenAI)<a class="headerlink" href="#a2ui-vs-chatkit-openai" title="Permanent link">&para;</a></h2>
-<p><a href="https://platform.openai.com/docs/guides/chatkit">ChatKit</a> offers a tightly integrated experience within the OpenAI ecosystem. A2UI shares some design philosophy with ChatKit — both define a set of basic components and use a configurable, declarative abstraction layer. A2UI is <strong>platform-agnostic</strong> — designed for developers building their own agentic surfaces across web, mobile, and desktop, or for multi-agent systems where agents need to render UI across trust boundaries.</p>
+<p><a href="https://platform.openai.com/docs/guides/chatkit">ChatKit</a> offers a tightly integrated experience within the OpenAI ecosystem. A2UI shares some design philosophy with ChatKit: both define a set of basic components and use a configurable, declarative abstraction layer. A2UI is <strong>platform-agnostic</strong> and designed for developers building their own agentic surfaces across web, mobile, and desktop, or for multi-agent systems where agents need to render UI across trust boundaries.</p>
 <h2 id="using-them-together">Using Them Together<a class="headerlink" href="#using-them-together" title="Permanent link">&para;</a></h2>
 <p>These approaches are complementary, not competing:</p>
 <ul>
-<li><strong>A2UI + AG UI</strong> — AG UI as transport, A2UI as the generative UI format.</li>
-<li><strong>A2UI + A2A</strong> — A2UI messages sent via the <a href="../../concepts/transports/">A2A protocol</a> for multi-agent systems.</li>
-<li><strong>A2UI + MCP</strong> — Upcoming bridge lets MCP servers provide A2UI blueprints alongside HTML resources.</li>
+<li><strong>A2UI + AG-UI</strong>: AG-UI as transport, A2UI as the generative UI format.</li>
+<li><strong>A2UI + A2A</strong>: A2UI messages sent via the <a href="../../concepts/transports/">A2A protocol</a> for multi-agent systems.</li>
+<li><strong>A2UI + MCP</strong>: Upcoming bridge lets MCP servers provide A2UI blueprints alongside HTML resources.</li>
 </ul>
 <h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">&para;</a></h2>
 <p>For more information, see the following resources:</p>
 <ul>
-<li><a href="../what-is-a2ui/">What is A2UI?</a> — Protocol overview.</li>
-<li><a href="../../concepts/transports/">Transports</a> — How A2UI messages travel between agents and clients.</li>
-<li><a href="../../ecosystem/a2ui-in-the-world/">Where is A2UI Used?</a> — Case studies and adopters.</li>
+<li><a href="../what-is-a2ui/">What is A2UI?</a>: Protocol overview.</li>
+<li><a href="../../concepts/transports/">Transports</a>: How A2UI messages travel between agents and clients.</li>
+<li><a href="../../ecosystem/a2ui-in-the-world/">Where is A2UI Used?</a>: Case studies and adopters.</li>
 </ul>
 
 

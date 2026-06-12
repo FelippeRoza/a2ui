@@ -925,7 +925,7 @@
   <a href="#ag-ui" class="md-nav__link">
     <span class="md-ellipsis">
       
-        AG UI
+        AG-UI
       
     </span>
   </a>
@@ -2477,7 +2477,7 @@
   <a href="#ag-ui" class="md-nav__link">
     <span class="md-ellipsis">
       
-        AG UI
+        AG-UI
       
     </span>
   </a>
@@ -2583,7 +2583,7 @@
 
 
 <h1 id="transports-message-passing">Transports (Message Passing)<a class="headerlink" href="#transports-message-passing" title="Permanent link">&para;</a></h1>
-<p>Transports deliver A2UI messages from agents to clients. A2UI is transport-agnostic—use any method that can send JSON.</p>
+<p>Transports deliver A2UI messages from agents to clients. A2UI is transport-agnostic: use any method that can send JSON.</p>
 <p>The actual component rendering is done by the <a href="../../reference/renderers/">renderer</a>,
 and the <a href="../../reference/agents/">agents</a> are responsible for generating the A2UI messages.
 Getting the messages from the agent to the client is the job of the transport.</p>
@@ -2607,9 +2607,9 @@ Getting the messages from the agent to the client is the job of the transport.</
 <td>Multi-agent systems, enterprise meshes</td>
 </tr>
 <tr>
-<td><strong>AG UI</strong></td>
+<td><strong>AG-UI</strong></td>
 <td>✅ Stable</td>
-<td>Full-stack React applications</td>
+<td>Full stack React, Vue, Angular applications (CopilotKit)</td>
 </tr>
 <tr>
 <td><strong>REST API</strong></td>
@@ -2640,9 +2640,9 @@ standardized agent communication. An A2A extension provides easy integration wit
 <p>If you are using A2A, this should be nearly automatic.</p>
 <p>TODO: Add a detailed guide.</p>
 <p><strong>See:</strong> <a href="../../specification/v0.8-a2a-extension/">A2A Extension Specification</a></p>
-<h2 id="ag-ui">AG UI<a class="headerlink" href="#ag-ui" title="Permanent link">&para;</a></h2>
-<p><a href="https://ag-ui.com/">AG UI</a> translates A2UI messages to AG UI events and handles transport and state sync automatically. It is the recommended transport for React / Next.js clients.</p>
-<p><strong>See:</strong> <a href="../../guides/a2ui-with-any-agent-framework/">Use A2UI with Any Agent Framework (Using AG-UI)</a> — guide to setting up CopilotKit with your agent framework of choice and enabling A2UI rendering.</p>
+<h2 id="ag-ui">AG-UI<a class="headerlink" href="#ag-ui" title="Permanent link">&para;</a></h2>
+<p><a href="https://ag-ui.com/">AG-UI</a> translates A2UI messages to AG-UI events and handles transport and state sync automatically. It is commonly used for full stack React, Vue, and Angular applications. CopilotKit is AG-UI's creator and primary consumer.</p>
+<p><strong>See:</strong> <a href="../../guides/a2ui-with-any-agent-framework/">Use A2UI with Any Agent Framework (Using AG-UI)</a>: Set up CopilotKit with your agent framework of choice and enable A2UI rendering.</p>
 <h2 id="custom-transports">Custom Transports<a class="headerlink" href="#custom-transports" title="Permanent link">&para;</a></h2>
 <p>You can use any transport that sends JSON:</p>
 <p><strong>HTTP/REST:</strong></p>
