@@ -3421,7 +3421,7 @@
 <h2 id="renderer-metadata-capabilities">Renderer Metadata &amp; Capabilities<a class="headerlink" href="#renderer-metadata-capabilities" title="Permanent link">&para;</a></h2>
 <p>Before an agent can safely send a UI, the renderer must advertise which component catalogs it supports. This is handled via the <code>a2uiClientCapabilities</code> object.</p>
 <h3 id="advertising-capabilities">Advertising Capabilities<a class="headerlink" href="#advertising-capabilities" title="Permanent link">&para;</a></h3>
-<p>Renderers include an <code>a2uiClientCapabilities</code> object in the <strong>metadata</strong> of their messages to the agent (e.g., in the <code>metadata</code> field of an A2A envelope).</p>
+<p>Renderers include an <code>a2uiClientCapabilities</code> object in the <strong>metadata</strong> of their messages to the agent (e.g., in the <code>metadata</code> field of an A2A <code>Message</code>).</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;v0.9&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">&quot;supportedCatalogIds&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>

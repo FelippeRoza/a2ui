@@ -2771,6 +2771,7 @@
 - <strong>Client-to-Server</strong>:
     - Generate and include an <code>actionId</code> inside <code>action</code> payloads.
     - Support <code>wantResponse: true</code> on actions when the client expects a response.
+    - If using A2A, every A2A <code>Message</code> sent to the server must include an <code>a2uiClientCapabilities</code> object in the <code>metadata</code> field of the A2A <code>Message</code>.
 - <strong>Capabilities</strong>:
     - Expose <code>surfaceProperties</code> in place of <code>theme</code> during capabilities exchange.</p>
 </div>

@@ -2419,7 +2419,7 @@ A2A is uniquely capable of handling remote agent communication, and can also pro
 <li><strong>Message mapping</strong>: Each A2UI envelope (e.g., <code>updateComponents</code>) corresponds to the payload of a single A2A message Part.</li>
 <li><strong>Metadata</strong>:</li>
 <li><strong>Data model</strong>: When <code>sendDataModel</code> is active, the client's <code>a2uiClientDataModel</code> object is placed in the <code>metadata</code> field of the A2A message.</li>
-<li><strong>Capabilities</strong>: The <code>a2uiClientCapabilities</code> object is placed in the <code>metadata</code> field of every A2A message sent from the client to the server.</li>
+<li><strong>Capabilities</strong>: The <code>a2uiClientCapabilities</code> object is placed in the <code>metadata</code> field of every A2A <code>Message</code> sent from the client to the server.</li>
 <li><strong>Context</strong>: A2UI sessions typically map to A2A <code>contextId</code>. All messages for a set of related surfaces should share the same <code>contextId</code>.</li>
 </ul>
 <h4 id="ag-ui-agent-to-user-interface-binding">AG UI (Agent to User Interface) binding<a class="headerlink" href="#ag-ui-agent-to-user-interface-binding" title="Permanent link">¶</a></h4>
