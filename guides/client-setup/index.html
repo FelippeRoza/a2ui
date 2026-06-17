@@ -2852,9 +2852,9 @@
 </span></code></pre></div>
 <p><strong>See working example:</strong> <a href="https://github.com/a2ui-project/a2ui/tree/main/samples/client/angular">Angular samples</a></p>
 <h3 id="streaming">Streaming<a class="headerlink" href="#streaming" title="Permanent link">&para;</a></h3>
-<p>By default, the Angular client uses the non-streaming API. To enable streaming, set the <code>ENABLE_STREAMING</code> environment variable to <code>true</code> before starting the app:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ENABLE_STREAMING</span><span class="o">=</span><span class="nb">true</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>yarn<span class="w"> </span>start<span class="w"> </span>--<span class="w"> </span>restaurant
+<p>By default, the Angular client uses the streaming API. To disable streaming, set the <code>ENABLE_STREAMING</code> environment variable to <code>false</code> before starting the app:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ENABLE_STREAMING</span><span class="o">=</span><span class="nb">false</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>yarn<span class="w"> </span>start<span class="w"> </span>restaurant
 </span></code></pre></div>
 <div class="admonition note">
 <p><strong>Package Manager Usage:</strong> The <code>yarn start</code> command above is specific to running the sample application within the A2UI monorepo repository. For your own regular usage and standalone projects outside this repository, use the package manager of your choice (e.g. npm, pnpm).</p>
