@@ -1579,7 +1579,7 @@
 <h3 id="the-architecture">The Architecture<a class="headerlink" href="#the-architecture" title="Permanent link">¶</a></h3>
 <ol>
 <li><strong><a href="https://github.com/a2ui-project/a2ui/blob/main/samples/client/shared/mcp_apps_inner_iframe/sandbox.html">Sandbox Proxy (<code>sandbox.html</code>)</a></strong>: An intermediate <code>iframe</code> served from the same origin. It isolates raw DOM injection from the main app while maintaining a structured JSON-RPC channel.<ul>
-<li>Permissions: <strong>Do not sandbox</strong> in the host template (e.g., <a href="https://github.com/a2ui-project/a2ui/blob/main/samples/client/angular/projects/mcp_calculator/src/a2ui-catalog/mcp-app.ts"><code>mcp-app.ts</code></a> or <a href="https://github.com/a2ui-project/a2ui/blob/main/samples/client/lit/custom-components-example/ui/custom-components/mcp-apps-component.ts"><code>mcp-apps-component.ts</code></a>).</li>
+<li>Permissions: <strong>Do not sandbox</strong> in the host template (e.g., <a href="https://github.com/a2ui-project/a2ui/blob/main/samples/community/client/lit/mcp-apps-in-a2ui-sample/mcp-app.ts"><code>mcp-app.ts</code></a> or <a href="https://github.com/a2ui-project/a2ui/blob/main/samples/community/client/lit/mcp-apps-in-a2ui-sample/ui/custom-components/mcp-apps-component.ts"><code>mcp-apps-component.ts</code></a>).</li>
 <li>Host origin validation: Validates that messages come from the expected host origin.</li>
 </ul>
 </li>
