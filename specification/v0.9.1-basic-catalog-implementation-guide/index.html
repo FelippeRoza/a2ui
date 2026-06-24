@@ -2624,6 +2624,13 @@ Because <code>formatString</code> contains dynamic expressions embedded <em>with
 <h3 id="openurl"><code>openUrl</code><a class="headerlink" href="#openurl" title="Permanent link">&para;</a></h3>
 <p><strong>Description:</strong> Opens a URL.</p>
 <p><strong>Logic:</strong> Open <code>args.url</code> using the native platform's URL handler (e.g., opening in the system browser or deep-linking to an app). This function returns <code>void</code> and is executed as a side-effect.</p>
+<p><strong>Security Constraints &amp; Implementation Requirements (Mandatory):</strong>
+To prevent DOM-Based Cross-Site Scripting (XSS) via <code>javascript:</code>, <code>data:</code>, or other non-HTTP schemes:</p>
+<ol>
+<li><strong>Resolve Relative URLs:</strong> Before validation, resolve relative paths against the current environment context (e.g., <code>window.location.href</code> in browsers) using standard URL parsing.</li>
+<li><strong>Enforce Scheme Allowlist:</strong> Strictly validate that the resolved URL protocol/scheme is either <code>https:</code> or <code>http:</code>. Throw an execution or runtime error (such as <code>A2uiExpressionError</code>) and abort the action if any other scheme is used.</li>
+<li><strong>Tab-Nabbing Protection:</strong> When opening URLs in a new browser window/tab, always supply security attributes: <code>noopener,noreferrer</code> (e.g. <code>window.open(url, '_blank', 'noopener,noreferrer')</code>).</li>
+</ol>
 <h3 id="and"><code>and</code><a class="headerlink" href="#and" title="Permanent link">&para;</a></h3>
 <p><strong>Description:</strong> Logical AND operator.</p>
 <p><strong>Logic:</strong> Iterate through the boolean array <code>args.values</code>. Return <code>true</code> only if all values are true. Short-circuit evaluation is encouraged.</p>

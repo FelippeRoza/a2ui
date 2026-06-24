@@ -2467,14 +2467,14 @@
 <li>Supported standard JSON Schema metadata fields (<code>$schema</code>, <code>$id</code>, <code>title</code>, and <code>description</code>) in the Catalog object definition. Since the Catalog schema restricts properties with <code>additionalProperties: false</code>, this ensures inline catalogs containing standard schema metadata do not fail schema validation.</li>
 <li>Enforced Unicode Standard Annex #31 (UAX #31) identifier naming constraints (<code>XID_Start</code>, <code>XID_Continue</code>) across component names, function names, and argument keys.</li>
 </ul>
-<h3 id="22-standard-catalogs-basic-and-minimal">2.2. Standard catalogs (basic and minimal)<a class="headerlink" href="#22-standard-catalogs-basic-and-minimal" title="Permanent link">&para;</a></h3>
+<h3 id="22-standard-catalogs-basic">2.2. Standard catalogs (basic)<a class="headerlink" href="#22-standard-catalogs-basic" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added <code>posterUrl</code> property to the <code>Video</code> component in <code>catalogs/basic/catalog.json</code>, allowing a preview image to be displayed before the video plays.</li>
 <li>Added <code>placeholder</code> prop to the <code>TextField</code> component schema.</li>
 <li>Added a <code>steps</code> property to the <code>Slider</code> component schema to snap values to discrete intervals.</li>
 <li>Added an optional <code>instructions</code> field to the <code>Catalog</code> schema (<code>catalogs/basic/catalog.json</code>) to embed Markdown guidelines/rules directly, replacing the external <code>rules.txt</code> file.</li>
 <li>Renamed <code>svgPath</code> to <code>path</code> in the custom SVG icon definition object schema.</li>
-<li>Renamed <code>$defs/theme</code> to <code>$defs/surfaceProperties</code> in both the basic and minimal catalogs.</li>
+<li>Renamed <code>$defs/theme</code> to <code>$defs/surfaceProperties</code> in the basic catalog.</li>
 </ul>
 <h3 id="23-server-to-client-messages">2.3. Server-to-client messages<a class="headerlink" href="#23-server-to-client-messages" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2490,11 +2490,11 @@
 <li>Updated client <code>error</code> messages to support <code>functionCallId</code> when reporting function execution failures, enforcing mutual exclusivity with <code>surfaceId</code>.</li>
 <li>Updated all protocol version references from <code>v0.9</code> or <code>v0.9.1</code> to <code>v1.0</code>.</li>
 </ul>
-<h3 id="25-client-capabilities-schema">2.5. Client capabilities schema<a class="headerlink" href="#25-client-capabilities-schema" title="Permanent link">&para;</a></h3>
+<h3 id="25-catalog-definition-schema">2.5. Catalog definition schema<a class="headerlink" href="#25-catalog-definition-schema" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added an optional <code>instructions</code> field to the <code>Catalog</code> object definition (<code>client_capabilities.json</code>) as a plain Markdown string to embed design guidelines directly.</li>
-<li>Renamed <code>theme</code> capability block to <code>surfaceProperties</code> within the Catalog definition in <code>client_capabilities.json</code>.</li>
-<li>Added static <code>callableFrom</code> and <code>returnType</code> metadata properties to <code>FunctionDefinition</code> inside <code>client_capabilities.json</code> to advertise execution boundaries and return types to the server.</li>
+<li>Added an optional <code>instructions</code> field to the <code>Catalog</code> object definition (<code>catalog_definition.json</code>) as a plain Markdown string to embed design guidelines directly.</li>
+<li>Renamed <code>theme</code> capability block to <code>surfaceProperties</code> within the Catalog definition in <code>catalog_definition.json</code>.</li>
+<li>Added static <code>callableFrom</code> and <code>returnType</code> metadata properties to <code>FunctionDefinition</code> inside <code>catalog_definition.json</code> to advertise execution boundaries and return types to the server.</li>
 </ul>
 <h3 id="26-agent-card-and-transport-metadata">2.6. Agent card and transport metadata<a class="headerlink" href="#26-agent-card-and-transport-metadata" title="Permanent link">&para;</a></h3>
 <ul>
