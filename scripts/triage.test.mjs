@@ -155,39 +155,13 @@ describe('flagReason — issues', () => {
 });
 
 describe('flagReason — PRs', () => {
-  // An external author's comment 2 days ago, with no maintainer reply since.
-  const externalComment = age =>
-    comment({
-      created_at: daysAgo(age),
-      author_association: 'CONTRIBUTOR',
-      user: {login: 'contributor', type: 'User'},
-    });
-  const memberComment = age =>
-    comment({
-      created_at: daysAgo(age),
-      author_association: 'MEMBER',
-      user: {login: 'maintainer', type: 'User'},
-    });
-
-  it('flags a stale external PR with no maintainer response', () => {
-    const item = pr({created_at: daysAgo(5), comments: 1});
-    assert.match(flagReason(item, [externalComment(2)], NOW), /no maintainer/);
-  });
-
-  it('flags a fresh external PR that has never been answered', () => {
-    // No comments: the opening post itself is the unanswered external word.
+  it('flags a stale PR from an external contributor', () => {
     const item = pr({created_at: daysAgo(2)});
-    assert.match(flagReason(item, [], NOW), /no maintainer/);
+    assert.match(flagReason(item, [], NOW), /no human activity/);
   });
 
-  it('does not flag a fresh external PR (< 1 day old)', () => {
+  it('does not flag a fresh external PR', () => {
     assert.equal(flagReason(pr({created_at: daysAgo(0)}), [], NOW), null);
-  });
-
-  it('does not flag when a maintainer commented after the author', () => {
-    const item = pr({created_at: daysAgo(5), comments: 2});
-    const comments = [externalComment(3), memberComment(2)];
-    assert.equal(flagReason(item, comments, NOW), null);
   });
 
   it('never flags a maintainer-authored PR, even when stale', () => {
@@ -246,7 +220,7 @@ describe('issueTriage reconciliation', () => {
   let calls;
 
   const makeGithub = openItems => {
-    calls = {addLabels: [], removeLabel: [], listComments: [], get: []};
+    calls = {addLabels: [], removeLabel: [], createComment: [], listComments: [], get: []};
     const rest = {
       issues: {
         listForRepo: 'listForRepo',
@@ -264,6 +238,9 @@ describe('issueTriage reconciliation', () => {
         }),
         addLabels: mock.fn(async params => calls.addLabels.push(params.issue_number)),
         removeLabel: mock.fn(async params => calls.removeLabel.push(params.issue_number)),
+        createComment: mock.fn(async params =>
+          calls.createComment.push({number: params.issue_number, body: params.body}),
+        ),
       },
     };
     return {
@@ -282,15 +259,18 @@ describe('issueTriage reconciliation', () => {
     mock.restoreAll();
   });
 
-  it('adds the label when a rule matches', async () => {
+  it('adds the label with an explanatory comment when a rule matches', async () => {
     github = makeGithub([issue({number: 7})]);
     await issueTriage({github, context});
 
     assert.deepEqual(calls.addLabels, [7]);
     assert.equal(calls.removeLabel.length, 0);
+    assert.equal(calls.createComment.length, 1);
+    assert.equal(calls.createComment[0].number, 7);
+    assert.match(calls.createComment[0].body, /Adding the `triage: flag` label/);
   });
 
-  it('removes the label when an item no longer matches any rule', async () => {
+  it('removes a stale label with an explanatory comment', async () => {
     const item = issue({
       number: 8,
       labels: ['P3', 'triage: flag'],
@@ -301,6 +281,7 @@ describe('issueTriage reconciliation', () => {
 
     assert.deepEqual(calls.removeLabel, [8]);
     assert.equal(calls.addLabels.length, 0);
+    assert.match(calls.createComment[0].body, /Removing the `triage: flag` label/);
   });
 
   it('is a no-op when the desired and actual state already agree', async () => {
@@ -312,6 +293,7 @@ describe('issueTriage reconciliation', () => {
     assert.equal(calls.get.length, 0); // no live re-read when state already agrees
     assert.equal(calls.addLabels.length, 0);
     assert.equal(calls.removeLabel.length, 0);
+    assert.equal(calls.createComment.length, 0);
   });
 
   it('does not add the label twice when a concurrent run already added it', async () => {
@@ -323,6 +305,7 @@ describe('issueTriage reconciliation', () => {
 
     assert.deepEqual(calls.get, [14]); // we re-checked before mutating
     assert.equal(calls.addLabels.length, 0); // ...and backed off
+    assert.equal(calls.createComment.length, 0);
   });
 
   it('skips the comments API call for items with zero comments', async () => {
