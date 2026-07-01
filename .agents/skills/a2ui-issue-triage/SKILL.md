@@ -17,12 +17,18 @@ This skill guides the process of fetching, analyzing, reviewing, and applying tr
 
 Follow these steps to triage new or backlog issues:
 
-### Step 1: Fetch Untriaged Issues
+### Step 1: Fetch Flagged or Untriaged Issues
 
-Use the fetch script to retrieve all open issues lacking a priority label (`P0`, `P1`, `P2`, `P3`, `P4`) in the A2UI repository.
+By default, the fetch script retrieves all open issues with the `triage: flag` label from the `a2ui-project/a2ui` repository (including those that might already have priority labels).
 
-1. Run the fetch script to download the issues to a raw JSON file in your conversation-specific scratch directory:
-   `python3 .agents/skills/a2ui-issue-triage/scripts/fetch_issues.py --repo "gspencergoog/a2ui" --output-file "<appDataDir>/brain/<conversation-id>/scratch/raw_issues.json"`
+1. Run the fetch script to download the flagged issues to a raw JSON file in your conversation-specific scratch directory:
+   `python3 .agents/skills/a2ui-issue-triage/scripts/fetch_issues.py --output-file "<appDataDir>/brain/<conversation-id>/scratch/raw_issues.json"`
+
+2. Options:
+   - To fetch all open issues lacking a priority label (traditional untriaged backlog), use:
+     `python3 .agents/skills/a2ui-issue-triage/scripts/fetch_issues.py --label "" --only-untriaged --output-file "<appDataDir>/brain/<conversation-id>/scratch/raw_issues.json"`
+   - To fetch from a different repository, use `--repo "owner/repo"`.
+   - To filter by other criteria, use `--state`, `--assignee`, or `--author`.
 
 ---
 

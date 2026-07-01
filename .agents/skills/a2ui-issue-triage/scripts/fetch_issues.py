@@ -31,9 +31,14 @@ def run_cmd(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch open, untriaged issues and their comments.")
-    parser.add_argument("--repo", required=True, help="GitHub repository name (owner/repo).")
+    parser.add_argument("--repo", default="a2ui-project/a2ui", help="GitHub repository name (owner/repo).")
     parser.add_argument("--output-file", required=True, help="Path to save the fetched issues JSON.")
     parser.add_argument("--limit", type=int, default=10, help="Maximum number of issues to fetch.")
+    parser.add_argument("--label", default="triage: flag", help="Filter issues by label (default: 'triage: flag'). Use empty string to disable label filter.")
+    parser.add_argument("--only-untriaged", action="store_true", help="Exclude issues that already have priority labels.")
+    parser.add_argument("--state", default="open", choices=["open", "closed", "all"], help="Filter by state (default: 'open').")
+    parser.add_argument("--assignee", help="Filter by assignee login.")
+    parser.add_argument("--author", help="Filter by author login.")
     args = parser.parse_args()
 
     # 1. Check if gh CLI is installed and authenticated
@@ -111,13 +116,20 @@ def main():
 
     print(f"Fetching open issues from {args.repo}...")
     # 2. Fetch open issues with key fields
-    issues_json = run_cmd([
+    cmd = [
         "gh", "issue", "list",
         "--repo", args.repo,
-        "--state", "open",
+        "--state", args.state,
         "--limit", "100",
         "--json", "number,title,author,body,createdAt,updatedAt,labels,assignees"
-    ])
+    ]
+    if args.label:
+        cmd.extend(["--label", args.label])
+    if args.assignee:
+        cmd.extend(["--assignee", args.assignee])
+    if args.author:
+        cmd.extend(["--author", args.author])
+    issues_json = run_cmd(cmd)
 
     if not issues_json:
         print("Failed to fetch issues or repository is empty.", file=sys.stderr)
@@ -128,6 +140,10 @@ def main():
     untriaged_issues = []
 
     for issue in issues:
+        if not args.only_untriaged:
+            untriaged_issues.append(issue)
+            continue
+
         # Check if the issue has a priority label
         has_priority = False
         labels = issue.get("labels", [])

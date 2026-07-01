@@ -55,6 +55,11 @@ class TestFetchIssues(unittest.TestCase):
         mock_args.repo = "a2ui-project/a2ui"
         mock_args.output_file = "/mock/raw_issues.json"
         mock_args.limit = 2
+        mock_args.label = "triage: flag"
+        mock_args.only_untriaged = True
+        mock_args.state = "open"
+        mock_args.assignee = None
+        mock_args.author = None
         mock_parse_args.return_value = mock_args
 
         # Set up precise mock command outputs based on command arguments
@@ -143,6 +148,11 @@ class TestFetchIssues(unittest.TestCase):
         mock_args = MagicMock()
         mock_args.repo = "a2ui-project/a2ui"
         mock_args.output_file = "/mock/raw_issues.json"
+        mock_args.label = "triage: flag"
+        mock_args.only_untriaged = True
+        mock_args.state = "open"
+        mock_args.assignee = None
+        mock_args.author = None
         mock_parse_args.return_value = mock_args
 
         # Should exit with error code 1
@@ -161,6 +171,11 @@ class TestFetchIssues(unittest.TestCase):
         mock_args.repo = "a2ui-project/a2ui"
         mock_args.output_file = "/mock/raw_issues.json"
         mock_args.limit = 2
+        mock_args.label = "triage: flag"
+        mock_args.only_untriaged = True
+        mock_args.state = "open"
+        mock_args.assignee = None
+        mock_args.author = None
         mock_parse_args.return_value = mock_args
 
         # Mock issue list to return empty string ""
