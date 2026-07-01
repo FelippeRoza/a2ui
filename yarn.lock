@@ -228,8 +228,6 @@ __metadata:
     prettier: "npm:^3.8.4"
     typescript: "npm:5.9.3"
     wireit: "npm:^0.15.0-pre.2"
-  peerDependencies:
-    "@a2ui/web_core": "workspace:*"
   languageName: unknown
   linkType: soft
 

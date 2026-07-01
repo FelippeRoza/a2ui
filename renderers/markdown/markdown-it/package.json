@@ -1,6 +1,6 @@
 {
   "name": "@a2ui/markdown-it",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A Markdown renderer using markdown-it and dompurify.",
   "repository": {
     "directory": "renderers/markdown/markdown-it",
@@ -59,9 +59,6 @@
     "prettier": "^3.8.4",
     "typescript": "5.9.3",
     "wireit": "^0.15.0-pre.2"
-  },
-  "peerDependencies": {
-    "@a2ui/web_core": "workspace:*"
   },
   "wireit": {
     "build": {
