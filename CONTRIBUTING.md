@@ -29,7 +29,7 @@ This project follows
 
 File new issues here: https://github.com/a2ui-project/a2ui/issues
 
-Issue triage process is described in internal document: go/a2ui-triage.
+The issue triage process is described in the Google-internal document: go/a2ui-triage.
 
 TODO(polina-c): port process description here.
 
