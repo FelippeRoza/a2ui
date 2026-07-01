@@ -25,6 +25,12 @@ This project follows
 
 ## Contribution process
 
+### Issues
+
+File new issues here: https://github.com/a2ui-project/a2ui/issues
+
+Issue triage process is described in internal document: go/a2ui-triage.
+
 ### Code reviews
 
 All submissions, including submissions by project members, require review. We
