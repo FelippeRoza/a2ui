@@ -2572,7 +2572,7 @@
 <li><strong>Purpose</strong>: <code>createSurface</code> signals the client to create a new surface and prepare for rendering.</li>
 <li><strong>Theme Information</strong>: <code>createSurface</code> includes a <code>theme</code> property to specify theme parameters (like <code>primaryColor</code>). This replaces the <code>styles</code> property in v0.8.</li>
 <li><strong>Root Rule</strong>: The rule is: "There must be exactly one component with the <code>ComponentId</code> 'root'." The "root" attribute that <code>beginRendering</code> had has been removed. The client is expected to render as soon as it has a valid tree with a root component.</li>
-<li><strong>New Requirement</strong>: <code>createSurface</code> now requires a <strong><code>catalogId</code></strong> (URI) to explicitly state which unified catalog (components and functions) is being used.</li>
+<li><strong>New Requirement</strong>: <code>createSurface</code> now requires a <strong><code>catalogId</code></strong> (string identifier) to explicitly state which unified catalog (components and functions) is being used.</li>
 </ul>
 <p><strong>Example:</strong></p>
 <p><strong>v0.8.1 (<code>beginRendering</code>)</strong>:</p>

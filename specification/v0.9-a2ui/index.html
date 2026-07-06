@@ -1060,6 +1060,19 @@
       
     </span>
 </a>
+<nav aria-label="The component catalog" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#catalog-identification-compatibility">
+<span class="md-ellipsis">
+      
+        Catalog Identification &amp; Compatibility
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#ui-composition-the-adjacency-list-model">
@@ -1863,6 +1876,19 @@
       
     </span>
 </a>
+<nav aria-label="The component catalog" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#catalog-identification-compatibility">
+<span class="md-ellipsis">
+      
+        Catalog Identification &amp; Compatibility
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#ui-composition-the-adjacency-list-model">
@@ -2488,7 +2514,7 @@ AG UI provides convenient integrations into many agent frameworks and frontends.
 <p><strong>Properties:</strong></p>
 <ul>
 <li><code>surfaceId</code> (string, required): The unique identifier for the UI surface to be rendered. This must be globally unique for the renderer's lifetime.</li>
-<li><code>catalogId</code> (string, required): A string that uniquely identifies the catalog (components and functions) used for this surface. It is recommended to prefix this with an internet domain that you own, to avoid conflicts (e.g., <code>https://mycompany.com/1.0/somecatalog</code>). If it is a URL, the URL does not need to have any deployed resources, it is simply a unique identifier.</li>
+<li><code>catalogId</code> (string, required): A string that uniquely identifies the catalog (components and functions) used for this surface. Note that <code>catalogId</code> is a string identifier, not a resolvable URI; while it is conventionally formatted as a URI (e.g., <code>https://mycompany.com/1.0/somecatalog</code>) to avoid naming collisions across organizations, it does not need to point to any deployed resource or downloadable file. Client and server developers must agree on shared catalogs with well-known IDs in order to build systems that are compatible with each other.</li>
 <li><code>theme</code> (object, optional): A JSON object containing theme parameters (e.g., <code>primaryColor</code>) defined in the catalog's theme schema.</li>
 <li><code>sendDataModel</code> (boolean, optional): If true, the client will send the full data model of this surface in the metadata of every message sent to the server (via the Transport's metadata mechanism). This ensures the surface owner receives the full current state of the UI alongside the user's action or query. Defaults to false.</li>
 </ul>
@@ -2588,6 +2614,9 @@ AG UI provides convenient integrations into many agent frameworks and frontends.
 <p>This structure is designed to be both flexible and strictly validated.</p>
 <h3 id="the-component-catalog">The component catalog<a class="headerlink" href="#the-component-catalog" title="Permanent link">¶</a></h3>
 <p>The set of available UI components and functions is defined in a <strong>Catalog</strong>. The basic catalog is defined in [<code>catalogs/basic/catalog.json</code>]. While the Basic Catalog is useful for starting out, most production applications will define their own catalog to reflect their specific design system. The server must generate messages that conform to the catalog understood by the client.</p>
+<h4 id="catalog-identification-compatibility">Catalog Identification &amp; Compatibility<a class="headerlink" href="#catalog-identification-compatibility" title="Permanent link">¶</a></h4>
+<p>Each catalog is identified by a <code>catalogId</code> string. The <code>catalogId</code> is a string identifier used for matching catalogs between the client and server. While it is conventional to format catalog IDs as URIs (e.g., <code>https://mycompany.com/catalogs/v1</code>) to prevent naming collisions across organizations, a <code>catalogId</code> is not required to be a resolvable network resource.</p>
+<p>It is up to client and server developers to agree on shared catalogs with well-known IDs in order to build systems that are compatible with each other.</p>
 <h3 id="ui-composition-the-adjacency-list-model">UI composition: the adjacency list model<a class="headerlink" href="#ui-composition-the-adjacency-list-model" title="Permanent link">¶</a></h3>
 <p>The A2UI protocol defines the UI as a flat list of components. The tree structure is built implicitly using ID references. This is known as an adjacency list model.</p>
 <p>Container components (like <code>Row</code>, <code>Column</code>, <code>List</code>, and <code>Card</code>) have properties that reference the <code>id</code> of their child component(s). The client is responsible for storing all components in a map (e.g., <code>Map&lt;String, Component&gt;</code>) and recreating the tree structure at render time.</p>
@@ -3155,7 +3184,7 @@ A2UI extends JSON Pointer to support <strong>Relative Paths</strong> that do not
 <p>The <code>a2uiClientCapabilities</code> object in the metadata follows the [<code>client_capabilities.json</code>] schema.</p>
 <p><strong>Properties:</strong></p>
 <ul>
-<li><code>supportedCatalogIds</code> (array of strings, required): URIs of supported catalogs.</li>
+<li><code>supportedCatalogIds</code> (array of strings, required): String identifiers of supported catalogs.</li>
 <li><code>inlineCatalogs</code>: An array of inline catalog definitions provided directly by the client (useful for custom or ad-hoc components and functions).</li>
 </ul>
 <h4 id="client-data-model">Client data model<a class="headerlink" href="#client-data-model" title="Permanent link">¶</a></h4>

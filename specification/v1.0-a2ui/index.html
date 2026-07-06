@@ -2765,7 +2765,7 @@
 <p><strong>Properties:</strong></p>
 <ul>
 <li><code>surfaceId</code> (string, required): The unique identifier for the UI surface to be rendered. This must be globally unique for the renderer's lifetime.</li>
-<li><code>catalogId</code> (string, required): A string that uniquely identifies the catalog (components and functions) used for this surface. It is recommended to prefix this with an internet domain that you own, to avoid conflicts (e.g., <code>https://mycompany.com/1.0/somecatalog</code>). If it is a URL, the URL does not need to have any deployed resources, it is simply a unique identifier.</li>
+<li><code>catalogId</code> (string, required): A string that uniquely identifies the catalog (components and functions) used for this surface. Note that <code>catalogId</code> is a string identifier, not a resolvable URI; while it is conventionally formatted as a URI (e.g., <code>https://mycompany.com/1.0/somecatalog</code>) to avoid naming collisions across organizations, it does not need to point to any deployed resource or downloadable file. Client and server developers must agree on shared catalogs with well-known IDs in order to build systems that are compatible with each other.</li>
 <li><code>surfaceProperties</code> (object, optional): A JSON object containing surface properties (e.g., <code>agentDisplayName</code>) defined in the catalog's surfaceProperties schema.</li>
 <li><code>sendDataModel</code> (boolean, optional): If true, the client will send the full data model of this surface in the metadata of every message sent to the server (via the Transport's metadata mechanism). This ensures the surface owner receives the full current state of the UI alongside the user's action or query. Defaults to false.</li>
 <li><code>components</code> (array, optional): A list containing UI components for the surface, allowing the client to build and populate the UI tree immediately on surface creation. Conforms to the <code>ComponentsList</code> schema.</li>
@@ -2974,7 +2974,7 @@
 <h4 id="catalog-structure">Catalog structure<a class="headerlink" href="#catalog-structure" title="Permanent link">¶</a></h4>
 <p>Every catalog follows the standard <code>Catalog</code> object definition:</p>
 <ul>
-<li><strong>catalogId</strong> (string, required): A unique identifier URI for this catalog.</li>
+<li><strong>catalogId</strong> (string, required): A unique string identifier for this catalog. While conventionally formatted as a URI to avoid naming collisions across organizations, it is an arbitrary string ID and not a resolvable URI. Client and server developers must agree on shared catalogs with well-known IDs in order to build systems that are compatible with each other.</li>
 <li><strong>instructions</strong> (string, optional): Markdown-formatted design principles, rules, or developer guidelines specific to this catalog. These rules guide LLMs when generating UI layouts under this catalog.</li>
 <li><strong>components</strong> (object, optional): A map of supported UI components, where each key is the component type (e.g., <code>Text</code>) and its value is its JSON Schema definition. All keys MUST conform to the UAX #31 entity naming rules defined below.</li>
 <li><strong>functions</strong> (object, optional): A map of client-side validation or utility functions supported by the catalog, where each key is the function name and its value is its definition. All function names MUST conform to the UAX #31 entity naming rules defined below. The client determines a function's execution boundary (e.g., clientOnly status) at runtime by reading its configuration from the active catalog definition.</li>
@@ -3835,7 +3835,7 @@
 <p><strong>Properties:</strong></p>
 <ul>
 <li><code>v1.0</code> (object, required): The capability structure for version 1.0 of the A2UI protocol.</li>
-<li><code>supportedCatalogIds</code> (array of strings, required): The URIs of supported component and function catalogs.</li>
+<li><code>supportedCatalogIds</code> (array of strings, required): The string identifiers of supported component and function catalogs.</li>
 <li><code>inlineCatalogs</code> (array, optional): An array of custom catalog definitions provided inline by the client. Functions defined within inline catalogs support declaring execution boundaries (<code>callableFrom: "clientOnly" | "remoteOnly" | "clientOrRemote"</code>) to statically specify remote invocation safety.</li>
 </ul>
 <h3 id="client-data-model">Client data model<a class="headerlink" href="#client-data-model" title="Permanent link">¶</a></h3>
