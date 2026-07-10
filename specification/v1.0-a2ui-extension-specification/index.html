@@ -2426,7 +2426,7 @@
     
       
     
-    <a href="https://github.com/a2ui-project/a2ui/raw/main/docs/specification/v1.0-a2ui-extension-specification.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/a2ui-project/a2ui/raw/main/docs/public/specification/v1.0-a2ui-extension-specification.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
@@ -2459,18 +2459,18 @@
 <li><strong>Surfaces</strong>: A "Surface" is a distinct, controllable region of the client's UI. The spec uses a <code>surfaceId</code> to direct updates to specific surfaces (e.g., a main content area, a side panel, or a new chat bubble). This allows a single agent stream to manage multiple UI areas independently.</li>
 <li><strong>Catalog Definition Document</strong>: The A2UI extension is catalog-agnostic. All UI components (e.g., Text, Row, Button) and functions (e.g., required, email) are defined in a separate Catalog Definition Schema. This allows clients and servers to negotiate which catalog to use.</li>
 <li><strong>Schemas</strong>: The A2UI extension is defined by several primary JSON schemas:</li>
-<li><strong>Catalog Definition Schema</strong>: A standard format for defining a library of components and functions (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/catalog_definition.json">catalog_definition.json</a>).</li>
-<li><strong>Server-to-Client Message List Schema</strong>: The core wire format for messages sent from the agent to the client (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/server_to_client_list.json">server_to_client_list.json</a>).</li>
-<li><strong>Client-to-Server Message List Schema</strong>: The core wire format for messages sent from the client to the agent (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/client_to_server_list.json">client_to_server_list.json</a>).</li>
-<li><strong>Server Capabilities Schema</strong>: The schema for the <code>a2uiServerCapabilities</code> object, used by servers to declare their UI generation capabilities (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/server_capabilities.json">server_capabilities.json</a>).</li>
-<li><strong>Client Capabilities Schema</strong>: The schema for the <code>a2uiClientCapabilities</code> object (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/client_capabilities.json">client_capabilities.json</a>).</li>
-<li><strong>Client Data Model Schema</strong>: The schema for the <code>a2uiClientDataModel</code> object, used for two-way synchronization (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/client_data_model.json">client_data_model.json</a>).</li>
+<li><strong>Catalog Definition Schema</strong>: A standard format for defining a library of components and functions (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/catalog_definition.json">catalog_definition.json</a>).</li>
+<li><strong>Server-to-Client Message List Schema</strong>: The core wire format for messages sent from the agent to the client (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/server_to_client_list.json">server_to_client_list.json</a>).</li>
+<li><strong>Client-to-Server Message List Schema</strong>: The core wire format for messages sent from the client to the agent (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_to_server_list.json">client_to_server_list.json</a>).</li>
+<li><strong>Server Capabilities Schema</strong>: The schema for the <code>a2uiServerCapabilities</code> object, used by servers to declare their UI generation capabilities (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/server_capabilities.json">server_capabilities.json</a>).</li>
+<li><strong>Client Capabilities Schema</strong>: The schema for the <code>a2uiClientCapabilities</code> object (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_capabilities.json">client_capabilities.json</a>).</li>
+<li><strong>Client Data Model Schema</strong>: The schema for the <code>a2uiClientDataModel</code> object, used for two-way synchronization (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_data_model.json">client_data_model.json</a>).</li>
 </ul>
 <hr />
 <h2 id="metadata-and-capabilities-exchange">Metadata and capabilities exchange<a class="headerlink" href="#metadata-and-capabilities-exchange" title="Permanent link">&para;</a></h2>
 <p>In A2UI v1.0, capabilities and other session metadata are exchanged via <strong>transport metadata</strong> or initialization payloads rather than as first-class A2UI messages.</p>
 <h3 id="server-capabilities-in-agent-cards">Server capabilities in Agent Cards<a class="headerlink" href="#server-capabilities-in-agent-cards" title="Permanent link">&para;</a></h3>
-<p>Agents advertise their A2UI capabilities in their AgentCard within the <code>AgentCapabilities.extensions</code> list. The <code>params</code> object defines the agent's specific UI support and corresponds directly to the <strong>Server Capabilities Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/server_capabilities.json">server_capabilities.json</a>).</p>
+<p>Agents advertise their A2UI capabilities in their AgentCard within the <code>AgentCapabilities.extensions</code> list. The <code>params</code> object defines the agent's specific UI support and corresponds directly to the <strong>Server Capabilities Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/server_capabilities.json">server_capabilities.json</a>).</p>
 <h4 id="example-agentextension-block">Example AgentExtension block<a class="headerlink" href="#example-agentextension-block" title="Permanent link">&para;</a></h4>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://a2ui.org/a2a-extension/a2ui/v1.0&quot;</span><span class="p">,</span>
@@ -2492,7 +2492,7 @@
 <li><code>params.acceptsInlineCatalogs</code> (boolean, optional): A boolean indicating if the agent can accept an <code>inlineCatalogs</code> array in the client's <code>a2uiClientCapabilities</code>. If omitted, this defaults to <code>false</code>.</li>
 </ul>
 <h3 id="client-capabilities-in-message-metadata">Client capabilities in message metadata<a class="headerlink" href="#client-capabilities-in-message-metadata" title="Permanent link">&para;</a></h3>
-<p>The client sends its capabilities to the server in an <code>a2uiClientCapabilities</code> object. This object is included in the <code>metadata</code> field of every A2A <code>Message</code> sent from the client to the server, following the <strong>Client Capabilities Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/client_capabilities.json">client_capabilities.json</a>).</p>
+<p>The client sends its capabilities to the server in an <code>a2uiClientCapabilities</code> object. This object is included in the <code>metadata</code> field of every A2A <code>Message</code> sent from the client to the server, following the <strong>Client Capabilities Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_capabilities.json">client_capabilities.json</a>).</p>
 <h4 id="parameter-definitions_1">Parameter definitions<a class="headerlink" href="#parameter-definitions_1" title="Permanent link">&para;</a></h4>
 <p>The <code>a2uiClientCapabilities</code> object contains a <code>v1.0</code> object with the following properties:</p>
 <ul>
@@ -2502,7 +2502,7 @@
 <hr />
 <h2 id="client-to-server-data-model-synchronization">Client-to-server data model synchronization<a class="headerlink" href="#client-to-server-data-model-synchronization" title="Permanent link">&para;</a></h2>
 <p>When <code>sendDataModel</code> is enabled for a surface (via the <code>createSurface</code> message), the client automatically appends the <strong>entire data model</strong> of that surface to the metadata of every message (such as an <code>action</code> or user query) sent to the server that created the surface.</p>
-<p>In A2A transport, the data model is serialized to the <code>a2uiClientDataModel</code> format and placed in the <code>metadata</code> field of the A2A <code>Message</code> envelope, following the <strong>Client Data Model Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/client_data_model.json">client_data_model.json</a>).</p>
+<p>In A2A transport, the data model is serialized to the <code>a2uiClientDataModel</code> format and placed in the <code>metadata</code> field of the A2A <code>Message</code> envelope, following the <strong>Client Data Model Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_data_model.json">client_data_model.json</a>).</p>
 <h3 id="parameter-definitions_2">Parameter definitions<a class="headerlink" href="#parameter-definitions_2" title="Permanent link">&para;</a></h3>
 <p>The <code>a2uiClientDataModel</code> object contains:</p>
 <ul>
@@ -2535,7 +2535,7 @@
 <p>If a single message in the list fails to validate or apply (e.g., due to a schema violation or invalid reference), the receiver SHOULD report/log the error for that specific message and MUST continue processing the remaining messages in the list.</p>
 <p>Atomicity is guaranteed only at the <strong>individual message</strong> level. However, for a better user experience, a renderer SHOULD NOT repaint the UI until all messages in the list have been processed. This prevents intermediate states from flickering to the user.</p>
 <h3 id="server-to-client-messages">Server-to-client messages<a class="headerlink" href="#server-to-client-messages" title="Permanent link">&para;</a></h3>
-<p>When an agent sends a message to a client (or another agent acting as a client/renderer), the <code>data</code> payload must validate against the <strong>Server-to-Client Message List Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/server_to_client_list.json">server_to_client_list.json</a>).</p>
+<p>When an agent sends a message to a client (or another agent acting as a client/renderer), the <code>data</code> payload must validate against the <strong>Server-to-Client Message List Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/server_to_client_list.json">server_to_client_list.json</a>).</p>
 <h4 id="example-datapart">Example DataPart<a class="headerlink" href="#example-datapart" title="Permanent link">&para;</a></h4>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -2567,7 +2567,7 @@
 </span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="client-to-server-events">Client-to-server events<a class="headerlink" href="#client-to-server-events" title="Permanent link">&para;</a></h3>
-<p>When a client (or an agent forwarding an event) sends a message to an agent, it also uses a <code>DataPart</code> with the same <code>application/a2ui+json</code> MIME type. However, the <code>data</code> payload must validate against the <strong>Client-to-Server Message List Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/../json/client_to_server_list.json">client_to_server_list.json</a>).</p>
+<p>When a client (or an agent forwarding an event) sends a message to an agent, it also uses a <code>DataPart</code> with the same <code>application/a2ui+json</code> MIME type. However, the <code>data</code> payload must validate against the <strong>Client-to-Server Message List Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_to_server_list.json">client_to_server_list.json</a>).</p>
 <h4 id="example-action-datapart">Example <code>action</code> DataPart<a class="headerlink" href="#example-action-datapart" title="Permanent link">&para;</a></h4>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
