@@ -1231,10 +1231,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-mapping-ownership" class="md-nav__link">
+  <a href="#1-mapping-ownership-from-server-events" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Mapping Ownership
+        1. Mapping Ownership from Server Events
       
     </span>
   </a>
@@ -1242,10 +1242,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-routing-events" class="md-nav__link">
+  <a href="#2-routing-client-events" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Routing Events
+        2. Routing Client Events
       
     </span>
   </a>
@@ -3085,10 +3085,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-mapping-ownership" class="md-nav__link">
+  <a href="#1-mapping-ownership-from-server-events" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Mapping Ownership
+        1. Mapping Ownership from Server Events
       
     </span>
   </a>
@@ -3096,10 +3096,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-routing-events" class="md-nav__link">
+  <a href="#2-routing-client-events" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Routing Events
+        2. Routing Client Events
       
     </span>
   </a>
@@ -3472,51 +3472,100 @@
 <h2 id="orchestration-routing">Orchestration &amp; Routing<a class="headerlink" href="#orchestration-routing" title="Permanent link">&para;</a></h2>
 <p>In multi-agent systems, a central <strong>Orchestrator</strong> often manages interactions between a user and several specialized sub-agents. A key challenge is ensuring that <code>action</code> messages from the renderer are routed back to the specific sub-agent that generated the UI surface.</p>
 <h3 id="the-surface-ownership-pattern">The Surface Ownership Pattern<a class="headerlink" href="#the-surface-ownership-pattern" title="Permanent link">&para;</a></h3>
-<p>To handle this, an orchestrator must maintain a mapping of <code>surfaceId</code> to its owning sub-agent. This is typically stored in the <strong>Session State</strong>.</p>
-<h4 id="1-mapping-ownership">1. Mapping Ownership<a class="headerlink" href="#1-mapping-ownership" title="Permanent link">&para;</a></h4>
-<p>When a sub-agent emits a <code>createSurface</code> message, the orchestrator intercepts it and records the ownership.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Simplified Orchestrator Logic: Record Ownership</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">on_surface_created</span><span class="p">(</span><span class="n">surface_id</span><span class="p">,</span> <span class="n">agent_name</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="c1"># Store the mapping in the orchestrator&#39;s session state</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">session</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;owner_of_</span><span class="si">{</span><span class="n">surface_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">agent_name</span><span class="p">})</span>
+<p>To handle routing in a multi-agent architecture, an orchestrator must maintain a mapping of each <code>surfaceId</code> to its owning sub-agent. The official Python SDK provides the <a href="https://github.com/a2ui-project/a2ui/blob/main/agent_sdks/python/a2ui_agent/src/a2ui/adk/orchestration/a2ui_subagent_map.py"><code>A2uiSubagentMap</code></a> utility to manage this mapping safely.</p>
+<p>For a complete working example, see the <a href="https://github.com/a2ui-project/a2ui/blob/main/samples/community/agent/adk/orchestrator/orchestrator_agent_executor.py">orchestrator agent executor</a> sample.</p>
+<h4 id="1-mapping-ownership-from-server-events">1. Mapping Ownership from Server Events<a class="headerlink" href="#1-mapping-ownership-from-server-events" title="Permanent link">&para;</a></h4>
+<p>When a sub-agent emits an A2UI <code>createSurface</code> or <code>deleteSurface</code> the orchestrator intercepts the message and records the ownership in the session state using <code>update_from_server_event</code>.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">a2ui.adk.orchestration.a2ui_subagent_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">A2uiSubagentMap</span><span class="p">,</span> <span class="n">SurfaceIdAlreadyExistsError</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.adk.a2a.executor.a2a_agent_executor</span><span class="w"> </span><span class="kn">import</span> <span class="n">A2aAgentExecutorConfig</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.adk.a2a.executor.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecuteInterceptor</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.adk.a2a.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span> <span class="k">as</span> <span class="n">A2AEvent</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.adk.events.event</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.adk.sessions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionService</span><span class="p">,</span> <span class="n">Session</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">after_event_save_surface_id</span><span class="p">(</span><span class="n">a2a_event</span><span class="p">:</span> <span class="n">A2AEvent</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span> <span class="n">session_service</span><span class="p">:</span> <span class="n">SessionService</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">):</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="k">for</span> <span class="n">a2a_part</span> <span class="ow">in</span> <span class="n">a2a_event</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>            <span class="k">await</span> <span class="n">A2uiSubagentMap</span><span class="o">.</span><span class="n">update_from_server_event</span><span class="p">(</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>                <span class="n">a2a_part</span><span class="p">,</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>                <span class="n">event</span><span class="o">.</span><span class="n">author</span><span class="p">,</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>                <span class="n">session_service</span><span class="p">,</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>                <span class="n">session</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>            <span class="p">)</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>        <span class="k">except</span> <span class="n">SurfaceIdAlreadyExistsError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>            <span class="c1"># Handle surface ID collision</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>            <span class="k">pass</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>    <span class="k">return</span> <span class="n">a2a_event</span>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="n">config</span> <span class="o">=</span> <span class="n">A2aAgentExecutorConfig</span><span class="p">(</span>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>    <span class="n">execute_interceptors</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>        <span class="n">ExecuteInterceptor</span><span class="p">(</span><span class="n">after_event</span><span class="o">=</span><span class="n">after_event_save_surface_id</span><span class="p">)</span>
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>    <span class="p">]</span>
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="p">)</span>
 </span></code></pre></div>
-<h4 id="2-routing-events">2. Routing Events<a class="headerlink" href="#2-routing-events" title="Permanent link">&para;</a></h4>
-<p>When the renderer sends an <code>action</code> back to the orchestrator, the orchestrator looks up the <code>surfaceId</code> and transfers the request to the correct sub-agent.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Simplified Orchestrator Logic: Route Event</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_incoming_action</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">action</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">surface_id</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;surfaceId&quot;</span><span class="p">)</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="c1"># Lookup the owning agent</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="n">target_agent</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;owner_of_</span><span class="si">{</span><span class="n">surface_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<h4 id="2-routing-client-events">2. Routing Client Events<a class="headerlink" href="#2-routing-client-events" title="Permanent link">&para;</a></h4>
+<p>When the client renderer sends an A2UI <code>action</code> or <code>error</code> message back, the orchestrator looks up the <code>surfaceId</code> in the session state using <code>get_subagent_name_for_client_event</code> and routes the request to the correct sub-agent.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">a2ui.adk.orchestration.a2ui_subagent_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">A2uiSubagentMap</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.adk.agents.llm_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmAgent</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.adk.agents.callback_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">CallbackContext</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.adk.models.llm_request</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmRequest</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.adk.models.llm_response</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmResponse</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.genai</span><span class="w"> </span><span class="kn">import</span> <span class="n">types</span> <span class="k">as</span> <span class="n">genai_types</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="kn">from</span><span class="w"> </span><span class="nn">google.adk.agents.remote_a2a_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_genai_part_to_a2a_part</span>
 </span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    <span class="k">if</span> <span class="n">target_agent</span><span class="p">:</span>
-</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>        <span class="c1"># Programmatically route the request to the sub-agent</span>
-</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>        <span class="k">return</span> <span class="n">transfer_to</span><span class="p">(</span><span class="n">target_agent</span><span class="p">)</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">route_client_event</span><span class="p">(</span><span class="n">callback_context</span><span class="p">:</span> <span class="n">CallbackContext</span><span class="p">,</span> <span class="n">llm_request</span><span class="p">:</span> <span class="n">LlmRequest</span><span class="p">):</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="n">a2a_part</span> <span class="o">=</span> <span class="n">convert_genai_part_to_a2a_part</span><span class="p">(</span><span class="n">llm_request</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># Assume response has a single a2a part</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    <span class="n">target_agent</span> <span class="o">=</span> <span class="k">await</span> <span class="n">A2uiSubagentMap</span><span class="o">.</span><span class="n">get_subagent_name_for_client_event</span><span class="p">(</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>        <span class="n">a2a_part</span><span class="p">,</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>        <span class="n">callback_context</span><span class="o">.</span><span class="n">state</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    <span class="p">)</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>    <span class="k">if</span> <span class="n">target_agent</span><span class="p">:</span>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>        <span class="c1"># Programmatically trigger the planner&#39;s transfer_to_agent function</span>
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>        <span class="k">return</span> <span class="n">LlmResponse</span><span class="p">(</span>
+</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>            <span class="n">content</span><span class="o">=</span><span class="n">genai_types</span><span class="o">.</span><span class="n">Content</span><span class="p">(</span>
+</span><span id="__span-11-21"><a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>                <span class="n">parts</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-11-22"><a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>                    <span class="n">genai_types</span><span class="o">.</span><span class="n">Part</span><span class="p">(</span>
+</span><span id="__span-11-23"><a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>                        <span class="n">function_call</span><span class="o">=</span><span class="n">genai_types</span><span class="o">.</span><span class="n">FunctionCall</span><span class="p">(</span>
+</span><span id="__span-11-24"><a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;transfer_to_agent&quot;</span><span class="p">,</span>
+</span><span id="__span-11-25"><a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>                            <span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;agent_name&quot;</span><span class="p">:</span> <span class="n">target_agent</span><span class="p">},</span>
+</span><span id="__span-11-26"><a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>                        <span class="p">)</span>
+</span><span id="__span-11-27"><a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>                    <span class="p">)</span>
+</span><span id="__span-11-28"><a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>                <span class="p">]</span>
+</span><span id="__span-11-29"><a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>            <span class="p">)</span>
+</span><span id="__span-11-30"><a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>        <span class="p">)</span>
+</span><span id="__span-11-31"><a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a>
+</span><span id="__span-11-32"><a id="__codelineno-11-32" name="__codelineno-11-32" href="#__codelineno-11-32"></a><span class="n">orchestrator_agent</span> <span class="o">=</span> <span class="n">LlmAgent</span><span class="p">(</span>
+</span><span id="__span-11-33"><a id="__codelineno-11-33" name="__codelineno-11-33" href="#__codelineno-11-33"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;orchestrator&quot;</span><span class="p">,</span>
+</span><span id="__span-11-34"><a id="__codelineno-11-34" name="__codelineno-11-34" href="#__codelineno-11-34"></a>    <span class="n">before_model_callback</span><span class="o">=</span><span class="n">route_client_event</span><span class="p">,</span>
+</span><span id="__span-11-35"><a id="__codelineno-11-35" name="__codelineno-11-35" href="#__codelineno-11-35"></a>    <span class="c1"># other configs ...</span>
+</span><span id="__span-11-36"><a id="__codelineno-11-36" name="__codelineno-11-36" href="#__codelineno-11-36"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>This pattern ensures that even in complex, multi-agent environments, the bidirectional communication loop remains intact and stateful for each feature area.</p>
+<p>This pattern ensures that the bidirectional communication loop remains intact and stateful for each feature area.</p>
 <h3 id="preventing-data-leakage-via-metadata-stripping">Preventing Data Leakage via Metadata Stripping<a class="headerlink" href="#preventing-data-leakage-via-metadata-stripping" title="Permanent link">&para;</a></h3>
-<p>In multi-agent environments, the <code>a2uiClientDataModel</code> may contain state for multiple surfaces owned by different agents. To prevent sensitive data leakage, an orchestrator must <strong>strip</strong> the data model metadata to only include surfaces owned by the specific sub-agent being called.</p>
-<p>This is best implemented in an outbound metadata interceptor:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Simplified Orchestrator Interceptor: Strip Data Model</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">intercept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_payload</span><span class="p">,</span> <span class="n">target_agent</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">message</span> <span class="o">=</span> <span class="n">request_payload</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="s2">&quot;message&quot;</span><span class="p">]</span>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">data_model</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;a2uiClientDataModel&quot;</span><span class="p">)</span>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="k">if</span> <span class="n">data_model</span><span class="p">:</span>
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>        <span class="c1"># Filter surfaces to only those owned by the target_agent</span>
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        <span class="n">filtered_surfaces</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>            <span class="n">surface_id</span><span class="p">:</span> <span class="n">state</span> <span class="k">for</span> <span class="n">surface_id</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">data_model</span><span class="p">[</span><span class="s2">&quot;surfaces&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>            <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;owner_of_</span><span class="si">{</span><span class="n">surface_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">target_agent</span><span class="o">.</span><span class="n">name</span>
-</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>        <span class="p">}</span>
-</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
-</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>        <span class="c1"># Replace with the stripped data model</span>
-</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>        <span class="n">message</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;a2uiClientDataModel&quot;</span><span class="p">][</span><span class="s2">&quot;surfaces&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filtered_surfaces</span>
-</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>
-</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>    <span class="k">return</span> <span class="n">request_payload</span>
+<p>In a multi-agent environment, the <code>a2uiClientDataModel</code> object can contain the state for multiple surfaces owned by different sub-agents. To prevent sensitive data leakage, an orchestrator must <strong>strip</strong> the data model metadata to include only the surfaces owned by the target sub-agent.</p>
+<p>You can use the <code>strip_unowned_surfaces_from_data_model</code> method in an outbound interceptor to mutate the data model dictionary in place.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">a2ui.adk.orchestration.a2ui_subagent_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">A2uiSubagentMap</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">a2a.client.middleware</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientCallInterceptor</span><span class="p">,</span> <span class="n">ClientCallContext</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">a2a.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentCard</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">A2UIMetadataInterceptor</span><span class="p">(</span><span class="n">ClientCallInterceptor</span><span class="p">):</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">intercept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">agent_card</span><span class="p">:</span> <span class="n">AgentCard</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">ClientCallContext</span><span class="p">):</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>        <span class="n">message</span> <span class="o">=</span> <span class="n">request_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>        <span class="c1"># Strip the data model to prevent data leakage</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>        <span class="k">if</span> <span class="n">data_model</span> <span class="o">:=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;a2uiClientDataModel&quot;</span><span class="p">):</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>            <span class="k">await</span> <span class="n">A2uiSubagentMap</span><span class="o">.</span><span class="n">strip_unowned_surfaces_from_data_model</span><span class="p">(</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>                <span class="n">agent_card</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>                <span class="n">data_model</span><span class="p">,</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>                <span class="n">context</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>            <span class="p">)</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>        <span class="k">return</span> <span class="n">request_payload</span>
 </span></code></pre></div>
-<p>By stripping the metadata, the orchestrator ensures that sub-agents only receive the portion of the data model they are authorized to see.</p>
-<p>CAUTION: <strong>Security Risk: State Scraping</strong>: If an Orchestrator fails to strip the <code>a2uiClientDataModel</code>, a malicious or compromised sub-agent could potentially "scrape" the state of other active surfaces. For example, a weather sub-agent could read sensitive data from a banking surface if the orchestrator leaks the entire multi-surface data model. Stripping is a mandatory security requirement in multi-agent systems.</p>
+<p>By stripping the metadata, the orchestrator ensures that each sub-agent receives only the portion of the data model that it is authorized to see.</p>
+<p>WARNING: <strong>Security Risk - State Scraping</strong>: If an orchestrator fails to strip the <code>a2uiClientDataModel</code>, a malicious or compromised sub-agent could read the state of other active surfaces. For example, a weather sub-agent could scrape sensitive data from a banking surface if the orchestrator leaks the entire multi-surface data model. Stripping is a mandatory security requirement for multi-agent systems.</p>
 <hr />
 <h2 id="comprehensive-examples">Comprehensive Examples<a class="headerlink" href="#comprehensive-examples" title="Permanent link">&para;</a></h2>
 <h3 id="1-button-submit-explicit-context">1. Button Submit (Explicit Context)<a class="headerlink" href="#1-button-submit-explicit-context" title="Permanent link">&para;</a></h3>
