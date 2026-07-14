@@ -58,6 +58,12 @@ def unwrap_response(content: str) -> List[ResponsePart]:
     Returns:
         A list of ResponsePart objects.
     """
+    is_truncated = False
+    last_open = content.rfind(A2UI_OPEN_TAG)
+    last_close = content.rfind(A2UI_CLOSE_TAG)
+    if last_open != -1 and last_open > last_close:
+        content += A2UI_CLOSE_TAG
+        is_truncated = True
     matches = list(_A2UI_BLOCK_PATTERN.finditer(content))
 
     if not matches:
@@ -68,12 +74,17 @@ def unwrap_response(content: str) -> List[ResponsePart]:
     response_parts = []
     last_end = 0
 
-    for match in matches:
+    for idx, match in enumerate(matches):
         start, end = match.span()
         text_part = content[last_end:start].strip()
 
         json_string = match.group(1)
         json_string_cleaned = _sanitize_json_string(json_string)
+
+        if is_truncated and idx == len(matches) - 1:
+            from json_repair import repair_json
+            json_string_cleaned = repair_json(json_string_cleaned)
+
         if not json_string_cleaned:
             raise A2uiParseError("A2UI JSON part is empty.")
 
@@ -94,7 +105,7 @@ class TransportParser(Parser):
 
     def __init__(
         self,
-        catalog: A2uiCatalog,
+        catalog: Optional[A2uiCatalog] = None,
         validator: Optional[A2uiValidator] = None,
     ):
         """Initializes the TransportParser.
@@ -133,16 +144,12 @@ class TransportParser(Parser):
         return json_data
 
     def process_chunk(self, chunk: str) -> List[ResponsePart]:
-        """Processes streamed token chunks incrementally.
+        """Streaming parsing is not supported for standard JSON schema.
 
         Args:
             chunk: The next token text chunk.
 
-        Returns:
-            A list of parsed or completed ResponsePart objects.
+        Raises:
+            NotImplementedError: Streaming parsing is not supported for Schema JSON.
         """
-        from a2ui.inference_formats.transport.streaming import A2uiStreamParser
-
-        if not self._stream_parser:
-            self._stream_parser = A2uiStreamParser(self._catalog)
-        return self._stream_parser.process_chunk(chunk)
+        raise NotImplementedError("Streaming parsing is not supported for Schema JSON.")

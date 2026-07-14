@@ -177,6 +177,141 @@ def parse_response_to_parts(
     return parts
 
 
+class StreamingPartConverter:
+    """Stateful converter for mapping token streams directly into A2A Parts."""
+
+    def __init__(
+        self,
+        parser: Optional[Parser] = None,
+        catalog: Optional[Any] = None,
+        validator: Optional[Any] = None,
+        version: Optional[str] = None,
+        format_strategy: Optional[Any] = None,
+    ):
+        if parser is not None:
+            self.parser = parser
+        else:
+            strategy = format_strategy
+            if isinstance(strategy, type):
+                strategy = strategy(catalog=catalog)
+
+            if strategy is not None:
+                self.parser = strategy.parser
+            else:
+                from a2ui.inference_formats.transport.parser import TransportParser
+
+                self.parser = TransportParser(catalog, validator)
+
+        self.validator = validator
+        self.version = version
+
+    def push_chunk(self, chunk: str) -> List[Part]:
+        """Pushes a token chunk, returning the current accumulated list of A2A Parts."""
+        from a2ui.parser.response_part import ResponsePart
+
+        try:
+            response_parts = self.parser.process_chunk(chunk)
+            new_parts = self._convert_parts(response_parts, is_final=False)
+
+            if not hasattr(self, "_parts"):
+                self._parts: List[Part] = []
+
+            for new_p in new_parts:
+                if isinstance(new_p.root, DataPart):
+                    self._parts = [
+                        p for p in self._parts if not isinstance(p.root, DataPart)
+                    ]
+                    self._parts.append(new_p)
+                elif isinstance(new_p.root, TextPart):
+                    if self._parts and isinstance(self._parts[-1].root, TextPart):
+                        self._parts[-1].root.text += new_p.root.text
+                    else:
+                        self._parts.append(new_p)
+            return self._parts
+
+        except NotImplementedError:
+            # Fallback to accumulating buffer and full parsing
+            if not hasattr(self, "_buffer"):
+                self._buffer = ""
+            self._buffer += chunk
+            try:
+                response_parts = self.parser.unwrap(self._buffer)
+                for part in response_parts:
+                    if part.a2ui_raw is not None:
+                        try:
+                            part.a2ui_json = self.parser.compile(part.a2ui_raw)
+                        except Exception:
+                            # Compilation failed on this block: discard payload but keep text
+                            part.a2ui_raw = None
+            except Exception:
+                # If unwrap itself fails, fall back to treating entire buffer as text
+                response_parts = [ResponsePart(text=self._buffer)]
+            return self._convert_parts(response_parts, is_final=False)
+
+    def finalize(self) -> List[Part]:
+        """Finalizes the streaming session and returns completed A2A Parts."""
+        from a2ui.parser.response_part import ResponsePart
+
+        if hasattr(self, "_buffer"):
+            try:
+                response_parts = self.parser.unwrap(self._buffer)
+                for part in response_parts:
+                    if part.a2ui_raw is not None:
+                        try:
+                            part.a2ui_json = self.parser.compile(part.a2ui_raw)
+                        except Exception:
+                            # Compilation failed on this block: discard payload but keep text
+                            part.a2ui_raw = None
+            except Exception:
+                # If unwrap itself fails, fall back to treating entire buffer as text
+                response_parts = [ResponsePart(text=self._buffer)]
+            return self._convert_parts(response_parts, is_final=True)
+        else:
+            if hasattr(self, "_parts"):
+                for p in self._parts:
+                    if isinstance(p.root, DataPart) and self.validator:
+                        try:
+                            self.validator.validate(p.root.data)
+                        except Exception as e:
+                            logger.warning(
+                                f"Final validation failed for streaming part: {e}"
+                            )
+                return self._parts
+            return []
+
+    def _convert_parts(
+        self, response_parts: List[Any], is_final: bool = False
+    ) -> List[Part]:
+        parts = []
+        for part in response_parts:
+            if part.text:
+                parts.append(Part(root=TextPart(text=part.text)))
+
+            if part.a2ui_json is not None:
+                json_data = part.a2ui_json
+                if self.validator:
+                    try:
+                        self.validator.validate(json_data)
+                    except Exception as e:
+                        if is_final:
+                            logger.warning(
+                                f"Failed to validate final A2UI response: {e}"
+                            )
+                            continue
+                        else:
+                            pass  # Ignore validation errors for intermediate incomplete chunks
+
+                if isinstance(json_data, list):
+                    for message in json_data:
+                        if isinstance(message, dict):
+                            parts.append(
+                                create_a2ui_part(message, version=self.version)
+                            )
+                elif isinstance(json_data, dict):
+                    parts.append(create_a2ui_part(json_data, version=self.version))
+        return parts
+
+
 async def stream_response_to_parts(
     parser: "A2uiStreamParser",
     token_stream: AsyncIterable[str],

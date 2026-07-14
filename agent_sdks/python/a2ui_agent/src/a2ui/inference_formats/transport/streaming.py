@@ -534,7 +534,9 @@ class A2uiStreamParser:
                                             self._in_top_level_list
                                             and self.is_protocol_msg(obj)
                                         )
-                                        is_comp = obj.get("id") and obj.get("component")
+                                        is_comp = obj.get("id") and (
+                                            obj.get("component") or obj.get("type")
+                                        )
                                         # Process objects at top-level OR items in top-level list
                                         # When in a list, we are top-level if the ONLY thing on the stack is the list opener
                                         is_top_level = (
@@ -737,13 +739,16 @@ class A2uiStreamParser:
             fixed_fragment = self._fix_json(raw_fragment)
             try:
                 obj = json.loads(fixed_fragment)
-                if isinstance(obj, dict) and obj.get("id") and obj.get("component"):
-                    if isinstance(obj["component"], str):
+                if (
+                    isinstance(obj, dict)
+                    and obj.get("id")
+                    and (obj.get("component") or obj.get("type"))
+                ):
+                    comp_def = obj.get("component") or obj.get("type")
+                    if isinstance(comp_def, str):
                         # Flat style (v0.9+): component type is a string
                         self._handle_partial_component(obj, messages)
-                    elif (
-                        isinstance(obj["component"], dict) and len(obj["component"]) > 0
-                    ):
+                    elif isinstance(comp_def, dict) and len(comp_def) > 0:
                         # Structured style (v0.8): Ignore components that are effectively empty (no type keys)
                         self._handle_partial_component(obj, messages)
 
@@ -816,7 +821,7 @@ class A2uiStreamParser:
                 return any(_has_empty_dict(v) for v in obj)
             return False
 
-        component_def = comp.get("component")
+        component_def = comp.get("component") or comp.get("type")
         if isinstance(component_def, str):
             # v0.9 flat style: check the whole component object for empty dicts
             if _has_empty_dict(comp):
