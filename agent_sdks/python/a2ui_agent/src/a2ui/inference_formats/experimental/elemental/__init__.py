@@ -18,10 +18,13 @@ from .parser import parse_elemental_response
 from .compiler import ElementalCompiler
 from .decompiler import ElementalDecompiler
 from .prompt_generator import ElementalPromptGenerator
+from .format import ElementalFormat, ElementalParser
 
 __all__ = [
     "parse_elemental_response",
     "ElementalCompiler",
     "ElementalDecompiler",
     "ElementalPromptGenerator",
+    "ElementalFormat",
+    "ElementalParser",
 ]
