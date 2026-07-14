@@ -66,7 +66,15 @@ class TransportFormat(InferenceFormat):
         self._catalog_example_paths: dict[str, str] = {}
         self._schema_modifiers = schema_modifiers or []
         self._parser: Optional[TransportParser] = None
+        self._prompt_generator: Optional[TransportPromptGenerator] = None
         self._load_schemas(version, catalogs or [])
+
+    @property
+    def prompt_generator(self) -> TransportPromptGenerator:
+        """Returns the PromptGenerator instance for this format."""
+        if self._prompt_generator is None:
+            self._prompt_generator = TransportPromptGenerator(self)
+        return self._prompt_generator
 
     @property
     def parser(self) -> TransportParser:
@@ -264,50 +272,3 @@ class TransportFormat(InferenceFormat):
                 self._catalog_example_paths[catalog.catalog_id], validate=validate
             )
         return ""
-
-    def generate_system_prompt(
-        self,
-        role_description: str,
-        workflow_description: str = "",
-        ui_description: str = "",
-        client_ui_capabilities: Optional[dict[str, Any]] = None,
-        allowed_components: Optional[list[str]] = None,
-        allowed_messages: Optional[list[str]] = None,
-        include_schema: bool = False,
-        include_examples: bool = False,
-        validate_examples: bool = False,
-    ) -> str:
-        """Assembles the final system instruction for the LLM.
-
-        Args:
-            role_description: Description of the agent's role.
-            workflow_description: Optional description of the task workflow.
-            ui_description: Optional UI context or rules.
-            client_ui_capabilities: Optional client UI capability details.
-            allowed_components: Optional list of component tags the LLM may use.
-            allowed_messages: Optional list of message types allowed.
-            include_schema: Whether to include component schemas in the prompt.
-            include_examples: Whether to include few-shot examples.
-            validate_examples: Whether to validate few-shot examples on generation.
-
-        Returns:
-            The complete system prompt string.
-        """
-        selected_catalog = self.get_selected_catalog(
-            client_ui_capabilities, allowed_components, allowed_messages
-        )
-
-        examples_str = ""
-        if include_examples:
-            examples_str = self.load_examples(
-                selected_catalog, validate=validate_examples
-            )
-
-        generator = TransportPromptGenerator(selected_catalog)
-        return generator.generate(
-            role_description=role_description,
-            workflow_description=workflow_description,
-            ui_description=ui_description,
-            examples=examples_str,
-            include_schema=include_schema,
-        )

@@ -14,28 +14,35 @@
 
 """Generator for standard A2UI JSON schema system prompt instructions."""
 
-from typing import Optional, List
-from a2ui.schema.catalog import A2uiCatalog
+from typing import Optional, List, Any, TYPE_CHECKING
+from a2ui.prompt_generator import PromptGenerator
+
+if TYPE_CHECKING:
+    from a2ui.inference_formats.transport.format import TransportFormat
 
 
-class TransportPromptGenerator:
+class TransportPromptGenerator(PromptGenerator):
     """Formats standard JSON schema system prompt instructions (Transport Format)."""
 
-    def __init__(self, catalog: A2uiCatalog):
-        """Initializes the prompt generator with a catalog context.
+    def __init__(self, format_inst: "TransportFormat"):
+        """Initializes the prompt generator with a TransportFormat context.
 
         Args:
-            catalog: The A2uiCatalog to reference.
+            format_inst: The TransportFormat instance.
         """
-        self.catalog = catalog
+        self._format = format_inst
 
     def generate(
         self,
         role_description: str,
         workflow_description: str = "",
         ui_description: str = "",
-        examples: str = "",
-        include_schema: bool = True,
+        client_ui_capabilities: Optional[dict[str, Any]] = None,
+        allowed_components: Optional[list[str]] = None,
+        allowed_messages: Optional[list[str]] = None,
+        include_schema: bool = False,
+        include_examples: bool = False,
+        validate_examples: bool = False,
     ) -> str:
         """Assembles prompt instructions contract for standard JSON.
 
@@ -43,12 +50,26 @@ class TransportPromptGenerator:
             role_description: Description of the agent's role.
             workflow_description: Optional description of the task workflow.
             ui_description: Optional UI context or rules.
-            examples: Optional few-shot examples string.
-            include_schema: Whether to include component schemas in the output.
+            client_ui_capabilities: Optional client UI capability details.
+            allowed_components: Optional list of component tags the LLM may use.
+            allowed_messages: Optional list of A2UI message types allowed.
+            include_schema: Whether to include component schemas in the prompt.
+            include_examples: Whether to include few-shot examples.
+            validate_examples: Whether to validate few-shot examples on generation.
 
         Returns:
             The complete generated prompt system instruction.
         """
+        selected_catalog = self._format.get_selected_catalog(
+            client_ui_capabilities, allowed_components, allowed_messages
+        )
+
+        examples_str = ""
+        if include_examples:
+            examples_str = self._format.load_examples(
+                selected_catalog, validate=validate_examples
+            )
+
         parts = [role_description]
 
         from a2ui.schema.constants import DEFAULT_WORKFLOW_RULES
@@ -62,11 +83,11 @@ class TransportPromptGenerator:
             parts.append(f"## UI Description:\n{ui_description}")
 
         if include_schema:
-            instructions = self.catalog.render_as_llm_instructions()
+            instructions = selected_catalog.render_as_llm_instructions()
             if instructions:
                 parts.append(instructions)
 
-        if examples:
-            parts.append(f"### Examples:\n{examples}")
+        if examples_str:
+            parts.append(f"### Examples:\n{examples_str}")
 
         return "\n\n".join(parts)
