@@ -37,7 +37,7 @@ from typing import Optional
 
 
 from a2a import types as a2a_types
-from a2ui.a2a.parts import create_a2ui_part, parse_response_to_parts
+from a2ui.a2a.parts import create_a2ui_part, parse_content_to_parts
 from a2ui.parser.parser import Parser
 from a2ui.inference_formats.transport.parser import TransportParser
 from a2ui.schema import constants
@@ -123,7 +123,7 @@ class A2uiPartConverter:
             if function_response.response:
                 result = function_response.response.get("result")
                 if isinstance(result, str) and "<a2ui" in result:
-                    return parse_response_to_parts(
+                    return parse_content_to_parts(
                         result,
                         parser=self._parser,
                         fallback_text=self._fallback_text,
@@ -139,7 +139,7 @@ class A2uiPartConverter:
         # 3. Handle Text-based A2UI (TextPart)
         if text := part.text:
             if "<a2ui" in text:
-                return parse_response_to_parts(
+                return parse_content_to_parts(
                     text,
                     parser=self._parser,
                     fallback_text=self._fallback_text,

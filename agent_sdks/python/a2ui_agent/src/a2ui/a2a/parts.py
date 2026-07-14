@@ -86,13 +86,13 @@ def get_a2ui_datapart(part: Part) -> Optional[DataPart]:
     return None
 
 
-def parse_response_to_parts(
+def parse_content_to_parts(
     content: str,
-    parser: Optional[Parser] = None,
+    parser: Parser,
     fallback_text: Optional[str] = None,
     version: Optional[str] = None,
 ) -> List[Part]:
-    """Helper to parse LLM response content into A2A Parts, with optional validation.
+    """Helper to parse LLM response content into A2A Parts using a Parser instance.
 
     Args:
         content: The LLM response content, potentially containing A2UI delimiters.
@@ -105,12 +105,7 @@ def parse_response_to_parts(
     """
     parts = []
     try:
-        if parser is not None:
-            response_parts = parser.parse_response(content)
-        else:
-            from a2ui.parser.parser import parse_response as legacy_parse_response
-
-            response_parts = legacy_parse_response(content)
+        response_parts = parser.parse_response(content)
 
         for part in response_parts:
             if part.text:
@@ -125,7 +120,56 @@ def parse_response_to_parts(
                     parts.append(create_a2ui_part(json_data, version=version))
 
     except Exception as e:
-        logger.warning(f"Failed to parse or validate A2UI response: {e}")
+        logger.warning(f"Failed to parse A2UI response: {e}")
+
+    if not parts and fallback_text:
+        parts.append(Part(root=TextPart(text=fallback_text)))
+
+    return parts
+
+
+def parse_response_to_parts(
+    content: str,
+    validator: Optional[Any] = None,
+    fallback_text: Optional[str] = None,
+    version: Optional[str] = None,
+) -> List[Part]:
+    """Deprecated compatibility wrapper around parse_response_to_parts.
+
+    Please use parse_content_to_parts instead, providing a Parser instance.
+    """
+    import warnings
+
+    warnings.warn(
+        "parse_response_to_parts is deprecated. Please use parse_content_to_parts(...) "
+        "providing a Parser instance instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
+    from a2ui.parser.parser import parse_response as legacy_parse_response
+
+    parts = []
+    try:
+        response_parts = legacy_parse_response(content)
+
+        for part in response_parts:
+            if part.text:
+                parts.append(Part(root=TextPart(text=part.text)))
+
+            if part.a2ui_json:
+                json_data = part.a2ui_json
+                if validator is not None:
+                    validator.validate(json_data)
+
+                if isinstance(json_data, list):
+                    for message in json_data:
+                        parts.append(create_a2ui_part(message, version=version))
+                else:
+                    parts.append(create_a2ui_part(json_data, version=version))
+
+    except Exception as e:
+        logger.warning(f"Failed to parse legacy A2UI response: {e}")
 
     if not parts and fallback_text:
         parts.append(Part(root=TextPart(text=fallback_text)))
