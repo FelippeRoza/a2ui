@@ -13,10 +13,17 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Optional, Any
+from typing import Any, Optional, List
 
 
-class InferenceStrategy(ABC):
+class InferenceFormat(ABC):
+    """Interface coordinating system prompt generation and response parsing."""
+
+    @property
+    @abstractmethod
+    def parser(self) -> Any:
+        """The Parser instance associated with this inference format."""
+        pass
 
     @abstractmethod
     def generate_system_prompt(
@@ -31,21 +38,5 @@ class InferenceStrategy(ABC):
         include_examples: bool = False,
         validate_examples: bool = False,
     ) -> str:
-        """
-        Generates a system prompt for all LLM requests.
-
-        Args:
-          role_description: Description of the agent's role.
-          workflow_description: Description of the workflow.
-          ui_description: Description of the UI.
-          client_ui_capabilities: Capabilities reported by the client for targeted schema pruning.
-          allowed_components: List of allowed catalog components.
-          allowed_messages: List of allowed messages.
-          include_schema: Whether to include the schema.
-          include_examples: Whether to include examples.
-          validate_examples: Whether to validate examples.
-
-        Returns:
-          The system prompt.
-        """
+        """Generates a system prompt for all LLM requests."""
         pass

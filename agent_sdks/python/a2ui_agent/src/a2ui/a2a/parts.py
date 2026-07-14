@@ -14,9 +14,10 @@
 
 import logging
 from typing import Any, Optional, List, AsyncIterable, TYPE_CHECKING
+from a2ui.parser.parser import Parser
 
 if TYPE_CHECKING:
-    from a2ui.parser.streaming import A2uiStreamParser
+    from a2ui.inference_formats.transport.streaming import A2uiStreamParser
 from a2a.types import (
     Part,
     DataPart,
@@ -87,7 +88,7 @@ def get_a2ui_datapart(part: Part) -> Optional[DataPart]:
 
 def parse_response_to_parts(
     content: str,
-    validator: Optional[Any] = None,
+    parser: Parser,
     fallback_text: Optional[str] = None,
     version: Optional[str] = None,
 ) -> List[Part]:
@@ -95,18 +96,16 @@ def parse_response_to_parts(
 
     Args:
         content: The LLM response content, potentially containing A2UI delimiters.
-        validator: Optional validator to run against extracted JSON payloads.
+        parser: The Parser instance used to extract and compile format parts.
         fallback_text: Optional text to return if no parts are successfully created.
         version: Optional version string.
 
     Returns:
         A list of A2A Part objects (TextPart and/or DataPart).
     """
-    from a2ui.parser.parser import parse_response
-
     parts = []
     try:
-        response_parts = parse_response(content)
+        response_parts = parser.parse_response(content)
 
         for part in response_parts:
             if part.text:
@@ -114,9 +113,6 @@ def parse_response_to_parts(
 
             if part.a2ui_json:
                 json_data = part.a2ui_json
-                if validator:
-                    validator.validate(json_data)
-
                 if isinstance(json_data, list):
                     for message in json_data:
                         parts.append(create_a2ui_part(message, version=version))

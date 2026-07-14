@@ -30,7 +30,7 @@ from a2ui.parser.constants import (
     MSG_TYPE_DATA_MODEL_UPDATE,
 )
 from a2ui.schema.catalog import A2uiCatalog
-from a2ui.parser.streaming import A2uiStreamParser
+from a2ui.inference_formats.transport.streaming import A2uiStreamParser
 from a2ui.parser.response_part import ResponsePart
 
 

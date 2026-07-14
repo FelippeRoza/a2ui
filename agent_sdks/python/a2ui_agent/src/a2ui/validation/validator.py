@@ -13,9 +13,10 @@
 # limitations under the License.
 
 from __future__ import annotations
+import os
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, Mapping
 
-from .constants import VERSION_0_8, VERSION_0_9, VERSION_0_9_1, VERSION_1_0
+from a2ui.schema.constants import VERSION_0_8, VERSION_0_9, VERSION_0_9_1, VERSION_1_0
 from .validator_v08 import (
     LegacyA2uiValidatorV08,
     extract_component_required_fields as v08_req,
@@ -30,7 +31,7 @@ from a2ui.core import A2uiValidationError, A2uiCatalogError
 
 
 if TYPE_CHECKING:
-    from .catalog import A2uiCatalog
+    from a2ui.schema.catalog import A2uiCatalog
 
 
 def extract_component_required_fields(catalog: A2uiCatalog) -> Dict[str, Set[str]]:
@@ -223,9 +224,28 @@ class A2uiValidatorWrapperV10:
 class A2uiValidator:
     """Version-aware validation facade dispatching to v0.8 or v0.9+ engines."""
 
-    def __init__(self, catalog: A2uiCatalog):
+    def __init__(
+        self,
+        catalog: A2uiCatalog,
+        experiments: Optional[Union[set[str], frozenset[str]]] = None,
+    ):
         ver = catalog.version
         self.version = ver if isinstance(ver, str) else VERSION_0_8
+
+        env_experiments = set()
+        if os.environ.get("A2UI_VERSION_1_0", "").lower() in (
+            "true",
+            "1",
+            "yes",
+        ) or os.environ.get("A2UI_EXPRESS_ENABLED", "").lower() in ("true", "1", "yes"):
+            env_experiments.add("version_1_0")
+
+        self.experiments = (
+            (set(experiments) if experiments else set())
+            | (set(catalog.experiments) if catalog and catalog.experiments else set())
+            | env_experiments
+        )
+
         if self.version == VERSION_0_8:
             self._delegator: Union[
                 LegacyA2uiValidatorV08, A2uiValidatorWrapper, A2uiValidatorWrapperV10
@@ -234,24 +254,13 @@ class A2uiValidator:
         elif self.version == VERSION_0_9_1:
             self._delegator = A2uiValidatorWrapperV10(catalog)
         elif self.version == VERSION_1_0:
-            import os
-
-            v1_0_enabled = os.environ.get("A2UI_VERSION_1_0", "").lower() in (
-                "true",
-                "1",
-                "yes",
-            )
-            express_enabled = os.environ.get("A2UI_EXPRESS_ENABLED", "").lower() in (
-                "true",
-                "1",
-                "yes",
-            )
-            if v1_0_enabled or express_enabled:
+            if "version_1_0" in self.experiments:
                 self._delegator = A2uiValidatorWrapperV10(catalog)
             else:
                 raise A2uiCatalogError(
-                    "A2UI v1.0 validation is experimental and is disabled by default. "
-                    "To enable it, set the environment variable A2UI_VERSION_1_0=true."
+                    "A2UI v1.0 validation is experimental and is disabled by default."
+                    " To enable it, pass the experiment name 'version_1_0' in the"
+                    " experiments configuration."
                 )
         else:
             self._delegator = A2uiValidatorWrapper(catalog)

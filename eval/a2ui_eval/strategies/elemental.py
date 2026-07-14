@@ -26,7 +26,7 @@ from inspect_ai.model import ChatMessageSystem, ModelOutput, ChatCompletionChoic
 from a2ui.core.catalog import Catalog
 from a2ui.experimental.elemental.prompt_generator import ElementalPromptGenerator
 from a2ui.experimental.elemental.parser import parse_elemental_response
-from a2ui.schema.manager import A2uiSchemaManager
+from a2ui.inference_formats.transport.format import TransportFormat
 from a2ui.schema.catalog import CatalogConfig
 from ..shared.utils import GIT_ROOT, measured_generate
 
@@ -62,8 +62,8 @@ def compile_elemental_dsl(version: str) -> Solver:
 
         # Initialize the catalog schema validator for parsing and validation
         catalog_config = CatalogConfig.from_path("basic_catalog", resolved_catalog_path)
-        manager = A2uiSchemaManager(version=version, catalogs=[catalog_config])
-        catalog = manager.get_selected_catalog()
+        transport_format = TransportFormat(version=version, catalogs=[catalog_config])
+        catalog = transport_format.get_selected_catalog()
         validator = catalog.validator
 
         completion = state.output.completion.strip()

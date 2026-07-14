@@ -18,14 +18,14 @@ import re
 import json
 from typing import Any, List, Dict, Optional, Set, TYPE_CHECKING
 
-from .streaming import A2uiStreamParser
-from .response_part import ResponsePart
-from .constants import *
-from ..schema.constants import VERSION_0_8, SURFACE_ID_KEY, CATALOG_COMPONENTS_KEY
+from a2ui.inference_formats.transport.streaming import A2uiStreamParser
+from a2ui.parser.response_part import ResponsePart
+from a2ui.parser.constants import *
+from a2ui.schema.constants import VERSION_0_8, SURFACE_ID_KEY, CATALOG_COMPONENTS_KEY
 from a2ui.core.validating.validator import ValidationConfig, RELAXED_VALIDATION, STRICT_VALIDATION
 
 if TYPE_CHECKING:
-    from ..schema.catalog import A2uiCatalog
+    from a2ui.schema.catalog import A2uiCatalog
 
 
 class A2uiStreamParserV08(A2uiStreamParser):

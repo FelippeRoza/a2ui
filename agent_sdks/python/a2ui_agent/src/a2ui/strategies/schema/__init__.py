@@ -12,16 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Deprecated compatibility redirect for A2uiSchemaManager."""
+"""Deprecated compatibility redirect for standard schema strategy."""
 
 import warnings
 from typing import Any, Optional, Callable, Union
 from a2ui.inference_formats.transport.format import TransportFormat
+from a2ui.inference_formats.transport.parser import TransportParser as A2uiSchemaParser
 from a2ui.schema.catalog import CatalogConfig
 
 warnings.warn(
-    "a2ui.schema.manager is deprecated and will be removed. "
-    "Import from a2ui.inference_formats.transport instead.",
+    "a2ui.strategies.schema is deprecated. "
+    "Please import from a2ui.inference_formats.transport instead.",
     DeprecationWarning,
     stacklevel=2,
 )
@@ -52,3 +53,9 @@ class A2uiSchemaManager(TransportFormat):
             schema_modifiers=schema_modifiers,
             experiments=experiments,
         )
+
+
+__all__ = [
+    "A2uiSchemaManager",
+    "A2uiSchemaParser",
+]
