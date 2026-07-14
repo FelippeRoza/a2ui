@@ -88,7 +88,7 @@ def get_a2ui_datapart(part: Part) -> Optional[DataPart]:
 
 def parse_response_to_parts(
     content: str,
-    parser: Parser,
+    parser: Optional[Parser] = None,
     fallback_text: Optional[str] = None,
     version: Optional[str] = None,
 ) -> List[Part]:
@@ -105,7 +105,12 @@ def parse_response_to_parts(
     """
     parts = []
     try:
-        response_parts = parser.parse_response(content)
+        if parser is not None:
+            response_parts = parser.parse_response(content)
+        else:
+            from a2ui.parser.parser import parse_response as legacy_parse_response
+
+            response_parts = legacy_parse_response(content)
 
         for part in response_parts:
             if part.text:
