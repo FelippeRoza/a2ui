@@ -102,12 +102,20 @@ class ExpressFormat(InferenceFormat):
         self.surface_id = surface_id
         self.examples_path = examples_path
         self._decompiler = ExpressDecompiler(catalog) if catalog else None
+        self._prompt_generator: Optional[ExpressPromptGenerator] = None
 
     def _ensure_catalog(self) -> None:
         if not self.catalog or not self._decompiler:
             raise ValueError(
                 "Catalog is required for parsing and decompiling in express format."
             )
+
+    @property
+    def prompt_generator(self) -> ExpressPromptGenerator:
+        """Returns the PromptGenerator instance for this format."""
+        if self._prompt_generator is None:
+            self._prompt_generator = ExpressPromptGenerator(self)
+        return self._prompt_generator
 
     @property
     def parser(self) -> Parser:
@@ -294,44 +302,3 @@ IMPORTANT: You must ALWAYS output A2UI Express DSL notation wrapped inside `<a2u
         return re.sub(
             pattern, replace_json_block, raw_examples_markdown, flags=re.DOTALL
         )
-
-    def generate_system_prompt(
-        self,
-        role_description: str,
-        workflow_description: str = "",
-        ui_description: str = "",
-        client_ui_capabilities: Optional[dict[str, Any]] = None,
-        allowed_components: Optional[list[str]] = None,
-        allowed_messages: Optional[list[str]] = None,
-        include_schema: bool = False,
-        include_examples: bool = False,
-        validate_examples: bool = False,
-        format_strategy: Optional[Any] = None,
-    ) -> str:
-        """Assembles the final system instruction prompt for Express DSL."""
-        catalog = self.catalog
-        if catalog and (allowed_components or allowed_messages):
-            catalog = catalog.with_pruning(allowed_components, allowed_messages)
-
-        prompt_gen = ExpressPromptGenerator(catalog) if catalog else None
-
-        parts = [role_description]
-
-        workflow = self.format_description(workflow_description)
-        parts.append(f"## Workflow Description:\n{workflow}")
-
-        if ui_description:
-            parts.append(f"## UI Description:\n{ui_description}")
-
-        if include_schema and prompt_gen:
-            parts.append(self.catalog_description(prompt_gen, include_schema))
-
-        if include_examples and self.examples_path and catalog:
-            raw_examples = catalog.load_examples(
-                self.examples_path, validate=validate_examples
-            )
-            if raw_examples:
-                formatted_examples = self.transform_examples(raw_examples)
-                parts.append(f"### Examples:\n{formatted_examples}")
-
-        return "\n\n".join(parts)

@@ -17,7 +17,7 @@
 import warnings
 from abc import ABC, abstractmethod
 from typing import Any, Optional, List
-from a2ui.prompt_generator import PromptGenerator
+from a2ui.prompts import PromptGenerator
 from a2ui.parser.parser import Parser
 
 
