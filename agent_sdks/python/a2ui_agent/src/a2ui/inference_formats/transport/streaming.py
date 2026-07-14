@@ -1025,7 +1025,9 @@ class A2uiStreamParser:
 
         # Start recursion from the component content
         if isinstance(comp.get("component"), dict):
-            self._traverse_component_topology(comp.get("component", {}), extra_components, comp_id)
+            self._traverse_component_topology(
+                comp.get("component", {}), extra_components, comp_id
+            )
         else:
             # Flat style properties are siblings to 'component' type key
             self._traverse_component_topology(comp, extra_components, comp_id)
@@ -1055,9 +1057,9 @@ class A2uiStreamParser:
                 # If not in data model, still ensure path has leading slash if it's a bindable object (v0.8 only)
                 current_path = obj.get("path")
                 if current_path is not None:
-                    if not isinstance(
-                        current_path, str
-                    ) or not current_path.startswith("/"):
+                    if not isinstance(current_path, str) or not current_path.startswith(
+                        "/"
+                    ):
                         obj["path"] = "/" + str(current_path)
 
             # 2. Handle Child Pruning (from _prune_unseen_children)
@@ -1126,14 +1128,17 @@ class A2uiStreamParser:
                                 **self._placeholder_component,
                             }
                             if not any(
-                                ec["id"] == placeholder_id
-                                for ec in extra_components
+                                ec["id"] == placeholder_id for ec in extra_components
                             ):
                                 extra_components.append(placeholder_comp)
 
             # Continue traversal on values
             for k, v in list(obj.items()):
-                self._traverse_component_topology(v, extra_components, comp_id, parent_key=k)
+                self._traverse_component_topology(
+                    v, extra_components, comp_id, parent_key=k
+                )
         elif isinstance(obj, list):
             for item in obj:
-                self._traverse_component_topology(item, extra_components, comp_id, parent_key)
+                self._traverse_component_topology(
+                    item, extra_components, comp_id, parent_key
+                )

@@ -84,6 +84,7 @@ def has_a2ui_parts(content: str) -> bool:
         Whether the content contains open and close A2UI tags.
     """
     from a2ui.schema.constants import A2UI_OPEN_TAG, A2UI_CLOSE_TAG
+
     return A2UI_OPEN_TAG in content and A2UI_CLOSE_TAG in content
 
 

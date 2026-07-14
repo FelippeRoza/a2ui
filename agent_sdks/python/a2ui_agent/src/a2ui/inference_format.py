@@ -65,7 +65,8 @@ class InferenceFormat(ABC):
             The complete system prompt string.
         """
         warnings.warn(
-            "generate_system_prompt is deprecated. Use prompt_generator.generate(...) instead.",
+            "generate_system_prompt is deprecated. Use prompt_generator.generate(...)"
+            " instead.",
             DeprecationWarning,
             stacklevel=2,
         )
