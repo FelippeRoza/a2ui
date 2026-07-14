@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Unified interface coordinating prompt generation and parsing of LLM response payloads."""
+
 from abc import ABC, abstractmethod
 from typing import Any, Optional, List
 
@@ -38,5 +40,20 @@ class InferenceFormat(ABC):
         include_examples: bool = False,
         validate_examples: bool = False,
     ) -> str:
-        """Generates a system prompt for all LLM requests."""
+        """Generates a system prompt for all LLM requests.
+
+        Args:
+            role_description: Description of the agent's role.
+            workflow_description: Optional description of the task workflow.
+            ui_description: Optional UI context or rules.
+            client_ui_capabilities: Optional client UI capability details.
+            allowed_components: Optional list of component tags the LLM may use.
+            allowed_messages: Optional list of message types allowed.
+            include_schema: Whether to include component schemas in the prompt.
+            include_examples: Whether to include few-shot examples.
+            validate_examples: Whether to validate few-shot examples on generation.
+
+        Returns:
+            The complete system prompt string.
+        """
         pass

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Parser and compiler implementation for standard A2UI JSON schema responses."""
+
 import re
 from typing import List, Optional, Any
 from a2ui.parser.parser import Parser
@@ -28,7 +30,14 @@ _A2UI_BLOCK_PATTERN = re.compile(
 
 
 def _sanitize_json_string(json_string: str) -> str:
-    """Sanitizes the JSON string by removing markdown code blocks."""
+    """Sanitizes the JSON string by removing markdown code blocks.
+
+    Args:
+        json_string: The raw JSON string.
+
+    Returns:
+        The sanitized JSON string.
+    """
     json_string = json_string.strip()
     if json_string.startswith("```json"):
         json_string = json_string[len("```json") :]
@@ -41,7 +50,14 @@ def _sanitize_json_string(json_string: str) -> str:
 
 
 def unwrap_response(content: str) -> List[ResponsePart]:
-    """Tokenizes the LLM response into a list of ResponsePart objects, extracting raw format content."""
+    """Tokenizes the LLM response into a list of ResponsePart objects, extracting raw format content.
+
+    Args:
+        content: The raw LLM response.
+
+    Returns:
+        A list of ResponsePart objects.
+    """
     matches = list(_A2UI_BLOCK_PATTERN.finditer(content))
 
     if not matches:
@@ -72,6 +88,7 @@ def unwrap_response(content: str) -> List[ResponsePart]:
 
     return response_parts
 
+
 class TransportParser(Parser):
     """Concrete parser implementation for standard A2UI JSON schema responses (Transport Format)."""
 
@@ -80,23 +97,50 @@ class TransportParser(Parser):
         catalog: A2uiCatalog,
         validator: Optional[A2uiValidator] = None,
     ):
+        """Initializes the TransportParser.
+
+        Args:
+            catalog: The A2uiCatalog mapping schema identifiers.
+            validator: Optional validator for payload verification.
+        """
         self._catalog = catalog
         self._validator = validator
         self._stream_parser: Optional[Any] = None
 
     def unwrap(self, content: str) -> List[ResponsePart]:
-        """Tokenizes response content into raw format-content parts."""
+        """Tokenizes response content into raw format-content parts.
+
+        Args:
+            content: The raw response content.
+
+        Returns:
+            A list of unwrapped ResponsePart objects.
+        """
         return unwrap_response(content)
 
     def compile(self, format_content: str) -> List[dict[str, Any]]:
-        """Validates and compiles raw A2UI JSON schema content."""
+        """Validates and compiles raw A2UI JSON schema content.
+
+        Args:
+            format_content: The raw A2UI JSON string.
+
+        Returns:
+            A list of compiled A2UI message dictionaries.
+        """
         json_data = parse_and_fix(format_content)
         if self._validator:
             self._validator.validate(json_data)
         return json_data
 
     def process_chunk(self, chunk: str) -> List[ResponsePart]:
-        """Processes streamed token chunks incrementally."""
+        """Processes streamed token chunks incrementally.
+
+        Args:
+            chunk: The next token text chunk.
+
+        Returns:
+            A list of parsed or completed ResponsePart objects.
+        """
         from a2ui.inference_formats.transport.streaming import A2uiStreamParser
 
         if not self._stream_parser:

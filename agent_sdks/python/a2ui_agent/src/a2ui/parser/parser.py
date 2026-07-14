@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Abstract parser interface and legacy parsing compatibility helpers."""
+
 from abc import ABC, abstractmethod
 from typing import List, Optional, Any
 from .response_part import ResponsePart
@@ -21,7 +23,14 @@ class Parser(ABC):
     """Abstract interface defining the response parser and compiler."""
 
     def parse_response(self, content: str) -> List[ResponsePart]:
-        """Parses full response content into standard JSON payload parts by unwrapping and compiling."""
+        """Parses full response content into standard JSON payload parts by unwrapping and compiling.
+
+        Args:
+            content: The raw LLM response.
+
+        Returns:
+            A list of ResponsePart objects containing text and compiled JSON.
+        """
         parts = self.unwrap(content)
         for part in parts:
             if part.a2ui_raw is not None:
@@ -30,29 +39,56 @@ class Parser(ABC):
 
     @abstractmethod
     def unwrap(self, content: str) -> List[ResponsePart]:
-        """Tokenizes response content into raw format-content parts."""
+        """Tokenizes response content into raw format-content parts.
+
+        Args:
+            content: The raw LLM response.
+
+        Returns:
+            A list of ResponsePart objects with a2ui_raw populated.
+        """
         pass
 
     @abstractmethod
     def compile(self, format_content: str) -> List[dict[str, Any]]:
-        """Compiles raw format-content (inference format string) to structured A2UI messages."""
+        """Compiles raw format-content (inference format string) to structured A2UI messages.
+
+        Args:
+            format_content: The raw format-content extracted from response.
+
+        Returns:
+            A list of compiled A2UI message dictionaries.
+        """
         pass
 
     @abstractmethod
     def process_chunk(self, chunk: str) -> List[ResponsePart]:
-        """Processes a streamed token chunk (incremental parsing)."""
+        """Processes a streamed token chunk (incremental parsing).
+
+        Args:
+            chunk: The next text chunk from the stream.
+
+        Returns:
+            A list of parsed or completed ResponsePart objects.
+        """
         pass
 
 
 def has_a2ui_parts(content: str) -> bool:
-    """Checks if the content has A2UI parts (legacy compatibility helper)."""
+    """Checks if the content has A2UI parts (legacy compatibility helper).
+
+    Args:
+        content: The raw response text.
+
+    Returns:
+        Whether the content contains open and close A2UI tags.
+    """
     from a2ui.schema.constants import A2UI_OPEN_TAG, A2UI_CLOSE_TAG
     return A2UI_OPEN_TAG in content and A2UI_CLOSE_TAG in content
 
 
 def parse_response(content: str) -> List[ResponsePart]:
-    """
-    Parses the LLM response into a list of ResponsePart objects by unwrapping and compiling (legacy).
+    """Parses the LLM response into a list of ResponsePart objects (legacy).
 
     Args:
         content: The raw LLM response.

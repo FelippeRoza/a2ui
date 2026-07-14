@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Standard A2UI transport inference format coordination."""
+
 import copy
 from typing import Any, Optional, Callable, Union
 
@@ -45,6 +47,15 @@ class TransportFormat(InferenceFormat):
         ] = None,
         experiments: Optional[Union[set[str], frozenset[str]]] = None,
     ):
+        """Initializes the TransportFormat with schemas and catalogs.
+
+        Args:
+            version: The A2UI protocol specification version (e.g. "0.9").
+            catalogs: Optional list of catalog configurations.
+            accepts_inline_catalogs: Whether inline catalog definitions are allowed.
+            schema_modifiers: Optional schema modifier functions to post-process schemas.
+            experiments: Optional set of enabled experimental feature flags.
+        """
         self._version = version
         self._accepts_inline_catalogs = accepts_inline_catalogs
         self.experiments = frozenset(experiments) if experiments else frozenset()
@@ -74,10 +85,12 @@ class TransportFormat(InferenceFormat):
 
     @property
     def accepts_inline_catalogs(self) -> bool:
+        """Whether this format accepts inline catalog definitions."""
         return self._accepts_inline_catalogs
 
     @property
     def supported_catalog_ids(self) -> list[str]:
+        """A list of catalog IDs supported by this format."""
         return [c.catalog_id for c in self._supported_catalogs]
 
     def _apply_modifiers(self, schema: dict[str, Any]) -> dict[str, Any]:
@@ -222,13 +235,30 @@ class TransportFormat(InferenceFormat):
         allowed_components: Optional[list[str]] = None,
         allowed_messages: Optional[list[str]] = None,
     ) -> A2uiCatalog:
-        """Gets the selected catalog after selection and component pruning."""
+        """Selects and prunes the catalog according to client capabilities and restrictions.
+
+        Args:
+            client_ui_capabilities: Optional client UI capability details.
+            allowed_components: Optional list of component tags allowed.
+            allowed_messages: Optional list of message types allowed.
+
+        Returns:
+            The selected and pruned A2uiCatalog instance.
+        """
         catalog = self._select_catalog(client_ui_capabilities)
         pruned_catalog = catalog.with_pruning(allowed_components, allowed_messages)
         return pruned_catalog
 
     def load_examples(self, catalog: A2uiCatalog, validate: bool = False) -> str:
-        """Loads examples for a catalog."""
+        """Loads and optionally validates few-shot examples for the specified catalog.
+
+        Args:
+            catalog: The A2uiCatalog to load examples for.
+            validate: Whether to validate the examples on load.
+
+        Returns:
+            The examples text block, or an empty string.
+        """
         if catalog.catalog_id in self._catalog_example_paths:
             return catalog.load_examples(
                 self._catalog_example_paths[catalog.catalog_id], validate=validate
@@ -247,7 +277,22 @@ class TransportFormat(InferenceFormat):
         include_examples: bool = False,
         validate_examples: bool = False,
     ) -> str:
-        """Assembles the final system instruction for the LLM."""
+        """Assembles the final system instruction for the LLM.
+
+        Args:
+            role_description: Description of the agent's role.
+            workflow_description: Optional description of the task workflow.
+            ui_description: Optional UI context or rules.
+            client_ui_capabilities: Optional client UI capability details.
+            allowed_components: Optional list of component tags the LLM may use.
+            allowed_messages: Optional list of message types allowed.
+            include_schema: Whether to include component schemas in the prompt.
+            include_examples: Whether to include few-shot examples.
+            validate_examples: Whether to validate few-shot examples on generation.
+
+        Returns:
+            The complete system prompt string.
+        """
         selected_catalog = self.get_selected_catalog(
             client_ui_capabilities, allowed_components, allowed_messages
         )

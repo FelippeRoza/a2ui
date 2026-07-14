@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Facade validator dispatching to version-specific validation engines."""
+
 from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, Mapping
@@ -271,4 +273,14 @@ class A2uiValidator:
         root_id: Optional[str] = None,
         config: ValidationConfig = STRICT_VALIDATION,
     ) -> None:
+        """Validates the structure, integrity, and topology of the A2UI message.
+
+        Args:
+            a2ui_json: The A2UI message payload (object or list of objects).
+            root_id: The ID of the root component context.
+            config: The ValidationConfig constraint settings (STRICT or RELAXED).
+
+        Raises:
+            A2uiValidationError: If any JSON schema, reference integrity, or circular path checks fail.
+        """
         self._delegator.validate(a2ui_json, root_id=root_id, config=config)

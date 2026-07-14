@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Generator for standard A2UI JSON schema system prompt instructions."""
+
 from typing import Optional, List
 from a2ui.schema.catalog import A2uiCatalog
 
@@ -20,6 +22,11 @@ class TransportPromptGenerator:
     """Formats standard JSON schema system prompt instructions (Transport Format)."""
 
     def __init__(self, catalog: A2uiCatalog):
+        """Initializes the prompt generator with a catalog context.
+
+        Args:
+            catalog: The A2uiCatalog to reference.
+        """
         self.catalog = catalog
 
     def generate(
@@ -30,7 +37,18 @@ class TransportPromptGenerator:
         examples: str = "",
         include_schema: bool = True,
     ) -> str:
-        """Assembles prompt instructions contract for standard JSON."""
+        """Assembles prompt instructions contract for standard JSON.
+
+        Args:
+            role_description: Description of the agent's role.
+            workflow_description: Optional description of the task workflow.
+            ui_description: Optional UI context or rules.
+            examples: Optional few-shot examples string.
+            include_schema: Whether to include component schemas in the output.
+
+        Returns:
+            The complete generated prompt system instruction.
+        """
         parts = [role_description]
 
         from a2ui.schema.constants import DEFAULT_WORKFLOW_RULES
