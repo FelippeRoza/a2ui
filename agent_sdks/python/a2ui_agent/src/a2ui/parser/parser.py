@@ -14,6 +14,7 @@
 
 """Abstract parser interface and legacy parsing compatibility helpers."""
 
+import warnings
 from abc import ABC, abstractmethod
 from typing import List, Optional, Any
 from .response_part import ResponsePart
@@ -97,6 +98,12 @@ def parse_response(content: str) -> List[ResponsePart]:
     Returns:
         A list of ResponsePart objects.
     """
+    warnings.warn(
+        "parse_response is deprecated. Please use format.parser.parse_response(...) "
+        "on your InferenceFormat instance instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     from a2ui.inference_formats.transport.parser import unwrap_response
     from a2ui.parser.payload_fixer import parse_and_fix
 
