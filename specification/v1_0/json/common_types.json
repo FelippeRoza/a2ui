@@ -36,6 +36,11 @@
           "type": "string",
           "description": "Optional catalog ID for this component. Useful when mixing components from different catalogs to resolve ambiguous component names."
         },
+        "rootOnly": {
+          "type": "boolean",
+          "description": "If true, this component must be the top-level element and cannot be placed inside a ChildList.",
+          "default": false
+        },
         "accessibility": {
           "$ref": "#/$defs/AccessibilityAttributes"
         }

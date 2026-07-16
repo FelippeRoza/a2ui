@@ -43,6 +43,7 @@ Version 1.0 differs from 0.9 in the following ways:
 - Added `callFunction` message structure (`CallFunctionMessage`) to support server-initiated function execution. Removed `callableFrom` and `returnType` properties from the wire payload, relying on runtime catalog verification.
 - Updated the `createSurface` message (`CreateSurfaceMessage`) to rename the `theme` field to `surfaceProperties`, allowed passing initial `components` and `dataModel` directly inside the payload, and made `catalogId` optional.
 - Added an optional `catalogId` to the base component definition (`ComponentCommon`) to handle component name collisions when multiple catalogs are used.
+- Added a `rootOnly` boolean (default: false) to `ComponentCommon` to indicate if a component must be the top-level element. This allows restricting top-level components (like a Canvas) from being nested inside a `ChildList`.
 - Updated all protocol version references and envelopes from `v0.9` or `v0.9.1` to `v1.0`.
 
 ### 2.4. Client-to-server events

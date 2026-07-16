@@ -429,6 +429,7 @@ Each object in the `components` array of an `updateComponents` message defines a
 - `id` (`ComponentId`, required): A unique string that identifies this specific component instance. This is used for parent-child references.
 - `component` (string, required): Specifies the component's type (e.g., `"Text"`).
 - `catalogId` (string, optional): A string that uniquely identifies the catalog for this component, overriding the surface's default catalog. Useful when combining components from multiple catalogs.
+- `rootOnly` (boolean, optional, default `false`): If true, this component must be the top-level element and cannot be placed inside a `ChildList`. Top-level root components (e.g., a `Canvas`) will generally have this set to `true`.
 - **Component Properties**: Other properties relevant to the specific component type (e.g., `text`, `url`, `children`) are included directly in the component object.
 
 This structure is designed to be both flexible and strictly validated.
@@ -655,6 +656,8 @@ The A2UI protocol defines the UI as a flat list of components. The tree structur
 Container components (like `Row`, `Column`, `List`, and `Card`) have properties that reference the `id` of their child component(s). The client is responsible for storing all components in a map (e.g., `Map<String, Component>`) and recreating the tree structure at render time.
 
 This model allows the server to send component definitions in any order. Rendering can begin as soon as the `root` component is defined, with the client filling in or updating the rest of the tree progressively as additional definitions arrive.
+
+> **Note on structural validation:** Because the tree is defined implicitly using string references (IDs) in a flat array, JSON Schema cannot perform graph referential integrity checks. The client/renderer MUST verify at runtime that referenced components actually exist and are allowed to be nested (i.e., their `rootOnly` property is not `true`).
 
 There must be exactly one component with the ID `root` in the component tree, acting as the root of the component tree. Until that component is defined, other component updates will have no visible effect, and they will be buffered until a root component is defined. Once a root component is defined, the client is responsible for rendering the tree in the best way possible based on the available data, skipping invalid references.
 
