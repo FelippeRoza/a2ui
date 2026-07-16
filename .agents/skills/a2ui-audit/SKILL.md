@@ -1,5 +1,5 @@
 ---
-name: a2ui-compliance
+name: a2ui-audit
 description: Main coordination skill to run the blueprint compliance, documentation synchronization, and test quality audits, posting the combined results as a labeled GitHub issue.
 ---
 
