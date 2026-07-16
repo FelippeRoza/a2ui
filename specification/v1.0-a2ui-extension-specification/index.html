@@ -2448,147 +2448,201 @@
 <hr />
 <h1 id="a2ui-agent-to-agent-ui-extension-spec-v10">A2UI (Agent-to-Agent UI) Extension spec v1.0<a class="headerlink" href="#a2ui-agent-to-agent-ui-extension-spec-v10" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>This extension implements the A2UI (Agent-to-Agent UI) spec v1.0, a format for agents to send streaming, interactive user interfaces to clients.</p>
+<p>This document is intended for developers implementing the A2UI A2A extension. The extension adds A2UI v1.0 support to A2A, a format for agents to send streaming, interactive user interfaces to clients.</p>
+<p>Note that A2UI extension activation is optional as clients and agents can negotiate A2UI support using A2A <code>message.metadata["a2uiClientCapabilities"]</code> which is attached to every A2A message from the client and contains the supported protocol version and catalogs. Agents advertising A2UI support in their AgentCard is encouraged as clients may rely on it to determine if they should send <code>message.metadata["a2uiClientCapabilities"]</code>, however it is not explicitly required.</p>
 <h2 id="extension-uri">Extension URI<a class="headerlink" href="#extension-uri" title="Permanent link">&para;</a></h2>
-<p>The URI of this extension is:
-<code>https://a2ui.org/a2a-extension/a2ui/v1.0</code></p>
-<p>This is the only URI accepted for this extension.</p>
-<h2 id="core-concepts">Core concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
-<p>The A2UI extension is built on the following main concepts:</p>
-<ul>
-<li><strong>Surfaces</strong>: A "Surface" is a distinct, controllable region of the client's UI. The spec uses a <code>surfaceId</code> to direct updates to specific surfaces (e.g., a main content area, a side panel, or a new chat bubble). This allows a single agent stream to manage multiple UI areas independently.</li>
-<li><strong>Catalog Definition Document</strong>: The A2UI extension is catalog-agnostic. All UI components (e.g., Text, Row, Button) and functions (e.g., required, email) are defined in a separate Catalog Definition Schema. This allows clients and servers to negotiate which catalog to use.</li>
-<li><strong>Schemas</strong>: The A2UI extension is defined by several primary JSON schemas:</li>
-<li><strong>Catalog Definition Schema</strong>: A standard format for defining a library of components and functions (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/catalog_definition.json">catalog_definition.json</a>).</li>
-<li><strong>Server-to-Client Message List Schema</strong>: The core wire format for messages sent from the agent to the client (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/server_to_client_list.json">server_to_client_list.json</a>).</li>
-<li><strong>Client-to-Server Message List Schema</strong>: The core wire format for messages sent from the client to the agent (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_to_server_list.json">client_to_server_list.json</a>).</li>
-<li><strong>Server Capabilities Schema</strong>: The schema for the <code>a2uiServerCapabilities</code> object, used by servers to declare their UI generation capabilities (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/server_capabilities.json">server_capabilities.json</a>).</li>
-<li><strong>Client Capabilities Schema</strong>: The schema for the <code>a2uiClientCapabilities</code> object (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_capabilities.json">client_capabilities.json</a>).</li>
-<li><strong>Client Data Model Schema</strong>: The schema for the <code>a2uiClientDataModel</code> object, used for two-way synchronization (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_data_model.json">client_data_model.json</a>).</li>
-</ul>
-<hr />
-<h2 id="metadata-and-capabilities-exchange">Metadata and capabilities exchange<a class="headerlink" href="#metadata-and-capabilities-exchange" title="Permanent link">&para;</a></h2>
-<p>In A2UI v1.0, capabilities and other session metadata are exchanged via <strong>transport metadata</strong> or initialization payloads rather than as first-class A2UI messages.</p>
-<h3 id="server-capabilities-in-agent-cards">Server capabilities in Agent Cards<a class="headerlink" href="#server-capabilities-in-agent-cards" title="Permanent link">&para;</a></h3>
-<p>Agents advertise their A2UI capabilities in their AgentCard within the <code>AgentCapabilities.extensions</code> list. The <code>params</code> object defines the agent's specific UI support and corresponds directly to the <strong>Server Capabilities Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/server_capabilities.json">server_capabilities.json</a>).</p>
-<h4 id="example-agentextension-block">Example AgentExtension block<a class="headerlink" href="#example-agentextension-block" title="Permanent link">&para;</a></h4>
+<p>The URI of this extension is https://a2ui.org/a2a-extension/a2ui/v1.0</p>
+<p>This URI is the canonical way to communicate protocol versioning between clients and agents. The extension URI explicitly encodes the version (e.g., <code>v1.0</code>). A client requesting this specific URI indicates it supports the v1.0 schema format.</p>
+<h2 id="agent-card">Agent Card<a class="headerlink" href="#agent-card" title="Permanent link">&para;</a></h2>
+<p>Agents are encouraged to advertise their A2UI capabilities in their AgentCard within the <code>AgentCapabilities.extensions</code> list. This advertisement is optional, but it informs the client whether to send <code>message.metadata["a2uiClientCapabilities"]</code>. The <code>params</code> object defines the agent's specific UI support and corresponds directly to the <a href="../v1_0/json/server_capabilities.json">Server Capabilities Schema</a>.</p>
+<p>Example AgentCard payload:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://a2ui.org/a2a-extension/a2ui/v1.0&quot;</span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ability to render A2UI v1.0&quot;</span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">&quot;supportedCatalogIds&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">      </span><span class="s2">&quot;https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json&quot;</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">      </span><span class="s2">&quot;https://my-company.com/a2ui/v0_1/my_custom_catalog.json&quot;</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="p">],</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nt">&quot;acceptsInlineCatalogs&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dashboard Agent&quot;</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Agent capable of generating dynamic UI dashboards.&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">&quot;capabilities&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">&quot;extensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">      </span><span class="p">{</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">        </span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://a2ui.org/a2a-extension/a2ui/v1.0&quot;</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ability to render A2UI v1.0&quot;</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">        </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">        </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">          </span><span class="nt">&quot;supportedCatalogIds&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">            </span><span class="s2">&quot;https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json&quot;</span><span class="p">,</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">            </span><span class="s2">&quot;https://my-company.com/a2ui/v1.0/my_custom_catalog.json&quot;</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">          </span><span class="p">],</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">          </span><span class="nt">&quot;acceptsInlineCatalogs&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="p">]</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="p">}</span>
 </span></code></pre></div>
-<h4 id="parameter-definitions">Parameter definitions<a class="headerlink" href="#parameter-definitions" title="Permanent link">&para;</a></h4>
 <p>The <code>params</code> object corresponds to the <code>v1.0</code> object in the <code>server_capabilities.json</code> schema:</p>
 <ul>
-<li><code>params.supportedCatalogIds</code> (array of strings, optional): An array of strings, where each string is an ID identifying a Catalog Definition Schema that the agent can generate. This is not necessarily a resolvable URI.</li>
-<li><code>params.acceptsInlineCatalogs</code> (boolean, optional): A boolean indicating if the agent can accept an <code>inlineCatalogs</code> array in the client's <code>a2uiClientCapabilities</code>. If omitted, this defaults to <code>false</code>.</li>
+<li><code>params.supportedCatalogIds</code> (optional): An array of strings, where each string is an ID identifying a Catalog Definition Schema that the agent can generate. This is not necessarily a resolvable URI.</li>
+<li><code>params.acceptsInlineCatalogs</code> (optional): A boolean indicating if the agent can accept an <code>inlineCatalogs</code> array in the client's <code>a2uiClientCapabilities</code>. If omitted, this defaults to <code>false</code>.</li>
 </ul>
-<h3 id="client-capabilities-in-message-metadata">Client capabilities in message metadata<a class="headerlink" href="#client-capabilities-in-message-metadata" title="Permanent link">&para;</a></h3>
-<p>The client sends its capabilities to the server in an <code>a2uiClientCapabilities</code> object. This object is included in the <code>metadata</code> field of every A2A <code>Message</code> sent from the client to the server, following the <strong>Client Capabilities Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_capabilities.json">client_capabilities.json</a>).</p>
-<h4 id="parameter-definitions_1">Parameter definitions<a class="headerlink" href="#parameter-definitions_1" title="Permanent link">&para;</a></h4>
-<p>The <code>a2uiClientCapabilities</code> object contains a <code>v1.0</code> object with the following properties:</p>
+<h2 id="a2a-extension-activation">A2A Extension activation<a class="headerlink" href="#a2a-extension-activation" title="Permanent link">&para;</a></h2>
+<p>Activating the A2UI extension is optional. Clients and agents can negotiate A2UI support using <code>message.metadata["a2uiClientCapabilities"]</code> A2A <code>DataPart.data.metadata["mimeType"] = "application/a2ui+json"</code>.</p>
+<p>Specifically:</p>
 <ul>
-<li><code>v1.0.supportedCatalogIds</code> (array of strings, required): The string identifiers of supported component and function catalogs.</li>
-<li><code>v1.0.inlineCatalogs</code> (array, optional): An array of custom catalog definitions provided inline by the client. Functions defined within inline catalogs support declaring execution boundaries (<code>callableFrom: "clientOnly" | "remoteOnly" | "clientOrRemote"</code>) to statically specify remote invocation safety.</li>
+<li>If a client includes <code>message.metadata["a2uiClientCapabilities"]</code>, the agent can use this object to determine the supported A2UI protocol version and catalogs.</li>
+<li>If an agent returns A2A A2A <code>DataPart.data.metadata["mimeType"] = "application/a2ui+json"</code>, the client knows the payload contains A2UI messages.</li>
 </ul>
-<hr />
-<h2 id="client-to-server-data-model-synchronization">Client-to-server data model synchronization<a class="headerlink" href="#client-to-server-data-model-synchronization" title="Permanent link">&para;</a></h2>
-<p>When <code>sendDataModel</code> is enabled for a surface (via the <code>createSurface</code> message), the client automatically appends the <strong>entire data model</strong> of that surface to the metadata of every message (such as an <code>action</code> or user query) sent to the server that created the surface.</p>
-<p>In A2A transport, the data model is serialized to the <code>a2uiClientDataModel</code> format and placed in the <code>metadata</code> field of the A2A <code>Message</code> envelope, following the <strong>Client Data Model Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_data_model.json">client_data_model.json</a>).</p>
-<h3 id="parameter-definitions_2">Parameter definitions<a class="headerlink" href="#parameter-definitions_2" title="Permanent link">&para;</a></h3>
-<p>The <code>a2uiClientDataModel</code> object contains:</p>
-<ul>
-<li><code>version</code> (string, required): Must be the constant <code>"v1.0"</code>.</li>
-<li><code>surfaces</code> (object, required): A map of surface IDs to their current local data models.</li>
-</ul>
-<h3 id="synchronization-rules">Synchronization rules<a class="headerlink" href="#synchronization-rules" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Targeted Delivery</strong>: The data model is sent exclusively to the server that created the surface. Data cannot leak to other agents or servers.</li>
-<li><strong>Trigger</strong>: Data is sent only when a client-to-server message is triggered (e.g., by a user action like a button click). Passive data changes (like typing in a text field) do not trigger a network request on their own; they simply update the local state, which will be sent with the next action.</li>
-<li><strong>Convergence</strong>: The server treats the received data model as the current state of the client at the time of the action.</li>
-</ul>
-<hr />
-<h2 id="extension-activation">Extension activation<a class="headerlink" href="#extension-activation" title="Permanent link">&para;</a></h2>
-<p>Clients indicate their desire to use the A2UI extension by specifying it via the transport-defined A2A extension activation mechanism.</p>
-<ul>
-<li>For <strong>JSON-RPC and HTTP</strong> transports, this is indicated via the <code>X-A2A-Extensions</code> HTTP header.</li>
-<li>For <strong>gRPC</strong>, this is indicated via the <code>X-A2A-Extensions</code> metadata value.</li>
-</ul>
-<p>Activating this extension implies that the server can send A2UI-specific messages (like <code>updateComponents</code>) and the client is expected to send A2UI-specific events (like <code>action</code>).</p>
-<hr />
+<p>While explicit activation is not required, clients can still explicitly activate the extension using the transport-defined A2A extension activation mechanism. The <a href="https://a2a-protocol.org/latest/topics/extensions/">A2A Extensions Guide</a> defines this process.</p>
+<p>Note: You should not use <code>accepted_output_modes: ['a2ui']</code> (which is not an A2UI standard) to trigger A2UI.</p>
+<h3 id="json-rpc-and-http-transports">JSON-RPC and HTTP transports<a class="headerlink" href="#json-rpc-and-http-transports" title="Permanent link">&para;</a></h3>
+<p>To activate the A2UI A2A Extension, the <code>X-A2A-Extensions</code> HTTP header includes the extension URI.</p>
+<p><strong>Example HTTP <code>SendMessageRequest</code>:</strong></p>
+<div class="language-http highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nf">POST</span> <span class="nn">/v1/messages</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="na">Host</span><span class="o">:</span> <span class="l">agent.example.com</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="na">X-A2A-Extensions</span><span class="o">:</span> <span class="l">https://a2ui.org/a2a-extension/a2ui/v1.0</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">{</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">&quot;parts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">      </span><span class="p">{</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">        </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hello, show me the dashboard&quot;</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="p">]</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>To see how the agent parses the extension URI, see <a href="https://github.com/a2ui-project/a2ui/blob/main/agent_sdks/python/a2ui_agent/src/a2ui/a2a/extension.py"><code>extension.py</code></a>.</p>
+<h3 id="grpc-transport">GRPC transport<a class="headerlink" href="#grpc-transport" title="Permanent link">&para;</a></h3>
+<p>To activate the A2UI A2A Extension, the client adds the extension URI to A2A <code>sendMessageParams.metadata["X-A2A-Extensions"]</code>.</p>
+<p><strong>Example gRPC <code>SendMessageRequest</code>:</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">&quot;X-A2A-Extensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://a2ui.org/a2a-extension/a2ui/v1.0&quot;</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">&quot;parts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">      </span><span class="p">{</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hello, show me the dashboard&quot;</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">      </span><span class="p">]</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="a2a-client-to-server-metadata">A2A Client to Server Metadata<a class="headerlink" href="#a2a-client-to-server-metadata" title="Permanent link">&para;</a></h2>
+<p>Clients attach <code>a2uiClientCapabilities</code> and <code>a2uiClientDataModel</code> to A2A messages to communicate their state and supported catalogs.</p>
+<h3 id="a2uiclientcapabilities"><code>a2uiClientCapabilities</code><a class="headerlink" href="#a2uiclientcapabilities" title="Permanent link">&para;</a></h3>
+<p>The client sends <code>sendMessageRequest.message["a2uiClientCapabilities"]</code> = <a href="../v1_0/json/client_capabilities.json">Client Capabilities Schema</a> to advertise which catalogs the renderer supports.</p>
+<p>Additionally, the client determines a function's execution boundary (e.g., <code>clientOnly</code> status) at runtime by reading its configuration from the active catalog definition.</p>
+<p><strong>Example <code>SendMessageRequest</code> with Capabilities:</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;parts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="p">{</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">        </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Show me the dashboard.&quot;</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">],</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">      </span><span class="nt">&quot;a2uiClientCapabilities&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">        </span><span class="nt">&quot;v1.0&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">          </span><span class="nt">&quot;supportedCatalogIds&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">            </span><span class="s2">&quot;https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json&quot;</span><span class="p">,</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">            </span><span class="s2">&quot;https://my-company.com/a2ui/v1.0/my_custom_catalog.json&quot;</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">          </span><span class="p">]</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="a2uiclientdatamodel"><code>a2uiClientDataModel</code><a class="headerlink" href="#a2uiclientdatamodel" title="Permanent link">&para;</a></h3>
+<p>When a surface enables Data Model Sync, the client sends <code>sendMessageRequest.message["a2uiClientDataModel"]</code> = <a href="../v1_0/json/client_data_model.json">Client Data Model Schema</a> on every message. This model provides the agent with the latest UI state. For more details, see the <a href="../../concepts/actions/">Actions Guide</a>.</p>
+<p><strong>Example <code>SendMessageRequest</code> with Data Model:</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">&quot;parts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">      </span><span class="p">{</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">        </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Submit the form.&quot;</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="p">],</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">      </span><span class="nt">&quot;a2uiClientDataModel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">        </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1.0&quot;</span><span class="p">,</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">        </span><span class="nt">&quot;surfaces&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">          </span><span class="nt">&quot;main_surface_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">            </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;12345&quot;</span><span class="p">,</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">            </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user@example.com&quot;</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">          </span><span class="p">}</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="p">}</span>
+</span></code></pre></div>
 <h2 id="data-encoding">Data encoding<a class="headerlink" href="#data-encoding" title="Permanent link">&para;</a></h2>
-<p>A2UI messages are encoded as an A2A <code>DataPart</code>. To identify a <code>DataPart</code> as containing A2UI data, it must have the following metadata:</p>
+<p>Agents and clients encode A2UI messages as an A2A <code>DataPart</code>.</p>
+<p>To identify a <code>DataPart</code> as containing A2UI data, it must have the following metadata:</p>
 <ul>
-<li><code>mimeType</code>: <code>application/a2ui+json</code></li>
+<li><code>DataPart.data.metadata["mimeType"] = "application/a2ui+json"</code></li>
 </ul>
-<p>The <code>data</code> field of the <code>DataPart</code> contains a <strong>list</strong> of A2UI JSON messages (e.g., <code>createSurface</code>, <code>updateComponents</code>, <code>action</code>). It MUST be an array of messages.</p>
-<h3 id="processing-rules">Processing rules<a class="headerlink" href="#processing-rules" title="Permanent link">&para;</a></h3>
-<p>The <code>data</code> field contains a list of messages. This list is <strong>NOT</strong> a transactional unit. Receivers (both Clients and Agents) MUST process messages in the list sequentially.</p>
+<p>The <code>data</code> field of the <code>DataPart</code> contains a list of A2UI JSON messages (e.g., <code>createSurface</code>, <code>updateComponents</code>, <code>action</code>). It MUST be an array of messages.</p>
+<h3 id="processing-rules">Processing Rules<a class="headerlink" href="#processing-rules" title="Permanent link">&para;</a></h3>
+<p>The <code>data</code> field contains a list of messages. This list is NOT a transactional unit. Receivers (both Clients and Agents) MUST process messages in the list sequentially.</p>
 <p>If a single message in the list fails to validate or apply (e.g., due to a schema violation or invalid reference), the receiver SHOULD report/log the error for that specific message and MUST continue processing the remaining messages in the list.</p>
-<p>Atomicity is guaranteed only at the <strong>individual message</strong> level. However, for a better user experience, a renderer SHOULD NOT repaint the UI until all messages in the list have been processed. This prevents intermediate states from flickering to the user.</p>
+<p>Atomicity is guaranteed only at the individual message level. However, for a better user experience, a renderer SHOULD NOT repaint the UI until all messages in the list have been processed. This prevents intermediate states from flickering to the user.</p>
 <h3 id="server-to-client-messages">Server-to-client messages<a class="headerlink" href="#server-to-client-messages" title="Permanent link">&para;</a></h3>
-<p>When an agent sends a message to a client (or another agent acting as a client/renderer), the <code>data</code> payload must validate against the <strong>Server-to-Client Message List Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/server_to_client_list.json">server_to_client_list.json</a>).</p>
-<h4 id="example-datapart">Example DataPart<a class="headerlink" href="#example-datapart" title="Permanent link">&para;</a></h4>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="p">{</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1.0&quot;</span><span class="p">,</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">      </span><span class="nt">&quot;createSurface&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="nt">&quot;surfaceId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example_surface&quot;</span><span class="p">,</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">        </span><span class="nt">&quot;catalogId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json&quot;</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="p">}</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="p">},</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="p">{</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1.0&quot;</span><span class="p">,</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">      </span><span class="nt">&quot;updateComponents&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">        </span><span class="nt">&quot;surfaceId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example_surface&quot;</span><span class="p">,</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">        </span><span class="nt">&quot;components&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">          </span><span class="p">{</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">            </span><span class="nt">&quot;component&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;root&quot;</span><span class="p">,</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">            </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hello!&quot;</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">          </span><span class="p">}</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">        </span><span class="p">]</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">      </span><span class="p">}</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">  </span><span class="p">],</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">  </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span><span class="nt">&quot;mimeType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;application/a2ui+json&quot;</span>
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="p">}</span>
+<p>When an agent sends a message to a client (or another agent acting as a client/renderer), the <code>data</code> payload must validate against the <a href="../v1_0/json/server_to_client_list.json">Server-to-Client Message List Schema</a>.</p>
+<p>Example DataPart:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1.0&quot;</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">      </span><span class="nt">&quot;createSurface&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="nt">&quot;surfaceId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example_surface&quot;</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="nt">&quot;catalogId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json&quot;</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1.0&quot;</span><span class="p">,</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">      </span><span class="nt">&quot;updateComponents&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="nt">&quot;surfaceId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example_surface&quot;</span><span class="p">,</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">        </span><span class="nt">&quot;components&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">          </span><span class="p">{</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;root&quot;</span><span class="p">,</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">            </span><span class="nt">&quot;component&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Text&quot;</span><span class="p">,</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">            </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hello!&quot;</span>
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">          </span><span class="p">}</span>
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">        </span><span class="p">]</span>
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="w">  </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">    </span><span class="nt">&quot;mimeType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;application/a2ui+json&quot;</span>
+</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-28"><a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="client-to-server-events">Client-to-server events<a class="headerlink" href="#client-to-server-events" title="Permanent link">&para;</a></h3>
-<p>When a client (or an agent forwarding an event) sends a message to an agent, it also uses a <code>DataPart</code> with the same <code>application/a2ui+json</code> MIME type. However, the <code>data</code> payload must validate against the <strong>Client-to-Server Message List Schema</strong> (<a href="https://github.com/a2ui-project/a2ui/blob/main/json/client_to_server_list.json">client_to_server_list.json</a>).</p>
-<h4 id="example-action-datapart">Example <code>action</code> DataPart<a class="headerlink" href="#example-action-datapart" title="Permanent link">&para;</a></h4>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">{</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1.0&quot;</span><span class="p">,</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">      </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;submit_form&quot;</span><span class="p">,</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="nt">&quot;surfaceId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;contact_form_1&quot;</span><span class="p">,</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="nt">&quot;sourceComponentId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;submit_button&quot;</span><span class="p">,</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">        </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-15T12:00:00Z&quot;</span><span class="p">,</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">        </span><span class="nt">&quot;context&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">          </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user@example.com&quot;</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">        </span><span class="p">}</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">      </span><span class="p">}</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="p">],</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="nt">&quot;mimeType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;application/a2ui+json&quot;</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="p">}</span>
+<p>When a client (or an agent forwarding an event) sends a message to an agent, it also uses a <code>DataPart</code> with the same <code>application/a2ui+json</code> MIME type. However, the <code>data</code> payload must validate against the <a href="../v1_0/json/client_to_server_list.json">Client-to-Server Message List Schema</a>.</p>
+<p>Example <code>action</code> DataPart:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1.0&quot;</span><span class="p">,</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">      </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;submit_form&quot;</span><span class="p">,</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">        </span><span class="nt">&quot;surfaceId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;contact_form_1&quot;</span><span class="p">,</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">        </span><span class="nt">&quot;sourceComponentId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;submit_button&quot;</span><span class="p">,</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-15T12:00:00Z&quot;</span><span class="p">,</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">        </span><span class="nt">&quot;context&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">          </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user@example.com&quot;</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">  </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">    </span><span class="nt">&quot;mimeType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;application/a2ui+json&quot;</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="p">}</span>
 </span></code></pre></div>
 
 
