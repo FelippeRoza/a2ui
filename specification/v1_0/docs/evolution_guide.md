@@ -14,6 +14,8 @@ Version 1.0 differs from 0.9 in the following ways:
 - Standard JSON Schema metadata fields (`$schema`, `$id`, `title`, and `description`) are supported in catalogs, preventing validation failures on inline catalogs with strict property checks.
 - Identifier naming rules across all catalog entities (component names, function names, and argument keys) must conform to Unicode Standard Annex #31 (UAX #31).
 - The `@index` built-in function dynamically retrieves iteration indices during list template rendering. The `@` prefix is reserved for core system context evaluations.
+- The `supportedCatalogIds` in `a2uiClientCapabilities` are all mixable, meaning a client can support components from multiple catalogs simultaneously.
+- Components have an optional `catalogId`, and the `catalogId` property on `createSurface` is now optional. In the event of a component name collision, the renderer looks at the component's `catalogId` to resolve it, then falls back to the `createSurface`'s `catalogId`, and if unresolved, returns an error for ambiguous catalog component.
 
 ## 2. Changes
 
@@ -39,7 +41,8 @@ Version 1.0 differs from 0.9 in the following ways:
 
 - Added `actionResponse` message structure (`ActionResponseMessage`) to allow the server to respond to a specific action call using a unique `actionId` with a `value` or `error`.
 - Added `callFunction` message structure (`CallFunctionMessage`) to support server-initiated function execution. Removed `callableFrom` and `returnType` properties from the wire payload, relying on runtime catalog verification.
-- Updated the `createSurface` message (`CreateSurfaceMessage`) to rename the `theme` field to `surfaceProperties`, and allowed passing initial `components` and `dataModel` directly inside the payload.
+- Updated the `createSurface` message (`CreateSurfaceMessage`) to rename the `theme` field to `surfaceProperties`, allowed passing initial `components` and `dataModel` directly inside the payload, and made `catalogId` optional.
+- Added an optional `catalogId` to the base component definition (`ComponentCommon`) to handle component name collisions when multiple catalogs are used.
 - Updated all protocol version references and envelopes from `v0.9` or `v0.9.1` to `v1.0`.
 
 ### 2.4. Client-to-server events
@@ -59,6 +62,7 @@ Version 1.0 differs from 0.9 in the following ways:
 
 - Standardized the official MIME type to `application/a2ui+json` to conform to IANA media type guidelines.
 - Updated capabilities namespace in transport metadata and A2A metadata parameters from `v0.9`/`v0.9.1` to `v1.0`.
+- Explicitly defined that `supportedCatalogIds` in `a2uiClientCapabilities` are mixable.
 
 ### 2.7. Data encoding
 

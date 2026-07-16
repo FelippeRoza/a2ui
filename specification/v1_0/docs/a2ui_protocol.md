@@ -172,7 +172,7 @@ The envelope defines several message types, and every message streamed by the se
 
 ### `createSurface`
 
-This message signals the client to create a new surface and begin rendering it. A surface must be created before any `updateComponents` or `updateDataModel` messages can be sent to it. While typically achieved by the agent sending a `createSurface` message, an agent may skip this if it knows the surface has already been created (e.g., by another agent). Once a surface is created, its `surfaceId` and `catalogId` are fixed; to reconfigure them, the surface must be deleted and recreated.
+This message signals the client to create a new surface and begin rendering it. A surface must be created before any `updateComponents` or `updateDataModel` messages can be sent to it. While typically achieved by the agent sending a `createSurface` message, an agent may skip this if it knows the surface has already been created. Once a surface is created, its `surfaceId` and optional `catalogId` are fixed; to reconfigure them, the surface must be deleted and recreated.
 
 It is an error to try to create a surface with a `surfaceId` that already exists without first deleting it; `surfaceId` must be globally unique for the renderer's lifetime. Orchestrators with subagents are empowered to manage surface IDs as needed to prevent conflicts (e.g., prefixing the subagent's name to the `surfaceId` or requiring subagents to use UUIDs).
 
@@ -181,7 +181,7 @@ One of the components in one of the component lists MUST have an `id` of `root` 
 **Properties:**
 
 - `surfaceId` (string, required): The unique identifier for the UI surface to be rendered. This must be globally unique for the renderer's lifetime.
-- `catalogId` (string, required): A string that uniquely identifies the catalog (components and functions) used for this surface. Note that `catalogId` is a string identifier, not a resolvable URI; while it is conventionally formatted as a URI (e.g., `https://mycompany.com/1.0/somecatalog`) to avoid naming collisions across organizations, it does not need to point to any deployed resource or downloadable file. Client and server developers must agree on shared catalogs with well-known IDs in order to build systems that are compatible with each other.
+- `catalogId` (string, optional): A string that uniquely identifies the catalog (components and functions) used for this surface as a default. Note that `catalogId` is a string identifier, not a resolvable URI; while it is conventionally formatted as a URI (e.g., `https://mycompany.com/1.0/somecatalog`) to avoid naming collisions across organizations, it does not need to point to any deployed resource or downloadable file. Client and server developers must agree on shared catalogs with well-known IDs in order to build systems that are compatible with each other.
 - `surfaceProperties` (object, optional): A JSON object containing surface properties (e.g., `agentDisplayName`) defined in the catalog's surfaceProperties schema.
 - `sendDataModel` (boolean, optional): If true, the client will send the full data model of this surface in the metadata of every message sent to the server (via the Transport's metadata mechanism). This ensures the surface owner receives the full current state of the UI alongside the user's action or query. Defaults to false.
 - `components` (array, optional): A list containing UI components for the surface, allowing the client to build and populate the UI tree immediately on surface creation. Conforms to the `ComponentsList` schema.
@@ -428,9 +428,18 @@ Each object in the `components` array of an `updateComponents` message defines a
 
 - `id` (`ComponentId`, required): A unique string that identifies this specific component instance. This is used for parent-child references.
 - `component` (string, required): Specifies the component's type (e.g., `"Text"`).
+- `catalogId` (string, optional): A string that uniquely identifies the catalog for this component, overriding the surface's default catalog. Useful when combining components from multiple catalogs.
 - **Component Properties**: Other properties relevant to the specific component type (e.g., `text`, `url`, `children`) are included directly in the component object.
 
 This structure is designed to be both flexible and strictly validated.
+
+#### Mixable catalogs and component collision resolution
+
+Clients can support components from multiple catalogs simultaneously (mixable catalogs). When a client declares `supportedCatalogIds`, it means components from any of those catalogs can be used. In the event of a component name collision (e.g., two catalogs define a `Button` component), the renderer uses the following resolution order:
+
+1. The component's `catalogId`, if provided.
+2. The `createSurface` message's `catalogId`, if provided.
+3. If neither resolves the collision unambiguously, the renderer returns an error (ambiguous catalog component).
 
 ### The component catalog
 

@@ -32,6 +32,10 @@
         "id": {
           "$ref": "#/$defs/ComponentId"
         },
+        "catalogId": {
+          "type": "string",
+          "description": "Optional catalog ID for this component. Useful when mixing components from different catalogs to resolve ambiguous component names."
+        },
         "accessibility": {
           "$ref": "#/$defs/AccessibilityAttributes"
         }
