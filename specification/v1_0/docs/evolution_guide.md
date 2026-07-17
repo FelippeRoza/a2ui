@@ -14,8 +14,8 @@ Version 1.0 differs from 0.9 in the following ways:
 - Standard JSON Schema metadata fields (`$schema`, `$id`, `title`, and `description`) are supported in catalogs, preventing validation failures on inline catalogs with strict property checks.
 - Identifier naming rules across all catalog entities (component names, function names, and argument keys) must conform to Unicode Standard Annex #31 (UAX #31).
 - The `@index` built-in function dynamically retrieves iteration indices during list template rendering. The `@` prefix is reserved for core system context evaluations.
-- The `supportedCatalogIds` in `a2uiClientCapabilities` are all mixable, meaning a client can support components from multiple catalogs simultaneously.
-- Components now require a `catalogId` property so they can be unambiguously resolved in the case of components with the same name being present in multiple catalogs. The `catalogId` property on `createSurface` has been removed.
+- The `supportedCatalogIds` in `a2uiClientCapabilities` are all mixable, meaning a client can updateComponents with components from multiple catalogs simultaneously.
+- Components now require a `catalogId` property so they can be unambiguously resolved across catalogs, since we now allow mixing catalogs. The `catalogId` property on `createSurface` has been removed.
 
 ## 2. Changes
 
