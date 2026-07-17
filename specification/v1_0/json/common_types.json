@@ -34,7 +34,7 @@
         },
         "catalogId": {
           "type": "string",
-          "description": "Optional catalog ID for this component. Useful when mixing components from different catalogs to resolve ambiguous component names."
+          "description": "The catalog ID for this component."
         },
         "rootOnly": {
           "type": "boolean",
@@ -45,7 +45,7 @@
           "$ref": "#/$defs/AccessibilityAttributes"
         }
       },
-      "required": ["id"]
+      "required": ["id", "catalogId"]
     },
     "ChildList": {
       "oneOf": [
