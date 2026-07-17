@@ -634,8 +634,6 @@ Container components (like `Row`, `Column`, `List`, and `Card`) have properties 
 
 This model allows the server to send component definitions in any order. Rendering can begin as soon as the `root` component is defined, with the client filling in or updating the rest of the tree progressively as additional definitions arrive.
 
-> **Note on structural validation:** Because the tree is defined implicitly using string references (IDs) in a flat array, JSON Schema cannot perform graph referential integrity checks. The client/renderer MUST verify at runtime that referenced components actually exist and are allowed to be nested (i.e., their `rootOnly` property is not `true`).
-
 There must be exactly one component with the ID `root` in the component tree, acting as the root of the component tree. Until that component is defined, other component updates will have no visible effect, and they will be buffered until a root component is defined. Once a root component is defined, the client is responsible for rendering the tree in the best way possible based on the available data, skipping invalid references.
 
 ```mermaid
