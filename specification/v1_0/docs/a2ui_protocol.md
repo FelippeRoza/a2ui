@@ -352,6 +352,7 @@ This message is sent by the server to execute a function registered on the clien
 - `wantResponse` (boolean, optional, default `false`): Specifies whether the server expects a response payload back from the client. If set to `true`, the client MUST reply with either a `functionResponse` or an `error` message.
 - `callFunction` (object, required): The description of the function call.
   - `call` (string, required): The registered name of the function to execute.
+  - `catalogId` (string, required): The catalog ID for this function.
   - `args` (object, optional): Arguments passed to the function, as defined by its schema in the catalog.
 
 **Security Boundaries and Verification:**
@@ -372,6 +373,7 @@ Server sends this message to the client:
   "wantResponse": true,
   "callFunction": {
     "call": "getScreenResolution",
+    "catalogId": "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json",
     "args": {
       "screenIndex": 0
     }

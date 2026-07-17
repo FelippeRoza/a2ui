@@ -197,6 +197,10 @@
           "type": "string",
           "description": "The name of the function to call."
         },
+        "catalogId": {
+          "type": "string",
+          "description": "The catalog ID for this function."
+        },
         "args": {
           "type": "object",
           "description": "Arguments passed to the function.",
@@ -213,7 +217,7 @@
           }
         }
       },
-      "required": ["call"],
+      "required": ["call", "catalogId"],
       "oneOf": [
         {"$ref": "catalog.json#/$defs/anyFunction"},
         {"$ref": "#/$defs/IndexSystemFunction"}
