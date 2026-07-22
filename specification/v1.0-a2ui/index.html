@@ -2837,7 +2837,7 @@
 <ul>
 <li><code>surfaceId</code> (string, required): The unique identifier for the UI surface this data model update applies to. This must be globally unique for the renderer's lifetime.</li>
 <li><code>path</code> (string, optional): A JSON Pointer to the location in the data model to update. Defaults to <code>/</code>.</li>
-<li><code>value</code> (any, optional): The new value for the specified path. If omitted, the key at <code>path</code> is removed.</li>
+<li><code>value</code> (any, required): The new value for the specified path. To delete the key/value at <code>path</code>, set <code>value</code> explicitly to <code>null</code>.</li>
 </ul>
 <p><strong>Example:</strong></p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="p">{</span>
@@ -3360,7 +3360,7 @@
 <ul>
 <li><code>surfaceId</code> (string, required): The ID of the surface to update.</li>
 <li><code>path</code> (string, optional): A JSON Pointer to the location in the data model to update. Defaults to <code>/</code>.</li>
-<li><code>value</code> (any, optional): The new value for the specified path. If omitted, the key at <code>path</code> is removed.</li>
+<li><code>value</code> (any, required): The new value for the specified path. To delete the key/value at <code>path</code>, set <code>value</code> explicitly to <code>null</code>.</li>
 </ul>
 <p><strong>Examples:</strong></p>
 <p><em>Update a specific field:</em></p>
@@ -3378,9 +3378,10 @@
 </span><span id="__span-19-2"><a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
 </span><span id="__span-19-3"><a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="w">  </span><span class="nt">"updateDataModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-19-4"><a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"surface_123"</span><span class="p">,</span>
-</span><span id="__span-19-5"><a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="w">    </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/user/tempData"</span>
-</span><span id="__span-19-6"><a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-19-7"><a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="p">}</span>
+</span><span id="__span-19-5"><a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="w">    </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/user/tempData"</span><span class="p">,</span>
+</span><span id="__span-19-6"><a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="w">    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-19-7"><a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-19-8"><a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><em>Replace the entire data model:</em></p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="p">{</span>

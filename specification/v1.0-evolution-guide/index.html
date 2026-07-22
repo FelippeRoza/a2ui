@@ -2473,7 +2473,6 @@
 <li>Added <code>placeholder</code> prop to the <code>TextField</code> component schema.</li>
 <li>Added a <code>steps</code> property to the <code>Slider</code> component schema to snap values to discrete intervals.</li>
 <li>Added an optional <code>instructions</code> field to the <code>Catalog</code> schema (<code>catalogs/basic/catalog.json</code>) to embed Markdown guidelines/rules directly, replacing the external <code>rules.txt</code> file.</li>
-<li>Renamed <code>svgPath</code> to <code>path</code> in the custom SVG icon definition object schema.</li>
 <li>Renamed <code>$defs/theme</code> to <code>$defs/surfaceProperties</code> in the basic catalog.</li>
 </ul>
 <h3 id="23-server-to-client-messages">2.3. Server-to-client messages<a class="headerlink" href="#23-server-to-client-messages" title="Permanent link">&para;</a></h3>
@@ -2486,7 +2485,7 @@
 <h3 id="24-client-to-server-events">2.4. Client-to-server events<a class="headerlink" href="#24-client-to-server-events" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added <code>actionId</code> to the <code>action</code> message properties, which the client generates if a response is expected (<code>wantResponse: true</code>).</li>
-<li>Added <code>functionResponse</code> message structure (<code>FunctionResponseMessage</code>) to return the execution result (<code>value</code> or <code>error</code>) of a server-initiated function call.</li>
+<li>Added the <code>functionResponse</code> client-to-server message to return the successful result (<code>value</code>) of a server-initiated function call. Function execution failures are reported via the separate <code>error</code> message (see next item), not via <code>functionResponse</code>.</li>
 <li>Updated client <code>error</code> messages to support <code>functionCallId</code> when reporting function execution failures, enforcing mutual exclusivity with <code>surfaceId</code>.</li>
 <li>Updated all protocol version references from <code>v0.9</code> or <code>v0.9.1</code> to <code>v1.0</code>.</li>
 </ul>
@@ -2503,7 +2502,7 @@
 </ul>
 <h3 id="27-data-encoding">2.7. Data encoding<a class="headerlink" href="#27-data-encoding" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Standardized data deletion behavior in <code>updateDataModel</code>. Setting a path's value to <code>null</code> deletes the key at that path. Removing or omitting keys in <code>updateDataModel</code> is no longer used for deletion.</li>
+<li>Standardized data deletion behavior in <code>updateDataModel</code> by making the <code>value</code> property required. Setting a path's value to <code>null</code> deletes the key at that path. Omitting the <code>value</code> property is now a schema validation error.</li>
 <li>Removed <code>callableFrom</code> and <code>returnType</code> properties and validation constraints from <code>FunctionCall</code> and dynamic value schemas in <code>common_types.json</code>, deferring boundary checking and return type validation entirely to runtime execution.</li>
 <li>Added built-in <code>@index</code> function (with optional <code>offset</code> parameter) under <code>FunctionCall</code> to retrieve the iteration index during list template rendering. Reserved the <code>@</code> prefix for core system context evaluations.</li>
 </ul>
@@ -2525,8 +2524,8 @@
 <li>Rename the <code>$defs/theme</code> catalog definition to <code>$defs/surfaceProperties</code> and remove the <code>primaryColor</code> field.</li>
 <li>Ensure all generated catalog entity names conform to UAX #31 identifier rules.</li>
 <li>Do not include <code>callableFrom</code> or <code>returnType</code> properties in wire-level <code>FunctionCall</code> payloads. Set static <code>callableFrom</code> and <code>returnType</code> metadata in catalog function definitions where needed.</li>
-<li>Update custom SVG icon definitions in <code>Icon</code> components to rename <code>svgPath</code> to <code>path</code>. Update <code>Video</code>, <code>TextField</code>, and <code>Slider</code> components to support optional <code>posterUrl</code>, <code>placeholder</code>, and <code>steps</code> properties.</li>
-<li>Explicitly set values to <code>null</code> in <code>updateDataModel</code> messages to delete keys at specified paths. Do not omit keys or send undefined to indicate deletion.</li>
+<li>Update <code>Video</code>, <code>TextField</code>, and <code>Slider</code> components to support optional <code>posterUrl</code>, <code>placeholder</code>, and <code>steps</code> properties.</li>
+<li>Explicitly set values to <code>null</code> in <code>updateDataModel</code> messages to delete keys at specified paths. The <code>value</code> property is now required, and omitting it is a schema validation error.</li>
 </ul>
 <h3 id="for-renderers-and-clients">For renderers and clients<a class="headerlink" href="#for-renderers-and-clients" title="Permanent link">&para;</a></h3>
 <ul>
