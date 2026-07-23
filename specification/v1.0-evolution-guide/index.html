@@ -2448,21 +2448,22 @@
 <h2 id="1-executive-summary">1. Executive summary<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
 <p>Version 1.0 differs from 0.9 in the following ways:</p>
 <ul>
-<li>A new client-to-server RPC mechanism allows synchronous responses to client actions (<code>actionResponse</code>) using a unique <code>actionId</code>.</li>
-<li>Server-to-client RPC function calls are supported via the <code>callFunction</code> message. Clients return execution results via the <code>functionResponse</code> message. Runtime execution boundaries and return types are defined in catalogs and verified at runtime, rather than being validated on the wire.</li>
+<li>A new renderer-to-agent RPC mechanism allows synchronous responses to renderer actions (<code>actionResponse</code>) using a unique <code>actionId</code>.</li>
+<li>Agent-to-renderer RPC function calls are supported via the <code>callFunction</code> message. Renderers return execution results via the <code>functionResponse</code> message. Runtime execution boundaries and return types are defined in catalogs and verified at runtime, rather than being validated on the wire.</li>
 <li>The <code>theme</code> property in the catalog and surface creation message is replaced by <code>surfaceProperties</code>, and <code>primaryColor</code> is removed to separate layout from branding.</li>
 <li>Components and initial data model states can be defined directly within the <code>createSurface</code> parameters. This allows for the creation of entire UIs in a single message, rather than a create followed by separate updates.</li>
 <li>The <code>functions</code> field in a Catalog is now defined as a map of function name to its definition, instead of a list.</li>
 <li>Standard JSON Schema metadata fields (<code>$schema</code>, <code>$id</code>, <code>title</code>, and <code>description</code>) are supported in catalogs, preventing validation failures on inline catalogs with strict property checks.</li>
 <li>Identifier naming rules across all catalog entities (component names, function names, and argument keys) must conform to Unicode Standard Annex #31 (UAX #31).</li>
 <li>The <code>@index</code> built-in function dynamically retrieves iteration indices during list template rendering. The <code>@</code> prefix is reserved for core system context evaluations.</li>
+<li>Standardized the names of core architectural components, renaming "client" to <em>renderer</em> and "server" to <em>agent</em> (e.g., <code>server_to_client</code> schemas are renamed to <code>agent_to_renderer</code>), because A2UI is sometimes generated on clients, and rendering sometimes happens on servers, making those terms ambiguous.</li>
 </ul>
 <h2 id="2-changes">2. Changes<a class="headerlink" href="#2-changes" title="Permanent link">&para;</a></h2>
 <h3 id="21-catalog-definition-schema">2.1. Catalog definition schema<a class="headerlink" href="#21-catalog-definition-schema" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Renamed the <code>$defs/theme</code> schema to <code>$defs/surfaceProperties</code> in the Catalog schema, and removed the <code>primaryColor</code> property.</li>
 <li>Changed the <code>functions</code> property in the Catalog schema from a list to a map object, keyed by function name.</li>
-<li>Added <code>callableFrom</code> (enum: <code>clientOnly</code>, <code>remoteOnly</code>, <code>clientOrRemote</code>) to <code>FunctionDefinition</code> to restrict where a function can be invoked.</li>
+<li>Added <code>callableFrom</code> (enum: <code>rendererOnly</code>, <code>agentOnly</code>, <code>rendererOrAgent</code>) to <code>FunctionDefinition</code> to restrict where a function can be invoked.</li>
 <li>Added an optional <code>instructions</code> field to the <code>Catalog</code> schema to embed design guidelines and component usage rules directly in the catalog, replacing the external <code>rules.txt</code> file.</li>
 <li>Supported standard JSON Schema metadata fields (<code>$schema</code>, <code>$id</code>, <code>title</code>, and <code>description</code>) in the Catalog object definition. Since the Catalog schema restricts properties with <code>additionalProperties: false</code>, this ensures inline catalogs containing standard schema metadata do not fail schema validation.</li>
 <li>Enforced Unicode Standard Annex #31 (UAX #31) identifier naming constraints (<code>XID_Start</code>, <code>XID_Continue</code>) across component names, function names, and argument keys.</li>
@@ -2475,25 +2476,25 @@
 <li>Added an optional <code>instructions</code> field to the <code>Catalog</code> schema (<code>catalogs/basic/catalog.json</code>) to embed Markdown guidelines/rules directly, replacing the external <code>rules.txt</code> file.</li>
 <li>Renamed <code>$defs/theme</code> to <code>$defs/surfaceProperties</code> in the basic catalog.</li>
 </ul>
-<h3 id="23-server-to-client-messages">2.3. Server-to-client messages<a class="headerlink" href="#23-server-to-client-messages" title="Permanent link">&para;</a></h3>
+<h3 id="23-agent-to-renderer-messages">2.3. Agent-to-renderer messages<a class="headerlink" href="#23-agent-to-renderer-messages" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added <code>actionResponse</code> message structure (<code>ActionResponseMessage</code>) to allow the server to respond to a specific action call using a unique <code>actionId</code> with a <code>value</code> or <code>error</code>.</li>
-<li>Added <code>callFunction</code> message structure (<code>CallFunctionMessage</code>) to support server-initiated function execution. Removed <code>callableFrom</code> and <code>returnType</code> properties from the wire payload, relying on runtime catalog verification.</li>
+<li>Added <code>actionResponse</code> message structure (<code>ActionResponseMessage</code>) to allow the agent to respond to a specific action call using a unique <code>actionId</code> with a <code>value</code> or <code>error</code>.</li>
+<li>Added <code>callFunction</code> message structure (<code>CallFunctionMessage</code>) to support agent-initiated function execution. Removed <code>callableFrom</code> and <code>returnType</code> properties from the wire payload, relying on runtime catalog verification.</li>
 <li>Updated the <code>createSurface</code> message (<code>CreateSurfaceMessage</code>) to rename the <code>theme</code> field to <code>surfaceProperties</code>, and allowed passing initial <code>components</code> and <code>dataModel</code> directly inside the payload.</li>
 <li>Updated all protocol version references and envelopes from <code>v0.9</code> or <code>v0.9.1</code> to <code>v1.0</code>.</li>
 </ul>
-<h3 id="24-client-to-server-events">2.4. Client-to-server events<a class="headerlink" href="#24-client-to-server-events" title="Permanent link">&para;</a></h3>
+<h3 id="24-renderer-to-agent-events">2.4. Renderer-to-agent events<a class="headerlink" href="#24-renderer-to-agent-events" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added <code>actionId</code> to the <code>action</code> message properties, which the client generates if a response is expected (<code>wantResponse: true</code>).</li>
-<li>Added the <code>functionResponse</code> client-to-server message to return the successful result (<code>value</code>) of a server-initiated function call. Function execution failures are reported via the separate <code>error</code> message (see next item), not via <code>functionResponse</code>.</li>
-<li>Updated client <code>error</code> messages to support <code>functionCallId</code> when reporting function execution failures, enforcing mutual exclusivity with <code>surfaceId</code>.</li>
+<li>Added <code>actionId</code> to the <code>action</code> message properties, which the renderer generates if a response is expected (<code>wantResponse: true</code>).</li>
+<li>Added the <code>functionResponse</code> renderer-to-agent message to return the successful result (<code>value</code>) of an agent-initiated function call. Function execution failures are reported via the separate <code>error</code> message (see next item), not via <code>functionResponse</code>.</li>
+<li>Updated renderer <code>error</code> messages to support <code>functionCallId</code> when reporting function execution failures, enforcing mutual exclusivity with <code>surfaceId</code>.</li>
 <li>Updated all protocol version references from <code>v0.9</code> or <code>v0.9.1</code> to <code>v1.0</code>.</li>
 </ul>
 <h3 id="25-catalog-definition-schema">2.5. Catalog definition schema<a class="headerlink" href="#25-catalog-definition-schema" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added an optional <code>instructions</code> field to the <code>Catalog</code> object definition (<code>catalog_definition.json</code>) as a plain Markdown string to embed design guidelines directly.</li>
 <li>Renamed <code>theme</code> capability block to <code>surfaceProperties</code> within the Catalog definition in <code>catalog_definition.json</code>.</li>
-<li>Added static <code>callableFrom</code> and <code>returnType</code> metadata properties to <code>FunctionDefinition</code> inside <code>catalog_definition.json</code> to advertise execution boundaries and return types to the server.</li>
+<li>Added static <code>callableFrom</code> and <code>returnType</code> metadata properties to <code>FunctionDefinition</code> inside <code>catalog_definition.json</code> to advertise execution boundaries and return types to the agent.</li>
 </ul>
 <h3 id="26-agent-card-and-transport-metadata">2.6. Agent card and transport metadata<a class="headerlink" href="#26-agent-card-and-transport-metadata" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2508,14 +2509,24 @@
 </ul>
 <h3 id="28-processing-rules">2.8. Processing rules<a class="headerlink" href="#28-processing-rules" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Explicitly specified that <code>surfaceId</code> must be globally unique per client session. Creating a surface with an ID that already exists (without first deleting it) is an error.</li>
-<li>Enforced runtime lookup of function execution boundaries and return types. If a client receives a remote call to a function configured as <code>clientOnly</code> or if the function is unregistered, it rejects the call and returns an error with the code <code>INVALID_FUNCTION_CALL</code>.</li>
+<li>Explicitly specified that <code>surfaceId</code> must be globally unique per renderer session. Creating a surface with an ID that already exists (without first deleting it) is an error.</li>
+<li>Enforced runtime lookup of function execution boundaries and return types. If a renderer receives a remote call to a function configured as <code>rendererOnly</code> or if the function is unregistered, it rejects the call and returns an error with the code <code>INVALID_FUNCTION_CALL</code>.</li>
 <li>Enforced catalog entity naming compliance with Unicode Standard Annex #31 (UAX #31).</li>
 <li>Restricted <code>@index</code> evaluation scope strictly to template instantiation loops (Collection Scope). Calling <code>@index</code> outside of template iteration results in an evaluation error.</li>
 </ul>
+<h3 id="29-terminology-standardization">2.9. Terminology standardization<a class="headerlink" href="#29-terminology-standardization" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Renamed <strong>client</strong> to <strong>renderer</strong> and <strong>server</strong> to <strong>agent</strong> globally across all protocol schemas, capabilities, and message list definitions.</li>
+<li>Renamed all client-to-server and server-to-client JSON schema files to use renderer/agent filenames:</li>
+<li><code>server_to_client.json</code> -&gt; <code>agent_to_renderer.json</code></li>
+<li><code>client_to_server.json</code> -&gt; <code>renderer_to_agent.json</code></li>
+<li><code>client_capabilities.json</code> -&gt; <code>renderer_capabilities.json</code></li>
+<li><code>server_capabilities.json</code> -&gt; <code>agent_capabilities.json</code></li>
+<li><code>client_data_model.json</code> -&gt; <code>renderer_data_model.json</code></li>
+</ul>
 <h2 id="3-migration-guide">3. Migration guide<a class="headerlink" href="#3-migration-guide" title="Permanent link">&para;</a></h2>
 <p>This section outlines the steps required to migrate existing applications and components from version 0.9 (including 0.9.1) to version 1.0.</p>
-<h3 id="for-agents-and-servers">For agents and servers<a class="headerlink" href="#for-agents-and-servers" title="Permanent link">&para;</a></h3>
+<h3 id="for-agents">For agents<a class="headerlink" href="#for-agents" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Set the <code>version</code> field in all streamed JSON envelopes to <code>"v1.0"</code>.</li>
 <li>Change the MIME type of A2UI payloads in transport layers from <code>application/json+a2ui</code> to <code>application/a2ui+json</code>.</li>
@@ -2526,8 +2537,9 @@
 <li>Do not include <code>callableFrom</code> or <code>returnType</code> properties in wire-level <code>FunctionCall</code> payloads. Set static <code>callableFrom</code> and <code>returnType</code> metadata in catalog function definitions where needed.</li>
 <li>Update <code>Video</code>, <code>TextField</code>, and <code>Slider</code> components to support optional <code>posterUrl</code>, <code>placeholder</code>, and <code>steps</code> properties.</li>
 <li>Explicitly set values to <code>null</code> in <code>updateDataModel</code> messages to delete keys at specified paths. The <code>value</code> property is now required, and omitting it is a schema validation error.</li>
+<li>Rename all references, constants, and endpoints mapping to <code>server_to_client.json</code> or <code>server_capabilities.json</code> to use <code>agent_to_renderer.json</code> and <code>agent_capabilities.json</code>.</li>
 </ul>
-<h3 id="for-renderers-and-clients">For renderers and clients<a class="headerlink" href="#for-renderers-and-clients" title="Permanent link">&para;</a></h3>
+<h3 id="for-renderers">For renderers<a class="headerlink" href="#for-renderers" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Implement function execution by adding support for parsing <code>callFunction</code> messages, checking boundary definitions in the catalog (<code>callableFrom</code>), rejecting invalid calls with <code>INVALID_FUNCTION_CALL</code>, and returning <code>functionResponse</code> messages.</li>
 <li>Support synchronous action responses by generating <code>actionId</code> for actions with <code>wantResponse: true</code> and writing returned values from <code>actionResponse</code> messages into the data model.</li>
@@ -2536,6 +2548,7 @@
 <li>Update error reporting to handle <code>functionCallId</code> and enforce mutual exclusivity with <code>surfaceId</code>.</li>
 <li>Enforce Unicode identifier naming by verifying that all catalog entity names (components, functions, prop keys) conform to UAX #31 identifier rules.</li>
 <li>Support built-in <code>@index</code> evaluation during list template rendering (Collection Scope) to provide the 0-based iteration index, adjusted by any <code>offset</code> parameter.</li>
+<li>Rename all references, constants, and endpoints mapping to <code>client_to_server.json</code> or <code>client_capabilities.json</code> to use <code>renderer_to_agent.json</code> and <code>renderer_capabilities.json</code>.</li>
 </ul>
 
 

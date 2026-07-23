@@ -2440,7 +2440,7 @@
 </blockquote>
 <hr />
 <h1 id="a2ui-basic-catalog-implementation-guide">A2UI Basic Catalog Implementation Guide<a class="headerlink" href="#a2ui-basic-catalog-implementation-guide" title="Permanent link">&para;</a></h1>
-<p>This guide is designed for renderer and client developers implementing the A2UI Basic Catalog (v1.0). It details how to visually present and functionally implement each component and client-side function defined in the catalog.</p>
+<p>This guide is designed for renderer developers implementing the A2UI Basic Catalog (v1.0). It details how to visually present and functionally implement each component and renderer-side function defined in the catalog.</p>
 <p>When building your framework-specific adapters (Layer 3) over the generic A2UI bindings, refer to this document for the expected visual behaviors, suggested layouts, and interaction patterns. This guide uses generic terminology applicable to Web, Mobile (iOS/Android), and Desktop platforms.</p>
 <hr />
 <h2 id="mandatory-identifier-rules-for-catalogs">Mandatory Identifier Rules for Catalogs<a class="headerlink" href="#mandatory-identifier-rules-for-catalogs" title="Permanent link">&para;</a></h2>
@@ -2533,7 +2533,7 @@
 <h3 id="button">Button<a class="headerlink" href="#button" title="Permanent link">&para;</a></h3>
 <p>An interactive button that dispatches a protocol action.</p>
 <p><strong>Rendering Guidelines:</strong> Render as a native interactive button component. It must render its <code>child</code> component inside the button (usually a <code>Text</code> or <code>Icon</code>).
-<strong>Behavior &amp; State:</strong> When tapped, it dispatches the <code>action</code> back to the server, dynamically resolving the context variables at the moment of the interaction.
+<strong>Behavior &amp; State:</strong> When tapped, it dispatches the <code>action</code> back to the agent, dynamically resolving the context variables at the moment of the interaction.
 <strong>Property Mapping:</strong></p>
 <ul>
 <li><code>variant="default"</code>: Standard button with a subtle background and border.</li>
@@ -2578,8 +2578,8 @@
 </ul>
 <p><strong>Behavior &amp; State:</strong> The component must convert the platform's native date/time format into a standard ISO 8601 string before writing it to the A2UI data model, and correctly parse ISO 8601 strings coming from the model into the input field.</p>
 <hr />
-<h2 id="2-client-side-functions">2. Client-Side Functions<a class="headerlink" href="#2-client-side-functions" title="Permanent link">&para;</a></h2>
-<p>Functions provide client-side logic for validation, interpolation, and operations. As defined in the Architecture Guide, the reactivity of function arguments is generally handled by the Core Data Layer (specifically the Binder/Context layer).</p>
+<h2 id="2-renderer-side-functions">2. Renderer-Side Functions<a class="headerlink" href="#2-renderer-side-functions" title="Permanent link">&para;</a></h2>
+<p>Functions provide renderer-side logic for validation, interpolation, and operations. As defined in the Architecture Guide, the reactivity of function arguments is generally handled by the Core Data Layer (specifically the Binder/Context layer).</p>
 <p>Core libraries for each language (such as <code>@a2ui/web_core</code> for TypeScript) typically provide a complete, framework-agnostic implementation of all the functions in the basic catalog. Developers are encouraged to utilize these shared implementations rather than writing their own.
 When a function is called, the system resolves its arguments. If an argument is a static value, it is passed directly. If it is a dynamic binding, the Context layer handles the subscription. For most standard functions, the <code>execute</code> implementation simply receives a dictionary of static <code>args</code> and returns a static value. The Context layer wraps this execution in a reactive stream (e.g., a <code>computed</code> signal) so that the function re-runs whenever any of its dynamic arguments change.</p>
 <p>However, complex functions like <code>formatString</code> must manually interact with the Context to parse and subscribe to nested dynamic dependencies.</p>
@@ -2591,7 +2591,7 @@ Universal system function available across all catalogs. MUST ONLY be evaluated 
 <li><code>offset</code> (Optional, number): Added to the 0-based index (e.g., <code>offset: 1</code> produces 1-based indexing). Defaults to <code>0</code>.</li>
 </ul>
 <h3 id="formatstring"><code>formatString</code><a class="headerlink" href="#formatstring" title="Permanent link">&para;</a></h3>
-<p><strong>Description:</strong> The core interpolation engine. Parses the <code>args.value</code> string for <code>${expression}</code> blocks, combining literal strings, data paths, and other client-side function results.</p>
+<p><strong>Description:</strong> The core interpolation engine. Parses the <code>args.value</code> string for <code>${expression}</code> blocks, combining literal strings, data paths, and other renderer-side function results.</p>
 <p><strong>Architecture &amp; Logic:</strong>
 Because <code>formatString</code> contains dynamic expressions embedded <em>within</em> a string literal, the Context layer cannot pre-resolve them. The implementation must parse the string and manually create a reactive output.</p>
 <ol>

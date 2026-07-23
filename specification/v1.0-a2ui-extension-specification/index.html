@@ -2448,13 +2448,13 @@
 <hr />
 <h1 id="a2ui-agent-to-agent-ui-extension-spec-v10">A2UI (Agent-to-Agent UI) Extension spec v1.0<a class="headerlink" href="#a2ui-agent-to-agent-ui-extension-spec-v10" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>This document is intended for developers implementing the A2UI A2A extension. The extension adds A2UI v1.0 support to A2A, a format for agents to send streaming, interactive user interfaces to clients.</p>
-<p>Note that A2UI extension activation is optional as clients and agents can negotiate A2UI support using A2A <code>message.metadata["a2uiClientCapabilities"]</code> which is attached to every A2A message from the client and contains the supported protocol version and catalogs. Agents advertising A2UI support in their AgentCard is encouraged as clients may rely on it to determine if they should send <code>message.metadata["a2uiClientCapabilities"]</code>, however it is not explicitly required.</p>
+<p>This document is intended for developers implementing the A2UI A2A extension. The extension adds A2UI v1.0 support to A2A, a format for agents to send streaming, interactive user interfaces to renderers.</p>
+<p>Note that A2UI extension activation is optional as renderers and agents can negotiate A2UI support using A2A <code>message.metadata["a2uiRendererCapabilities"]</code> which is attached to every A2A message from the renderer and contains the supported protocol version and catalogs. Agents advertising A2UI support in their AgentCard is encouraged as renderers may rely on it to determine if they should send <code>message.metadata["a2uiRendererCapabilities"]</code>, however it is not explicitly required.</p>
 <h2 id="extension-uri">Extension URI<a class="headerlink" href="#extension-uri" title="Permanent link">&para;</a></h2>
 <p>The URI of this extension is https://a2ui.org/a2a-extension/a2ui/v1.0</p>
-<p>This URI is the canonical way to communicate protocol versioning between clients and agents. The extension URI explicitly encodes the version (e.g., <code>v1.0</code>). A client requesting this specific URI indicates it supports the v1.0 schema format.</p>
+<p>This URI is the canonical way to communicate protocol versioning between renderers and agents. The extension URI explicitly encodes the version (e.g., <code>v1.0</code>). A renderer requesting this specific URI indicates it supports the v1.0 schema format.</p>
 <h2 id="agent-card">Agent Card<a class="headerlink" href="#agent-card" title="Permanent link">&para;</a></h2>
-<p>Agents are encouraged to advertise their A2UI capabilities in their AgentCard within the <code>AgentCapabilities.extensions</code> list. This advertisement is optional, but it informs the client whether to send <code>message.metadata["a2uiClientCapabilities"]</code>. The <code>params</code> object defines the agent's specific UI support and corresponds directly to the <a href="../v1_0/json/server_capabilities.json">Server Capabilities Schema</a>.</p>
+<p>Agents are encouraged to advertise their A2UI capabilities in their AgentCard within the <code>AgentCapabilities.extensions</code> list. This advertisement is optional, but it informs the renderer whether to send <code>message.metadata["a2uiRendererCapabilities"]</code>. The <code>params</code> object defines the agent's specific UI support and corresponds directly to the <a href="../v1_0/json/agent_capabilities.json">Agent Capabilities Schema</a>.</p>
 <p>Example AgentCard payload:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dashboard Agent&quot;</span><span class="p">,</span>
@@ -2477,19 +2477,19 @@
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>The <code>params</code> object corresponds to the <code>v1.0</code> object in the <code>server_capabilities.json</code> schema:</p>
+<p>The <code>params</code> object corresponds to the <code>v1.0</code> object in the <code>agent_capabilities.json</code> schema:</p>
 <ul>
 <li><code>params.supportedCatalogIds</code> (optional): An array of strings, where each string is an ID identifying a Catalog Definition Schema that the agent can generate. This is not necessarily a resolvable URI.</li>
-<li><code>params.acceptsInlineCatalogs</code> (optional): A boolean indicating if the agent can accept an <code>inlineCatalogs</code> array in the client's <code>a2uiClientCapabilities</code>. If omitted, this defaults to <code>false</code>.</li>
+<li><code>params.acceptsInlineCatalogs</code> (optional): A boolean indicating if the agent can accept an <code>inlineCatalogs</code> array in the renderer's <code>a2uiRendererCapabilities</code>. If omitted, this defaults to <code>false</code>.</li>
 </ul>
 <h2 id="a2a-extension-activation">A2A Extension activation<a class="headerlink" href="#a2a-extension-activation" title="Permanent link">&para;</a></h2>
-<p>Activating the A2UI extension is optional. Clients and agents can negotiate A2UI support using <code>message.metadata["a2uiClientCapabilities"]</code> A2A <code>DataPart.data.metadata["mimeType"] = "application/a2ui+json"</code>.</p>
+<p>Activating the A2UI extension is optional. Renderers and agents can negotiate A2UI support using <code>message.metadata["a2uiRendererCapabilities"]</code> A2A <code>DataPart.data.metadata["mimeType"] = "application/a2ui+json"</code>.</p>
 <p>Specifically:</p>
 <ul>
-<li>If a client includes <code>message.metadata["a2uiClientCapabilities"]</code>, the agent can use this object to determine the supported A2UI protocol version and catalogs.</li>
-<li>If an agent returns A2A A2A <code>DataPart.data.metadata["mimeType"] = "application/a2ui+json"</code>, the client knows the payload contains A2UI messages.</li>
+<li>If a renderer includes <code>message.metadata["a2uiRendererCapabilities"]</code>, the agent can use this object to determine the supported A2UI protocol version and catalogs.</li>
+<li>If an agent returns A2A A2A <code>DataPart.data.metadata["mimeType"] = "application/a2ui+json"</code>, the renderer knows the payload contains A2UI messages.</li>
 </ul>
-<p>While explicit activation is not required, clients can still explicitly activate the extension using the transport-defined A2A extension activation mechanism. The <a href="https://a2a-protocol.org/latest/topics/extensions/">A2A Extensions Guide</a> defines this process.</p>
+<p>While explicit activation is not required, renderers can still explicitly activate the extension using the transport-defined A2A extension activation mechanism. The <a href="https://a2a-protocol.org/latest/topics/extensions/">A2A Extensions Guide</a> defines this process.</p>
 <p>Note: You should not use <code>accepted_output_modes: ['a2ui']</code> (which is not an A2UI standard) to trigger A2UI.</p>
 <h3 id="json-rpc-and-http-transports">JSON-RPC and HTTP transports<a class="headerlink" href="#json-rpc-and-http-transports" title="Permanent link">&para;</a></h3>
 <p>To activate the A2UI A2A Extension, the <code>X-A2A-Extensions</code> HTTP header includes the extension URI.</p>
@@ -2511,7 +2511,7 @@
 </span></code></pre></div>
 <p>To see how the agent parses the extension URI, see <a href="https://github.com/a2ui-project/a2ui/blob/main/agent_sdks/python/a2ui_agent/src/a2ui/a2a/extension.py"><code>extension.py</code></a>.</p>
 <h3 id="grpc-transport">GRPC transport<a class="headerlink" href="#grpc-transport" title="Permanent link">&para;</a></h3>
-<p>To activate the A2UI A2A Extension, the client adds the extension URI to A2A <code>sendMessageParams.metadata["X-A2A-Extensions"]</code>.</p>
+<p>To activate the A2UI A2A Extension, the renderer adds the extension URI to A2A <code>sendMessageParams.metadata["X-A2A-Extensions"]</code>.</p>
 <p><strong>Example gRPC <code>SendMessageRequest</code>:</strong></p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -2527,11 +2527,11 @@
 </span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
 </span></code></pre></div>
-<h2 id="a2a-client-to-server-metadata">A2A Client to Server Metadata<a class="headerlink" href="#a2a-client-to-server-metadata" title="Permanent link">&para;</a></h2>
-<p>Clients attach <code>a2uiClientCapabilities</code> and <code>a2uiClientDataModel</code> to A2A messages to communicate their state and supported catalogs.</p>
-<h3 id="a2uiclientcapabilities"><code>a2uiClientCapabilities</code><a class="headerlink" href="#a2uiclientcapabilities" title="Permanent link">&para;</a></h3>
-<p>The client sends <code>sendMessageRequest.message["a2uiClientCapabilities"]</code> = <a href="../v1_0/json/client_capabilities.json">Client Capabilities Schema</a> to advertise which catalogs the renderer supports.</p>
-<p>Additionally, the client determines a function's execution boundary (e.g., <code>clientOnly</code> status) at runtime by reading its configuration from the active catalog definition.</p>
+<h2 id="a2a-renderer-to-agent-metadata">A2A Renderer to Agent Metadata<a class="headerlink" href="#a2a-renderer-to-agent-metadata" title="Permanent link">&para;</a></h2>
+<p>Renderers attach <code>a2uiRendererCapabilities</code> and <code>a2uiRendererDataModel</code> to A2A messages to communicate their state and supported catalogs.</p>
+<h3 id="a2uirenderercapabilities"><code>a2uiRendererCapabilities</code><a class="headerlink" href="#a2uirenderercapabilities" title="Permanent link">&para;</a></h3>
+<p>The renderer sends <code>sendMessageRequest.message["a2uiRendererCapabilities"]</code> = <a href="../v1_0/json/renderer_capabilities.json">Renderer Capabilities Schema</a> to advertise which catalogs the renderer supports.</p>
+<p>Additionally, the renderer determines a function's execution boundary (e.g., <code>rendererOnly</code> status) at runtime by reading its configuration from the active catalog definition.</p>
 <p><strong>Example <code>SendMessageRequest</code> with Capabilities:</strong></p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -2541,7 +2541,7 @@
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="p">}</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">],</span>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">      </span><span class="nt">&quot;a2uiClientCapabilities&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">      </span><span class="nt">&quot;a2uiRendererCapabilities&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">        </span><span class="nt">&quot;v1.0&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">          </span><span class="nt">&quot;supportedCatalogIds&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 </span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">            </span><span class="s2">&quot;https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json&quot;</span><span class="p">,</span>
@@ -2553,8 +2553,8 @@
 </span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="p">}</span>
 </span></code></pre></div>
-<h3 id="a2uiclientdatamodel"><code>a2uiClientDataModel</code><a class="headerlink" href="#a2uiclientdatamodel" title="Permanent link">&para;</a></h3>
-<p>When a surface enables Data Model Sync, the client sends <code>sendMessageRequest.message["a2uiClientDataModel"]</code> = <a href="../v1_0/json/client_data_model.json">Client Data Model Schema</a> on every message. This model provides the agent with the latest UI state. For more details, see the <a href="../../concepts/actions/">Actions Guide</a>.</p>
+<h3 id="a2uirendererdatamodel"><code>a2uiRendererDataModel</code><a class="headerlink" href="#a2uirendererdatamodel" title="Permanent link">&para;</a></h3>
+<p>When a surface enables Data Model Sync, the renderer sends <code>sendMessageRequest.message["a2uiRendererDataModel"]</code> = <a href="../v1_0/json/renderer_data_model.json">Renderer Data Model Schema</a> on every message. This model provides the agent with the latest UI state. For more details, see the <a href="../../concepts/actions/">Actions Guide</a>.</p>
 <p><strong>Example <code>SendMessageRequest</code> with Data Model:</strong></p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -2564,7 +2564,7 @@
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">      </span><span class="p">}</span>
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="p">],</span>
 </span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">      </span><span class="nt">&quot;a2uiClientDataModel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">      </span><span class="nt">&quot;a2uiRendererDataModel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">        </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1.0&quot;</span><span class="p">,</span>
 </span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">        </span><span class="nt">&quot;surfaces&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">          </span><span class="nt">&quot;main_surface_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -2578,18 +2578,18 @@
 </span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="data-encoding">Data encoding<a class="headerlink" href="#data-encoding" title="Permanent link">&para;</a></h2>
-<p>Agents and clients encode A2UI messages as an A2A <code>DataPart</code>.</p>
+<p>Agents and renderers encode A2UI messages as an A2A <code>DataPart</code>.</p>
 <p>To identify a <code>DataPart</code> as containing A2UI data, it must have the following metadata:</p>
 <ul>
 <li><code>DataPart.data.metadata["mimeType"] = "application/a2ui+json"</code></li>
 </ul>
 <p>The <code>data</code> field of the <code>DataPart</code> contains a list of A2UI JSON messages (e.g., <code>createSurface</code>, <code>updateComponents</code>, <code>action</code>). It MUST be an array of messages.</p>
 <h3 id="processing-rules">Processing Rules<a class="headerlink" href="#processing-rules" title="Permanent link">&para;</a></h3>
-<p>The <code>data</code> field contains a list of messages. This list is NOT a transactional unit. Receivers (both Clients and Agents) MUST process messages in the list sequentially.</p>
+<p>The <code>data</code> field contains a list of messages. This list is NOT a transactional unit. Receivers (both Renderers and Agents) MUST process messages in the list sequentially.</p>
 <p>If a single message in the list fails to validate or apply (e.g., due to a schema violation or invalid reference), the receiver SHOULD report/log the error for that specific message and MUST continue processing the remaining messages in the list.</p>
 <p>Atomicity is guaranteed only at the individual message level. However, for a better user experience, a renderer SHOULD NOT repaint the UI until all messages in the list have been processed. This prevents intermediate states from flickering to the user.</p>
-<h3 id="server-to-client-messages">Server-to-client messages<a class="headerlink" href="#server-to-client-messages" title="Permanent link">&para;</a></h3>
-<p>When an agent sends a message to a client (or another agent acting as a client/renderer), the <code>data</code> payload must validate against the <a href="../v1_0/json/server_to_client_list.json">Server-to-Client Message List Schema</a>.</p>
+<h3 id="agent-to-renderer-messages">Agent-to-renderer messages<a class="headerlink" href="#agent-to-renderer-messages" title="Permanent link">&para;</a></h3>
+<p>When an agent sends a message to a renderer (or another agent acting as a renderer), the <code>data</code> payload must validate against the <a href="../v1_0/json/agent_to_renderer_list.json">Agent-to-Renderer Message List Schema</a>.</p>
 <p>Example DataPart:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -2620,8 +2620,8 @@
 </span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-5-28"><a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="p">}</span>
 </span></code></pre></div>
-<h3 id="client-to-server-events">Client-to-server events<a class="headerlink" href="#client-to-server-events" title="Permanent link">&para;</a></h3>
-<p>When a client (or an agent forwarding an event) sends a message to an agent, it also uses a <code>DataPart</code> with the same <code>application/a2ui+json</code> MIME type. However, the <code>data</code> payload must validate against the <a href="../v1_0/json/client_to_server_list.json">Client-to-Server Message List Schema</a>.</p>
+<h3 id="renderer-to-agent-events">Renderer-to-agent events<a class="headerlink" href="#renderer-to-agent-events" title="Permanent link">&para;</a></h3>
+<p>When a renderer (or an agent forwarding an event) sends a message to an agent, it also uses a <code>DataPart</code> with the same <code>application/a2ui+json</code> MIME type. However, the <code>data</code> payload must validate against the <a href="../v1_0/json/renderer_to_agent_list.json">Renderer-to-Agent Message List Schema</a>.</p>
 <p>Example <code>action</code> DataPart:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
