@@ -34,18 +34,13 @@
         },
         "catalogId": {
           "type": "string",
-          "description": "The catalog ID for this component."
-        },
-        "rootOnly": {
-          "type": "boolean",
-          "description": "If true, this component must be the top-level element and cannot be placed inside a ChildList.",
-          "default": false
+          "description": "The catalog ID for this component. If omitted, the catalogId in createSurface will be used."
         },
         "accessibility": {
           "$ref": "#/$defs/AccessibilityAttributes"
         }
       },
-      "required": ["id", "catalogId"]
+      "required": ["id"]
     },
     "ChildList": {
       "oneOf": [
@@ -199,7 +194,7 @@
         },
         "catalogId": {
           "type": "string",
-          "description": "The catalog ID for this function."
+          "description": "The catalog ID for this function. If omitted, the catalogId in createSurface will be used."
         },
         "args": {
           "type": "object",
@@ -217,7 +212,7 @@
           }
         }
       },
-      "required": ["call", "catalogId"],
+      "required": ["call"],
       "oneOf": [
         {"$ref": "catalog.json#/$defs/anyFunction"},
         {"$ref": "#/$defs/IndexSystemFunction"}
