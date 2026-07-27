@@ -15,7 +15,7 @@ Version 1.0 differs from 0.9 in the following ways:
 - Identifier naming rules across all catalog entities (component names, function names, and argument keys) must conform to Unicode Standard Annex #31 (UAX #31).
 - The `@index` built-in function dynamically retrieves iteration indices during list template rendering. The `@` prefix is reserved for core system context evaluations.
 - The `supportedCatalogIds` in `a2uiClientCapabilities` are all mixable, meaning a client can updateComponents with components from multiple catalogs simultaneously.
-- `catalogId` in `createSurface` and on the component base are optional, but one of them must be set so components can be unambiguously resolved across catalogs.
+- Components now require a `catalogId` property so they can be unambiguously resolved across catalogs, since we now allow mixing catalogs. The `catalogId` property on `createSurface` has been removed.
 
 ## 2. Changes
 
@@ -41,9 +41,8 @@ Version 1.0 differs from 0.9 in the following ways:
 
 - Added `actionResponse` message structure (`ActionResponseMessage`) to allow the server to respond to a specific action call using a unique `actionId` with a `value` or `error`.
 - Added `callFunction` message structure (`CallFunctionMessage`) to support server-initiated function execution. Removed `callableFrom` and `returnType` properties from the wire payload, relying on runtime catalog verification.
-- Updated the `createSurface` message (`CreateSurfaceMessage`) to rename the `theme` field to `surfaceProperties`, allowed passing initial `components` and `dataModel` directly inside the payload, and made `catalogId` optional (defining the surface-level default catalog).
-- Made `catalogId` optional on the base component definition (`ComponentCommon`) to override the surface's default catalog, requiring either `createSurface.catalogId` or `component.catalogId` to be set.
-- Added an optional `catalogId` to the `FunctionCall` definition.
+- Updated the `createSurface` message (`CreateSurfaceMessage`) to rename the `theme` field to `surfaceProperties`, allowed passing initial `components` and `dataModel` directly inside the payload, and removed `catalogId`.
+- Update `createSurface` message to make `catalogId` optional, and to allow specifying `catalogId` on components and function calls so that components can be mixed between catalogs. Require that one of these are set.
 - Updated all protocol version references and envelopes from `v0.9` or `v0.9.1` to `v1.0`.
 
 ### 2.4. Client-to-server events
