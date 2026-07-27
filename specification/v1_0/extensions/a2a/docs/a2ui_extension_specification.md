@@ -4,7 +4,8 @@
 
 This document is intended for developers implementing the A2UI A2A extension. The extension adds A2UI v1.0 support to A2A, a format for agents to send streaming, interactive user interfaces to clients.
 
-A2UI does not use A2A extension activation, and only uses the AgentCard part of A2A Extensions. Clients and agents negotiate supported A2UI version and catalogs using A2A `message.metadata["a2uiClientCapabilities"]` which is attached to every A2A message from the client. Agents advertising A2UI support in their AgentCard is encouraged as clients may rely on it to determine if they should send `message.metadata["a2uiClientCapabilities"]`, however it is not explicitly required.
+A2UI does not use A2A extension activation, and only uses the AgentCard part of A2A Extensions. Clients and agents negotiate the supported A2UI version and catalogs using A2A `message.metadata['a2uiClientCapabilities']` which is attached to every A2A message from the client. Advertising A2UI support in the AgentCard is encouraged as clients may rely on it to determine if they should send `message.metadata['a2uiClientCapabilities']`; however, it is not explicitly required.
+
 
 ## Extension URI
 
@@ -48,7 +49,7 @@ The `params` object corresponds to the `v1.0` object in the `server_capabilities
 
 ## A2A Extension activation
 
-A2UI does not use A2A extension activation. Clients advertise supported A2UI version and catalogs by attaching `message.metadata["a2uiClientCapabilities"]` to their messages. Agents use A2UI by sending payloads with `DataPart.data.metadata["mimeType"] = "application/a2ui+json"` to clients.
+A2UI does not use A2A extension activation. Clients advertise the supported A2UI version and catalogs by attaching `message.metadata['a2uiClientCapabilities']` to their messages. Agents use A2UI by sending payloads with `DataPart.data.metadata['mimeType'] = 'application/a2ui+json'` to clients.
 
 ## A2A Client to Server Metadata
 

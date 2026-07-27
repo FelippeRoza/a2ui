@@ -57,7 +57,7 @@ Version 1.0 differs from 0.9 in the following ways:
 
 ### 2.6. Agent card and transport metadata
 
-- Removed the A2A extension activation mechanism entirely. Clients and agents now rely purely on A2A metadata to negotiate supported A2UI version and catalogs.
+- Removed the A2A extension activation mechanism entirely. Clients and agents now rely purely on A2A metadata to negotiate the supported A2UI version and catalogs.
 - Standardized the official MIME type to `application/a2ui+json` to conform to IANA media type guidelines.
 - Updated capabilities namespace in transport metadata and A2A metadata parameters from `v0.9`/`v0.9.1` to `v1.0`.
 
