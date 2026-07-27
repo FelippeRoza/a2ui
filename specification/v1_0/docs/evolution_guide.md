@@ -15,7 +15,7 @@ Version 1.0 differs from 0.9 in the following ways:
 - Identifier naming rules across all catalog entities (component names, function names, and argument keys) must conform to Unicode Standard Annex #31 (UAX #31).
 - The `@index` built-in function dynamically retrieves iteration indices during list template rendering. The `@` prefix is reserved for core system context evaluations.
 - The `supportedCatalogIds` in `a2uiClientCapabilities` are all mixable, meaning a client can updateComponents with components from multiple catalogs simultaneously.
-- Components now require a `catalogId` property so they can be unambiguously resolved across catalogs, since we now allow mixing catalogs. The `catalogId` property on `createSurface` has been removed.
+- Components and functions can set `catalogId` on their object which overrides the `catalogId` in createSurface, to specify which catalog a component or function comes from since they can now be mixed across catalogs. The `catalogId` property on `createSurface` is now optional. You must specify either `createSurface.catalogId` or `component.catalogId` / `function.catalogId`.
 
 ## 2. Changes
 
