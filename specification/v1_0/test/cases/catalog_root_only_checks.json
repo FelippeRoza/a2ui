@@ -1,0 +1,71 @@
+{
+  "schema": "catalog_definition.json",
+  "tests": [
+    {
+      "description": "Component defining rootOnly: true is valid",
+      "valid": true,
+      "data": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://a2ui.org/specification/v1_0/testing_catalog_valid.json",
+        "title": "A2UI Testing Catalog",
+        "description": "Catalog for testing purposes.",
+        "catalogId": "https://a2ui.org/specification/v1_0/testing_catalog.json",
+        "components": {
+          "MyRootOnlyWidget": {
+            "rootOnly": true,
+            "type": "object",
+            "properties": {
+              "component": {"const": "MyRootOnlyWidget"}
+            },
+            "required": ["component"]
+          }
+        },
+        "functions": {},
+        "$defs": {
+          "anyComponent": {
+            "oneOf": [{"$ref": "#/components/MyRootOnlyWidget"}],
+            "discriminator": {
+              "propertyName": "component"
+            }
+          },
+          "anyFunction": {
+            "not": {}
+          }
+        }
+      }
+    },
+    {
+      "description": "Component defining rootOnly with incorrect type (string) is invalid",
+      "valid": false,
+      "data": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://a2ui.org/specification/v1_0/testing_catalog_invalid.json",
+        "title": "A2UI Testing Catalog",
+        "description": "Catalog for testing purposes.",
+        "catalogId": "https://a2ui.org/specification/v1_0/testing_catalog.json",
+        "components": {
+          "MyRootOnlyWidget": {
+            "rootOnly": "true",
+            "type": "object",
+            "properties": {
+              "component": {"const": "MyRootOnlyWidget"}
+            },
+            "required": ["component"]
+          }
+        },
+        "functions": {},
+        "$defs": {
+          "anyComponent": {
+            "oneOf": [{"$ref": "#/components/MyRootOnlyWidget"}],
+            "discriminator": {
+              "propertyName": "component"
+            }
+          },
+          "anyFunction": {
+            "not": {}
+          }
+        }
+      }
+    }
+  ]
+}
