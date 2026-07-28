@@ -136,14 +136,21 @@
     },
     "ComponentDefinition": {
       "description": "Describes a component's validation schema and structural metadata.",
-      "$ref": "https://json-schema.org/draft/2020-12/schema",
-      "properties": {
-        "rootOnly": {
-          "type": "boolean",
-          "default": false,
-          "description": "If true, this component must only be instantiated at the root of a surface."
+      "allOf": [
+        {
+          "$ref": "https://json-schema.org/draft/2020-12/schema"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "rootOnly": {
+              "type": "boolean",
+              "default": false,
+              "description": "If true, this component must only be instantiated at the root of a surface."
+            }
+          }
         }
-      }
+      ]
     }
   }
 }
