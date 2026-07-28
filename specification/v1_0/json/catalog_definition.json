@@ -135,13 +135,8 @@
       "unevaluatedProperties": false
     },
     "ComponentDefinition": {
-      "type": "object",
       "description": "Describes a component's validation schema and structural metadata.",
-      "allOf": [
-        {
-          "$ref": "https://json-schema.org/draft/2020-12/schema"
-        }
-      ],
+      "$ref": "https://json-schema.org/draft/2020-12/schema",
       "properties": {
         "rootOnly": {
           "type": "boolean",
