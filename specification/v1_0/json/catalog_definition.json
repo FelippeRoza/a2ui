@@ -140,6 +140,7 @@
       "properties": {
         "rootOnly": {
           "type": "boolean",
+          "default": false,
           "description": "If true, this component must only be instantiated at the root of a surface."
         }
       }
