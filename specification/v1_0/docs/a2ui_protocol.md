@@ -519,7 +519,9 @@ To ensure catalog schemas can be translated reliably into alternative, LLM-frien
      - Mandatory metadata fields outside the strict JSON validation properties to advertise interface details:
        - **`returnType`**: Must be a string enum indicating the return type (`string`, `number`, `boolean`, `array`, `object`, `any`, or `void`).
        - **`callableFrom`**: Must be a string enum indicating the execution boundary (`rendererOnly`, `agentOnly`, or `rendererOrAgent`). If omitted, it defaults to `rendererOnly`.
-7. **Strict Top-Level Schema Keys:**
+7. **Component Structural Metadata:**
+   - Component schemas may include an optional `rootOnly` boolean property outside the strict JSON validation properties block. If `"rootOnly": true`, the renderer MUST enforce that instances of this component are only rendered at the root of a surface and MUST reject payloads that nest this component within another.
+8. **Strict Top-Level Schema Keys:**
    - To keep catalog schemas predictable and prevent custom extensions from polluting the global file space, a `catalog.json` file is restricted to the following root-level keys:
      - `$schema`
      - `$id`
@@ -538,7 +540,7 @@ Below is an annotated, fully compliant `catalog.json` schema template (written i
 
 ```jsonc
 {
-  // Rule 7: Strict Top-Level Schema Keys
+  // Rule 8: Strict Top-Level Schema Keys
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json",
   "title": "A2UI Basic Catalog Template",

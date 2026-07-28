@@ -50,7 +50,7 @@
       "type": "object",
       "description": "Definitions for UI components supported by this catalog.",
       "additionalProperties": {
-        "$ref": "https://json-schema.org/draft/2020-12/schema"
+        "$ref": "#/$defs/ComponentDefinition"
       }
     },
     "functions": {
@@ -133,6 +133,21 @@
         }
       ],
       "unevaluatedProperties": false
+    },
+    "ComponentDefinition": {
+      "type": "object",
+      "description": "Describes a component's validation schema and structural metadata.",
+      "allOf": [
+        {
+          "$ref": "https://json-schema.org/draft/2020-12/schema"
+        }
+      ],
+      "properties": {
+        "rootOnly": {
+          "type": "boolean",
+          "description": "If true, this component must only be instantiated at the root of a surface."
+        }
+      }
     }
   }
 }
