@@ -2,6 +2,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# IMPORTANT: The rules should be superset of Google3 rules.
+# Otherwise Google3 roll will fail linter checks.
+
 include: package:lints/recommended.yaml
 
 analyzer:
