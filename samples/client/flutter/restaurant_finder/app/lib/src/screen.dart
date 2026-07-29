@@ -151,7 +151,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   }
 
   Widget _buildSurfaces() {
-    final List<String> surfaceIds = _session.activeSurfaceIds.toList();
+    final surfaceIds = _session.activeSurfaceIds.toList();
     return Column(
       children: [
         if (_session.error != null) ErrorBanner(message: _session.error!),
@@ -174,7 +174,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   }
 
   Future<void> _sendMessage() async {
-    final String text = _textController.text.trim();
+    final text = _textController.text.trim();
     if (text.isEmpty) return;
     await _session.sendMessage(text);
   }

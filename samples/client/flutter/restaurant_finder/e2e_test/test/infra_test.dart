@@ -12,7 +12,7 @@ import 'test_infra/restaurant_finder.dart';
 
 void main() {
   test('test can read api key "$geminiApiKeyName"', () {
-    final String key = apiKeyForEval();
+    final key = apiKeyForEval();
     expect(key, isNotEmpty);
     print('API Key: ${key.substring(0, 1)}...${key.substring(key.length - 1)}');
   });
@@ -21,7 +21,7 @@ void main() {
     final aiClient = DartanticAiClient();
     addTearDown(aiClient.dispose);
 
-    final String result =
+    final result =
         (await aiClient
                 .sendStream('Please, tell me a joke.', history: [])
                 .toList())

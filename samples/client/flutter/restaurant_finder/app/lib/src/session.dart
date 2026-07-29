@@ -28,7 +28,7 @@ const String defaultServerUrl = 'http://localhost:10002';
 
 class RestaurantSession extends ChangeNotifier {
   RestaurantSession({String serverUrl = defaultServerUrl}) {
-    final List<Catalog> catalogs = [
+    final catalogs = [
       BasicCatalogItems.asCatalog().copyWith(catalogId: _agentCatalogId),
     ];
     _connector = A2uiAgentConnector(url: Uri.parse(serverUrl));
@@ -131,7 +131,7 @@ class RestaurantSession extends ChangeNotifier {
     _startLoadingAnimation();
 
     // Clear existing surfaces on each new request.
-    for (final String id in [..._surfaceController.activeSurfaceIds]) {
+    for (final id in [..._surfaceController.activeSurfaceIds]) {
       _surfaceController.handleMessage(DeleteSurface(surfaceId: id));
     }
 

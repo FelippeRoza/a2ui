@@ -38,10 +38,10 @@ class ShellProbe {
   /// Runs [command], checks the response and throws error if the response
   /// is not valid.
   Future<void> validate() async {
-    final DateTime deadline = DateTime.now().add(timeout);
+    final deadline = DateTime.now().add(timeout);
     while (true) {
       try {
-        final String response = runCommandSync(command);
+        final response = runCommandSync(command);
         responseChecker(response);
         return;
       } catch (e) {
@@ -63,7 +63,7 @@ void killProcessesOnPort(int port) {
 }
 
 String runCommandSync(String command) {
-  final ProcessResult result = Process.runSync('bash', ['-c', command]);
+  final result = Process.runSync('bash', ['-c', command]);
   if (result.exitCode != 0) {
     throw Exception(
       'Command failed with exit code ${result.exitCode}: '
@@ -81,7 +81,7 @@ Future<Process> startAndVerifyService(
 }) async {
   print('Starting service: `$command` in $workingDirectory');
   print('Current directory: ${Directory.current}');
-  final Process process = await Process.start('bash', [
+  final process = await Process.start('bash', [
     '-c',
     command,
   ], workingDirectory: workingDirectory);
