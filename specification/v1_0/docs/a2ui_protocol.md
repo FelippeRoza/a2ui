@@ -519,7 +519,7 @@ To ensure catalog schemas can be translated reliably into alternative, LLM-frien
      - Mandatory metadata fields outside the strict JSON validation properties to advertise interface details:
        - **`returnType`**: Must be a string enum indicating the return type (`string`, `number`, `boolean`, `array`, `object`, `any`, or `void`).
        - **`callableFrom`**: Must be a string enum indicating the execution boundary (`rendererOnly`, `agentOnly`, or `rendererOrAgent`). If omitted, it defaults to `rendererOnly`.
-7. **Component Structural Metadata:**
+7. **rootOnly components:**
    - Component schemas may include an optional `rootOnly` boolean property. If `"rootOnly": true`, the renderer MUST enforce that instances of this component are only rendered at the root of a surface and MUST reject payloads that nest this component within another.
 8. **Strict Top-Level Schema Keys:**
    - To keep catalog schemas predictable and prevent custom extensions from polluting the global file space, a `catalog.json` file is restricted to the following root-level keys:
@@ -550,8 +550,10 @@ Below is an annotated, fully compliant `catalog.json` schema template (written i
 
   // Rule 1: Top-level components declared under top-level "components" map.
   "components": {
-    "Text": {
+    "ToastMessage": {
       "type": "object",
+      // Rule 7: rootOnly components like this "Toast" can't be nested inside other components
+      "rootOnly": true,
       // Rule 5: Components must combine ComponentCommon and local properties using "allOf".
       "allOf": [
         {
