@@ -146,7 +146,7 @@
             "rootOnly": {
               "type": "boolean",
               "default": false,
-              "description": "If true, this component must only be instantiated at the root of a surface."
+              "description": "If true, this component must only be rendered at the root of a surface and cannot be nested within other components."
             }
           }
         }

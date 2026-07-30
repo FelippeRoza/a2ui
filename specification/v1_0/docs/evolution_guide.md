@@ -12,7 +12,7 @@ Version 1.0 differs from 0.9 in the following ways:
 - Components and initial data model states can be defined directly within the `createSurface` parameters. This allows for the creation of entire UIs in a single message, rather than a create followed by separate updates.
 - The `functions` field in a Catalog is now defined as a map of function name to its definition, instead of a list.
 - Standard JSON Schema metadata fields (`$schema`, `$id`, `title`, and `description`) are supported in catalogs, preventing validation failures on inline catalogs with strict property checks.
-- A new `rootOnly` structural validation property on component schemas prevents standalone widgets or containers that only belong at the root from being nested inside other components.
+- A new `rootOnly` boolean property on component schemas prevents standalone root-level widgets or containers from being nested inside other components.
 - Identifier naming rules across all catalog entities (component names, function names, and argument keys) must conform to Unicode Standard Annex #31 (UAX #31).
 - The `@index` built-in function dynamically retrieves iteration indices during list template rendering. The `@` prefix is reserved for core system context evaluations.
 - Standardized the names of core architectural components, renaming "client" to _renderer_ and "server" to _agent_ (e.g., `server_to_client` schemas are renamed to `agent_to_renderer`), because A2UI is sometimes generated on clients, and rendering sometimes happens on servers, making those terms ambiguous.
@@ -24,7 +24,7 @@ Version 1.0 differs from 0.9 in the following ways:
 - Renamed the `$defs/theme` schema to `$defs/surfaceProperties` in the Catalog schema, and removed the `primaryColor` property.
 - Changed the `functions` property in the Catalog schema from a list to a map object, keyed by function name.
 - Added `callableFrom` (enum: `rendererOnly`, `agentOnly`, `rendererOrAgent`) to `FunctionDefinition` to restrict where a function can be invoked.
-- Added `rootOnly` (boolean) to `ComponentDefinition` to enforce structural validation, preventing standalone widgets or containers that only belong at root from being nested inside others.
+- Added `rootOnly` (boolean) to `ComponentDefinition` to prevent standalone root-level components from being nested inside other components.
 - Added an optional `instructions` field to the `Catalog` schema to embed design guidelines and component usage rules directly in the catalog, replacing the external `rules.txt` file.
 - Supported standard JSON Schema metadata fields (`$schema`, `$id`, `title`, and `description`) in the Catalog object definition. Since the Catalog schema restricts properties with `additionalProperties: false`, this ensures inline catalogs containing standard schema metadata do not fail schema validation.
 - Enforced Unicode Standard Annex #31 (UAX #31) identifier naming constraints (`XID_Start`, `XID_Continue`) across component names, function names, and argument keys.
@@ -56,7 +56,7 @@ Version 1.0 differs from 0.9 in the following ways:
 - Added an optional `instructions` field to the `Catalog` object definition (`catalog_definition.json`) as a plain Markdown string to embed design guidelines directly.
 - Renamed `theme` capability block to `surfaceProperties` within the Catalog definition in `catalog_definition.json`.
 - Added static `callableFrom` and `returnType` metadata properties to `FunctionDefinition` inside `catalog_definition.json` to advertise execution boundaries and return types to the agent.
-- Added `rootOnly` metadata property to `ComponentDefinition` inside `catalog_definition.json` to enforce structural validation at runtime.
+- Added a static `rootOnly` boolean property to `ComponentDefinition` inside `catalog_definition.json` to enforce that certain components can only be rendered at the root of a surface and not nested within other components.
 
 ### 2.6. Agent card and transport metadata
 
