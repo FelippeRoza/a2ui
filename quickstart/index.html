@@ -3077,7 +3077,12 @@
 <p>The repository includes several other demos:</p>
 <h3 id="component-gallery-no-agent-required">Component Gallery (No Agent Required)<a class="headerlink" href="#component-gallery-no-agent-required" title="Permanent link">&para;</a></h3>
 <p>See all available A2UI components:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>yarn<span class="w"> </span>start<span class="w"> </span>gallery
+<p>If you're running the gallery from a fresh checkout, build the gallery and its workspace dependencies first:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">cd</span><span class="w"> </span>renderers/lit/a2ui_explorer
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>yarn<span class="w"> </span>build
+</span></code></pre></div>
+<p>Start the gallery:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>yarn<span class="w"> </span>dev
 </span></code></pre></div>
 <p>This runs a client-only demo showcasing every standard component (Card, Button, TextField, Timeline, etc.) with live examples and code samples.</p>
 <h3 id="other-languages-and-frameworks">Other Languages and Frameworks<a class="headerlink" href="#other-languages-and-frameworks" title="Permanent link">&para;</a></h3>
@@ -3110,19 +3115,19 @@
 <p>If you see <code>ERR_CONNECTION_REFUSED</code> errors when the browser opens, <strong>don't worry</strong> — this is a known race condition (<a href="https://github.com/a2ui-project/a2ui/issues/587">#587</a>). The web app starts faster than the Python agent backend. Just wait a few seconds and refresh the page.</p>
 <h3 id="python-uv-issues">Python / uv Issues<a class="headerlink" href="#python-uv-issues" title="Permanent link">&para;</a></h3>
 <p>The demo agents require <a href="https://docs.astral.sh/uv/">uv</a> to run. If you see <code>uv: command not found</code>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Install uv</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Verify</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>uv<span class="w"> </span>--version
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Install uv</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Verify</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>uv<span class="w"> </span>--version
 </span></code></pre></div>
 <p>If you encounter other Python errors:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Make sure Python 3.10+ is available</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>python3<span class="w"> </span>--version
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Try running the agent manually</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="nb">cd</span><span class="w"> </span>samples/agent/adk/restaurant_finder
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>uv<span class="w"> </span>run<span class="w"> </span>.
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Make sure Python 3.10+ is available</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>python3<span class="w"> </span>--version
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Try running the agent manually</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="nb">cd</span><span class="w"> </span>samples/agent/adk/restaurant_finder
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>uv<span class="w"> </span>run<span class="w"> </span>.
 </span></code></pre></div>
 <h3 id="still-having-issues">Still Having Issues?<a class="headerlink" href="#still-having-issues" title="Permanent link">&para;</a></h3>
 <ul>

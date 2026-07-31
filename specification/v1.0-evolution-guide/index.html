@@ -2450,7 +2450,11 @@
 <ul>
 <li>A new renderer-to-agent RPC mechanism allows synchronous responses to renderer actions (<code>actionResponse</code>) using a unique <code>actionId</code>.</li>
 <li>Agent-to-renderer RPC function calls are supported via the <code>callFunction</code> message. Renderers return execution results via the <code>functionResponse</code> message. Runtime execution boundaries and return types are defined in catalogs and verified at runtime, rather than being validated on the wire.</li>
-<li>The <code>theme</code> property in the catalog and surface creation message is replaced by <code>surfaceProperties</code>, and <code>primaryColor</code> is removed to separate layout from branding.</li>
+<li>Catalogs can now be mixed within a single UI surface. Advertised <code>supportedCatalogIds</code> are mixable, allowing UI trees to combine components and functions from multiple catalogs simultaneously.</li>
+<li>Added an optional <code>catalogId</code> property to <code>ComponentCommon</code> and <code>FunctionCall</code> to allow individual components and function calls to explicitly declare their source catalog.</li>
+<li>Retained <code>catalogId</code> on <code>createSurface</code> as an optional parameter that defines the default catalog for that surface.</li>
+<li>Defined explicit component and function call resolution logic: the renderer checks the component-level (or function call-level) <code>catalogId</code> first, then falls back to the surface default <code>catalogId</code>. If neither is defined, the renderer errors out and does not render the component (or rejects the function call). There is no fallback to catalogs declared in capabilities. Available catalogs for a surface include both <code>supportedCatalogIds</code> and any negotiated <code>inlineCatalogs</code>, and all mixed catalogs must use the same A2UI specification version.</li>
+<li>The <code>theme</code> property in the catalog and surface creation message is removed, along with <code>primaryColor</code>, to separate layout from branding.</li>
 <li>Components and initial data model states can be defined directly within the <code>createSurface</code> parameters. This allows for the creation of entire UIs in a single message, rather than a create followed by separate updates.</li>
 <li>The <code>functions</code> field in a Catalog is now defined as a map of function name to its definition, instead of a list.</li>
 <li>Standard JSON Schema metadata fields (<code>$schema</code>, <code>$id</code>, <code>title</code>, and <code>description</code>) are supported in catalogs, preventing validation failures on inline catalogs with strict property checks.</li>
@@ -2461,11 +2465,12 @@
 <h2 id="2-changes">2. Changes<a class="headerlink" href="#2-changes" title="Permanent link">&para;</a></h2>
 <h3 id="21-catalog-definition-schema">2.1. Catalog definition schema<a class="headerlink" href="#21-catalog-definition-schema" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Renamed the <code>$defs/theme</code> schema to <code>$defs/surfaceProperties</code> in the Catalog schema, and removed the <code>primaryColor</code> property.</li>
+<li>Removed the <code>$defs/theme</code> schema and the <code>primaryColor</code> property from the Catalog schema.</li>
 <li>Changed the <code>functions</code> property in the Catalog schema from a list to a map object, keyed by function name.</li>
 <li>Added <code>callableFrom</code> (enum: <code>rendererOnly</code>, <code>agentOnly</code>, <code>rendererOrAgent</code>) to <code>FunctionDefinition</code> to restrict where a function can be invoked.</li>
 <li>Added an optional <code>instructions</code> field to the <code>Catalog</code> schema to embed design guidelines and component usage rules directly in the catalog, replacing the external <code>rules.txt</code> file.</li>
 <li>Supported standard JSON Schema metadata fields (<code>$schema</code>, <code>$id</code>, <code>title</code>, and <code>description</code>) in the Catalog object definition. Since the Catalog schema restricts properties with <code>additionalProperties: false</code>, this ensures inline catalogs containing standard schema metadata do not fail schema validation.</li>
+<li>Added a <code>protocolVersion</code> field (e.g., <code>"protocolVersion": "1.0"</code>) to catalog definition metadata (<code>catalog_definition.json</code>). If omitted, <code>protocolVersion</code> defaults to <code>"0.9"</code> for backward compatibility; catalog definitions targeting <code>1.0</code> and beyond MUST specify <code>"protocolVersion"</code>.</li>
 <li>Enforced Unicode Standard Annex #31 (UAX #31) identifier naming constraints (<code>XID_Start</code>, <code>XID_Continue</code>) across component names, function names, and argument keys.</li>
 </ul>
 <h3 id="22-standard-catalogs-basic">2.2. Standard catalogs (basic)<a class="headerlink" href="#22-standard-catalogs-basic" title="Permanent link">&para;</a></h3>
@@ -2474,13 +2479,14 @@
 <li>Added <code>placeholder</code> prop to the <code>TextField</code> component schema.</li>
 <li>Added a <code>steps</code> property to the <code>Slider</code> component schema to snap values to discrete intervals.</li>
 <li>Added an optional <code>instructions</code> field to the <code>Catalog</code> schema (<code>catalogs/basic/catalog.json</code>) to embed Markdown guidelines/rules directly, replacing the external <code>rules.txt</code> file.</li>
-<li>Renamed <code>$defs/theme</code> to <code>$defs/surfaceProperties</code> in the basic catalog.</li>
+<li>Removed <code>$defs/theme</code> from the basic catalog.</li>
 </ul>
 <h3 id="23-agent-to-renderer-messages">2.3. Agent-to-renderer messages<a class="headerlink" href="#23-agent-to-renderer-messages" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added <code>actionResponse</code> message structure (<code>ActionResponseMessage</code>) to allow the agent to respond to a specific action call using a unique <code>actionId</code> with a <code>value</code> or <code>error</code>.</li>
 <li>Added <code>callFunction</code> message structure (<code>CallFunctionMessage</code>) to support agent-initiated function execution. Removed <code>callableFrom</code> and <code>returnType</code> properties from the wire payload, relying on runtime catalog verification.</li>
-<li>Updated the <code>createSurface</code> message (<code>CreateSurfaceMessage</code>) to rename the <code>theme</code> field to <code>surfaceProperties</code>, and allowed passing initial <code>components</code> and <code>dataModel</code> directly inside the payload.</li>
+<li>Updated the <code>createSurface</code> message (<code>CreateSurfaceMessage</code>) to remove the <code>theme</code> field, allowed passing initial <code>components</code> and <code>dataModel</code> directly inside the payload, and made <code>catalogId</code> an optional parameter that acts as the surface's default catalog.</li>
+<li>Added an optional <code>catalogId</code> property to <code>ComponentCommon</code> and <code>FunctionCall</code> in <code>common_types.json</code> to enable mixing catalogs and explicitly designating the catalog on individual components or function calls.</li>
 <li>Updated all protocol version references and envelopes from <code>v0.9</code> or <code>v0.9.1</code> to <code>v1.0</code>.</li>
 </ul>
 <h3 id="24-renderer-to-agent-events">2.4. Renderer-to-agent events<a class="headerlink" href="#24-renderer-to-agent-events" title="Permanent link">&para;</a></h3>
@@ -2493,13 +2499,14 @@
 <h3 id="25-catalog-definition-schema">2.5. Catalog definition schema<a class="headerlink" href="#25-catalog-definition-schema" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added an optional <code>instructions</code> field to the <code>Catalog</code> object definition (<code>catalog_definition.json</code>) as a plain Markdown string to embed design guidelines directly.</li>
-<li>Renamed <code>theme</code> capability block to <code>surfaceProperties</code> within the Catalog definition in <code>catalog_definition.json</code>.</li>
+<li>Removed <code>theme</code> capability block from the Catalog definition in <code>catalog_definition.json</code>.</li>
 <li>Added static <code>callableFrom</code> and <code>returnType</code> metadata properties to <code>FunctionDefinition</code> inside <code>catalog_definition.json</code> to advertise execution boundaries and return types to the agent.</li>
 </ul>
 <h3 id="26-agent-card-and-transport-metadata">2.6. Agent card and transport metadata<a class="headerlink" href="#26-agent-card-and-transport-metadata" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Standardized the official MIME type to <code>application/a2ui+json</code> to conform to IANA media type guidelines.</li>
 <li>Updated capabilities namespace in transport metadata and A2A metadata parameters from <code>v0.9</code>/<code>v0.9.1</code> to <code>v1.0</code>.</li>
+<li>Clarified that <code>supportedCatalogIds</code> in <code>rendererCapabilities</code> and <code>agentCapabilities</code> are mixable within a single UI surface.</li>
 </ul>
 <h3 id="27-data-encoding">2.7. Data encoding<a class="headerlink" href="#27-data-encoding" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2509,6 +2516,10 @@
 </ul>
 <h3 id="28-processing-rules">2.8. Processing rules<a class="headerlink" href="#28-processing-rules" title="Permanent link">&para;</a></h3>
 <ul>
+<li>Defined strict component and function catalog resolution logic:</li>
+<li>Check the component's (or function call's) explicit <code>catalogId</code>.</li>
+<li>If not present, check the surface's default <code>catalogId</code> provided in <code>createSurface</code>.</li>
+<li>If neither exists, report an error and do not render the component (or fail the function call). There is no fallback to catalogs advertised in capabilities. Available catalogs include <code>supportedCatalogIds</code> and negotiated <code>inlineCatalogs</code>, and all mixed catalogs must use the same A2UI specification version.</li>
 <li>Explicitly specified that <code>surfaceId</code> must be globally unique per renderer session. Creating a surface with an ID that already exists (without first deleting it) is an error.</li>
 <li>Enforced runtime lookup of function execution boundaries and return types. If a renderer receives a remote call to a function configured as <code>rendererOnly</code> or if the function is unregistered, it rejects the call and returns an error with the code <code>INVALID_FUNCTION_CALL</code>.</li>
 <li>Enforced catalog entity naming compliance with Unicode Standard Annex #31 (UAX #31).</li>
@@ -2530,9 +2541,10 @@
 <ul>
 <li>Set the <code>version</code> field in all streamed JSON envelopes to <code>"v1.0"</code>.</li>
 <li>Change the MIME type of A2UI payloads in transport layers from <code>application/json+a2ui</code> to <code>application/a2ui+json</code>.</li>
-<li>Rename the <code>theme</code> field in <code>createSurface</code> messages to <code>surfaceProperties</code> and remove <code>primaryColor</code>. You can also pass initial <code>components</code> and <code>dataModel</code> directly in the <code>createSurface</code> payload.</li>
+<li>Remove the <code>theme</code> field from <code>createSurface</code> messages. You can pass initial <code>components</code> and <code>dataModel</code> directly in the <code>createSurface</code> payload, and <code>catalogId</code> is now optional (acting as the default catalog for that surface).</li>
+<li>When mixing components from multiple catalogs, specify the optional <code>catalogId</code> on individual components or function calls.</li>
 <li>Convert the <code>functions</code> property in catalog definitions from an array to a JSON object map keyed by function name.</li>
-<li>Rename the <code>$defs/theme</code> catalog definition to <code>$defs/surfaceProperties</code> and remove the <code>primaryColor</code> field.</li>
+<li>Remove the <code>$defs/theme</code> catalog definition and the <code>primaryColor</code> field.</li>
 <li>Ensure all generated catalog entity names conform to UAX #31 identifier rules.</li>
 <li>Do not include <code>callableFrom</code> or <code>returnType</code> properties in wire-level <code>FunctionCall</code> payloads. Set static <code>callableFrom</code> and <code>returnType</code> metadata in catalog function definitions where needed.</li>
 <li>Update <code>Video</code>, <code>TextField</code>, and <code>Slider</code> components to support optional <code>posterUrl</code>, <code>placeholder</code>, and <code>steps</code> properties.</li>
@@ -2541,6 +2553,8 @@
 </ul>
 <h3 id="for-renderers">For renderers<a class="headerlink" href="#for-renderers" title="Permanent link">&para;</a></h3>
 <ul>
+<li>Implement multi-catalog mixing by supporting components and function calls from any catalog in <code>supportedCatalogIds</code> or negotiated <code>inlineCatalogs</code>. All catalogs mixed within a surface must use the same A2UI specification version.</li>
+<li>Implement component and function resolution order: (1) explicit component/call <code>catalogId</code>, (2) surface default <code>catalogId</code>, (3) error if neither exists (no fallback to capabilities).</li>
 <li>Implement function execution by adding support for parsing <code>callFunction</code> messages, checking boundary definitions in the catalog (<code>callableFrom</code>), rejecting invalid calls with <code>INVALID_FUNCTION_CALL</code>, and returning <code>functionResponse</code> messages.</li>
 <li>Support synchronous action responses by generating <code>actionId</code> for actions with <code>wantResponse: true</code> and writing returned values from <code>actionResponse</code> messages into the data model.</li>
 <li>Support simultaneous version handling during session initialization by inspecting the <code>version</code> property (e.g., <code>"v1.0"</code>) to route payloads to version-specific controllers.</li>

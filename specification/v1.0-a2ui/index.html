@@ -930,6 +930,19 @@
       
     </span>
 </a>
+<nav aria-label="The component object" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mixable-catalogs-and-component-resolution-logic">
+<span class="md-ellipsis">
+      
+        Mixable catalogs and component resolution logic
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#the-component-catalog">
@@ -1249,28 +1262,6 @@
       
     </span>
 </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#surface-properties">
-<span class="md-ellipsis">
-      
-        Surface Properties
-      
-    </span>
-</a>
-<nav aria-label="Surface Properties" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#identity-and-attribution">
-<span class="md-ellipsis">
-      
-        Identity and attribution
-      
-    </span>
-</a>
-</li>
-</ul>
-</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#the-formatstring-function">
@@ -2023,6 +2014,19 @@
       
     </span>
 </a>
+<nav aria-label="The component object" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mixable-catalogs-and-component-resolution-logic">
+<span class="md-ellipsis">
+      
+        Mixable catalogs and component resolution logic
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#the-component-catalog">
@@ -2344,28 +2348,6 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#surface-properties">
-<span class="md-ellipsis">
-      
-        Surface Properties
-      
-    </span>
-</a>
-<nav aria-label="Surface Properties" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#identity-and-attribution">
-<span class="md-ellipsis">
-      
-        Identity and attribution
-      
-    </span>
-</a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="#the-formatstring-function">
 <span class="md-ellipsis">
       
@@ -2645,7 +2627,7 @@
 <ul>
 <li><strong>Bidirectional RPC Messaging</strong>: Supports synchronous agent responses to renderer actions (<code>actionResponse</code>) and remote agent-initiated function execution (<code>callFunction</code> / <code>functionResponse</code>) verified against runtime catalog definitions.</li>
 <li><strong>Single-Message UI Instantiation</strong>: Allows initial component trees and data models to be embedded directly within <code>createSurface</code>, enabling complete UI composition in a single payload.</li>
-<li><strong>Decoupled Branding</strong>: Replaces rigid theme properties with extensible <code>surfaceProperties</code> (removing hardcoded brand colors) to defer visual styling entirely to the target framework's native theme.</li>
+<li><strong>Decoupled Branding</strong>: Removes rigid theme properties (removing hardcoded brand colors) to defer visual styling entirely to the target framework's native theme.</li>
 <li><strong>Enhanced Catalog Schemas</strong>: Refactors function definitions into object maps for direct O(1) lookups and supports standard JSON Schema metadata fields (<code>$schema</code>, <code>$id</code>) on inline catalogs.</li>
 <li><strong>Strict Identifier &amp; Context Standards</strong>: Enforces Unicode (UAX #31) naming rules across all catalog entities and reserves the <code>@</code> namespace for universal system context evaluations (such as <code>@index</code>).</li>
 </ul>
@@ -2728,9 +2710,9 @@
 <h3 id="agent-to-renderer-message-structure-the-envelope">Agent to renderer message structure: the envelope<a class="headerlink" href="#agent-to-renderer-message-structure-the-envelope" title="Permanent link">¶</a></h3>
 <p>The [<code>agent_to_renderer.json</code>] schema is the top-level entry point. Every message streamed by the agent must validate against this schema. It handles the message dispatching.</p>
 <h3 id="the-basic-catalog">The Basic Catalog<a class="headerlink" href="#the-basic-catalog" title="Permanent link">¶</a></h3>
-<p>The [<code>catalogs/basic/catalog.json</code>] schema contains the definitions for all specific UI components (e.g., <code>Text</code>, <code>Button</code>, <code>Row</code>), functions (e.g., <code>required</code>, <code>email</code>), and the <code>surfaceProperties</code> schema.</p>
+<p>The [<code>catalogs/basic/catalog.json</code>] schema contains the definitions for all specific UI components (e.g., <code>Text</code>, <code>Button</code>, <code>Row</code>) and functions (e.g., <code>required</code>, <code>email</code>).</p>
 <p><strong>Swappable Catalogs &amp; Validation:</strong></p>
-<p>The [<code>agent_to_renderer.json</code>] envelope schema is designed to be catalog-agnostic. It references components and surfaceProperties using a placeholder filename: <code>catalog.json</code> (specifically <code>$ref: "catalog.json#/$defs/anyComponent"</code> and <code>$ref: "catalog.json#/$defs/surfaceProperties"</code>).</p>
+<p>The [<code>agent_to_renderer.json</code>] envelope schema is designed to be catalog-agnostic. It references components using a placeholder filename: <code>catalog.json</code> (specifically <code>$ref: "catalog.json#/$defs/anyComponent"</code>).</p>
 <p>To validate A2UI messages:</p>
 <ol>
 <li><strong>Basic Catalog</strong>: Map <code>catalog.json</code> to <code>catalogs/basic/catalog.json</code>.</li>
@@ -2759,14 +2741,13 @@
 <h2 id="envelope-message-structure">Envelope message structure<a class="headerlink" href="#envelope-message-structure" title="Permanent link">¶</a></h2>
 <p>The envelope defines several message types, and every message streamed by the agent must be a JSON object containing exactly one of the following keys: <code>createSurface</code>, <code>updateComponents</code>, <code>updateDataModel</code>, <code>deleteSurface</code>, <code>callFunction</code>, or <code>actionResponse</code>. The key indicates the type of message, and these are the messages that make up each message in the protocol stream.</p>
 <h3 id="createsurface"><code>createSurface</code><a class="headerlink" href="#createsurface" title="Permanent link">¶</a></h3>
-<p>This message signals the renderer to create a new surface and begin rendering it. A surface must be created before any <code>updateComponents</code> or <code>updateDataModel</code> messages can be sent to it. While typically achieved by the agent sending a <code>createSurface</code> message, an agent may skip this if it knows the surface has already been created (e.g., by another agent). Once a surface is created, its <code>surfaceId</code> and <code>catalogId</code> are fixed; to reconfigure them, the surface must be deleted and recreated.</p>
+<p>This message signals the renderer to create a new surface and begin rendering it. A surface must be created before any <code>updateComponents</code> or <code>updateDataModel</code> messages can be sent to it. While typically achieved by the agent sending a <code>createSurface</code> message, an agent may skip this if it knows of a preexisting surface that it has permission to modify. Once a surface is created, its <code>surfaceId</code> and default <code>catalogId</code> (if provided) are fixed; to reconfigure them, the surface must be deleted and recreated.</p>
 <p>It is an error to try to create a surface with a <code>surfaceId</code> that already exists without first deleting it; <code>surfaceId</code> must be globally unique for the renderer's lifetime. Orchestrators with subagents are empowered to manage surface IDs as needed to prevent conflicts (e.g., prefixing the subagent's name to the <code>surfaceId</code> or requiring subagents to use UUIDs).</p>
 <p>One of the components in one of the component lists MUST have an <code>id</code> of <code>root</code> to serve as the root of the component tree.</p>
 <p><strong>Properties:</strong></p>
 <ul>
 <li><code>surfaceId</code> (string, required): The unique identifier for the UI surface to be rendered. This must be globally unique for the renderer's lifetime.</li>
-<li><code>catalogId</code> (string, required): A string that uniquely identifies the catalog (components and functions) used for this surface. Note that <code>catalogId</code> is a string identifier, not a resolvable URI; while it is conventionally formatted as a URI (e.g., <code>https://mycompany.com/1.0/somecatalog</code>) to avoid naming collisions across organizations, it does not need to point to any deployed resource or downloadable file. Renderer and agent developers must agree on shared catalogs with well-known IDs in order to build systems that are compatible with each other.</li>
-<li><code>surfaceProperties</code> (object, optional): A JSON object containing surface properties (e.g., <code>agentDisplayName</code>) defined in the catalog's surfaceProperties schema.</li>
+<li><code>catalogId</code> (string, optional): A string that uniquely identifies the default catalog (components and functions) used for this surface. Note that <code>catalogId</code> is a string identifier, not a resolvable URI; while it is conventionally formatted as a URI (e.g., <code>https://mycompany.com/1.0/somecatalog</code>) to avoid naming collisions across organizations, it does not need to point to any deployed resource or downloadable file. Components and function calls on this surface that do not explicitly specify their own <code>catalogId</code> will use this surface-level default <code>catalogId</code>.</li>
 <li><code>sendDataModel</code> (boolean, optional): If true, the renderer will send the full data model of this surface in the metadata of every message sent to the agent (via the Transport's metadata mechanism). This ensures the surface owner receives the full current state of the UI alongside the user's action or query. Defaults to false.</li>
 <li><code>components</code> (array, optional): A list containing UI components for the surface, allowing the renderer to build and populate the UI tree immediately on surface creation. Conforms to the <code>ComponentsList</code> schema.</li>
 <li><code>dataModel</code> (object, optional): A plain JSON object representing the initial root state of the data model.</li>
@@ -2777,27 +2758,24 @@
 </span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="nt">"createSurface"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_profile_card"</span><span class="p">,</span>
 </span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">    </span><span class="nt">"catalogId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json"</span><span class="p">,</span>
-</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">    </span><span class="nt">"surfaceProperties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">      </span><span class="nt">"agentDisplayName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Weather Bot"</span>
-</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">    </span><span class="p">},</span>
-</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">    </span><span class="nt">"sendDataModel"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">    </span><span class="nt">"components"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">      </span><span class="p">{</span>
-</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="p">,</span>
-</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">        </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span>
-</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">        </span><span class="nt">"children"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"user_name"</span><span class="p">]</span>
-</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">      </span><span class="p">},</span>
-</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">      </span><span class="p">{</span>
-</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_name"</span><span class="p">,</span>
-</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">        </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Text"</span><span class="p">,</span>
-</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">        </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/name"</span><span class="p">}</span>
-</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">      </span><span class="p">}</span>
-</span><span id="__span-0-21"><a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">    </span><span class="p">],</span>
-</span><span id="__span-0-22"><a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="w">    </span><span class="nt">"dataModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-23"><a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John Doe"</span>
-</span><span id="__span-0-24"><a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-0-25"><a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-0-26"><a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="p">}</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">    </span><span class="nt">"sendDataModel"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">    </span><span class="nt">"components"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">      </span><span class="p">{</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="p">,</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">        </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">        </span><span class="nt">"children"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"user_name"</span><span class="p">]</span>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">      </span><span class="p">},</span>
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">      </span><span class="p">{</span>
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_name"</span><span class="p">,</span>
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">        </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Text"</span><span class="p">,</span>
+</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">        </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/name"</span><span class="p">}</span>
+</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">    </span><span class="p">],</span>
+</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">    </span><span class="nt">"dataModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John Doe"</span>
+</span><span id="__span-0-21"><a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-22"><a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-23"><a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="updatecomponents"><code>updateComponents</code><a class="headerlink" href="#updatecomponents" title="Permanent link">¶</a></h3>
 <p>This message provides a list of UI components to be added to or updated within a specific surface. The components are provided as a flat list, and their relationships are defined by ID references in an adjacency list. This message may only be sent to a surface that has already been created. Note that components may reference children or data bindings that do not yet exist; renderers should handle this gracefully by rendering placeholders (progressive rendering).</p>
@@ -2966,9 +2944,22 @@
 <ul>
 <li><code>id</code> (<code>ComponentId</code>, required): A unique string that identifies this specific component instance. This is used for parent-child references.</li>
 <li><code>component</code> (string, required): Specifies the component's type (e.g., <code>"Text"</code>).</li>
+<li><code>catalogId</code> (string, optional): A string that uniquely identifies the catalog for this component, overriding the surface's default <code>catalogId</code>. Useful when combining components from multiple catalogs in a single surface.</li>
 <li><strong>Component Properties</strong>: Other properties relevant to the specific component type (e.g., <code>text</code>, <code>url</code>, <code>children</code>) are included directly in the component object.</li>
 </ul>
 <p>This structure is designed to be both flexible and strictly validated.</p>
+<h4 id="mixable-catalogs-and-component-resolution-logic">Mixable catalogs and component resolution logic<a class="headerlink" href="#mixable-catalogs-and-component-resolution-logic" title="Permanent link">¶</a></h4>
+<p>Renderers can support components and functions from multiple catalogs simultaneously within a single surface (mixable catalogs). When a renderer advertises <code>supportedCatalogIds</code> in its capabilities, components from any of those catalogs can be combined in the same UI tree. The set of available catalogs for a surface includes both <code>supportedCatalogIds</code> and the <code>catalogId</code> of any inline catalog declared in <code>inlineCatalogs</code> (when supported by the agent). All catalog IDs specified at the component and function-call levels and at the surface-level must refer to catalogs which use the same A2UI specification version.</p>
+<p>When resolving a component (or function call), the renderer evaluates catalog identity using the following strict resolution order:</p>
+<ol>
+<li><strong>Explicit Component/Function-Level <code>catalogId</code></strong>: The renderer checks if the component or function call explicitly specifies a <code>catalogId</code>. If provided, the component or function is resolved against that catalog.</li>
+<li><strong>Surface Default <code>catalogId</code></strong>: If the component or function call does not specify a <code>catalogId</code>, the renderer checks if a default <code>catalogId</code> was specified on the surface in the <code>createSurface</code> message. If provided, the component or function is resolved against that surface default catalog.</li>
+<li><strong>Resolution Error</strong>: If neither an explicit component/function-level <code>catalogId</code> nor a surface default <code>catalogId</code> is present, resolution fails immediately with an error and the component is not rendered (or the function call is rejected).</li>
+</ol>
+<blockquote>
+<p>[!IMPORTANT]
+There is <strong>no fallback</strong> to the list of catalogs declared in <code>rendererCapabilities</code> (even if the renderer only advertises a single supported catalog). Every component and function call must resolve through either its explicit <code>catalogId</code> or the surface default <code>catalogId</code>.</p>
+</blockquote>
 <h3 id="the-component-catalog">The component catalog<a class="headerlink" href="#the-component-catalog" title="Permanent link">¶</a></h3>
 <p>The set of available UI components and functions is defined in a <strong>Catalog</strong>. The basic catalog is defined in [<code>catalogs/basic/catalog.json</code>]. While the Basic Catalog is useful for starting out, most production applications will define their own catalog to reflect their specific design system. The agent must generate messages that conform to the catalog understood by the renderer.</p>
 <h4 id="catalog-structure">Catalog structure<a class="headerlink" href="#catalog-structure" title="Permanent link">¶</a></h4>
@@ -2978,7 +2969,6 @@
 <li><strong>instructions</strong> (string, optional): Markdown-formatted design principles, rules, or developer guidelines specific to this catalog. These rules guide LLMs when generating UI layouts under this catalog.</li>
 <li><strong>components</strong> (object, optional): A map of supported UI components, where each key is the component type (e.g., <code>Text</code>) and its value is its JSON Schema definition. All keys MUST conform to the UAX #31 entity naming rules defined below.</li>
 <li><strong>functions</strong> (object, optional): A map of renderer-side validation or utility functions supported by the catalog, where each key is the function name and its value is its definition. All function names MUST conform to the UAX #31 entity naming rules defined below. The renderer determines a function's execution boundary (e.g., rendererOnly status) at runtime by reading its configuration from the active catalog definition.</li>
-<li><strong>surfaceProperties</strong> (object, optional): A schema defining the catalog's customizable visual properties.</li>
 </ul>
 <h4 id="catalog-entity-naming-rules">Catalog Entity Naming Rules<a class="headerlink" href="#catalog-entity-naming-rules" title="Permanent link">¶</a></h4>
 <p>To ensure complete cross-language compatibility across renderer SDKs, parsers, and code generators, all catalog entity identifiers—specifically <strong>component names</strong>, <strong>function names</strong>, and <strong>argument/property names</strong>—MUST adhere strictly to <a href="https://www.unicode.org/reports/tr31/">Unicode Standard Annex #31 (UAX #31)</a> variable naming rules.</p>
@@ -3004,14 +2994,13 @@
 <li><strong>Strict Top-Level vs. <code>$defs</code> Boundary:</strong></li>
 <li><strong>Top-Level components and functions:</strong> All component and function schemas MUST be declared directly under the top-level keys <code>"components"</code> and <code>"functions"</code> respectively.</li>
 <li><strong>External References inside <code>$defs</code>:</strong> Any definition referenced externally (e.g., from the envelope schema <code>agent_to_renderer.json</code> or <code>common_types.json</code>) MUST reside inside the <code>"$defs"</code> object at the catalog root. This strictly includes:<ul>
-<li><code>surfaceProperties</code>: Referenced as <code>catalog.json#/$defs/surfaceProperties</code>.</li>
 <li><code>anyComponent</code>: Referenced as <code>catalog.json#/$defs/anyComponent</code>.</li>
 <li><code>anyFunction</code>: Referenced as <code>catalog.json#/$defs/anyFunction</code>.</li>
 </ul>
 </li>
 <li><strong>No Custom <code>$defs</code> or Helpers:</strong></li>
 <li>To prevent unconstrained branching, custom definitions or shared helper schemas inside a catalog are strictly prohibited under <code>"$defs"</code>.</li>
-<li>The only allowed keys within the catalog's <code>"$defs"</code> object are <code>anyComponent</code>, <code>anyFunction</code>, and <code>surfaceProperties</code>.</li>
+<li>The only allowed keys within the catalog's <code>"$defs"</code> object are <code>anyComponent</code> and <code>anyFunction</code>.</li>
 <li>All helper properties (such as common properties factored out of catalog items) MUST be inlined directly inside the properties block of each supporting component schema rather than referenced from a shared helper.</li>
 <li><strong>Restricted <code>$ref</code> Targets:</strong></li>
 <li>Local <code>$ref</code> targets are restricted to referencing the catalog's top-level components or functions (e.g., <code>#/components/Text</code>, <code>#/functions/required</code>).</li>
@@ -3059,6 +3048,7 @@
 <li>To keep catalog schemas predictable and prevent custom extensions from polluting the global file space, a <code>catalog.json</code> file is restricted to the following root-level keys:<ul>
 <li><code>$schema</code></li>
 <li><code>$id</code></li>
+<li><code>protocolVersion</code> (optional for backward compatibility; defaults to <code>"0.9"</code> if omitted, required for catalogs targeting <code>1.0</code> and beyond)</li>
 <li><code>title</code></li>
 <li><code>description</code></li>
 <li><code>catalogId</code></li>
@@ -3073,105 +3063,98 @@
 <h5 id="example-schema-template">Example Schema Template<a class="headerlink" href="#example-schema-template" title="Permanent link">¶</a></h5>
 <p>Below is an annotated, fully compliant <code>catalog.json</code> schema template (written in JSONC format with comments) representing a visual, complete model of these rules in action:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a href="#__codelineno-12-1" id="__codelineno-12-1" name="__codelineno-12-1"></a>{
-</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a>  // Rule 7: Strict Top-Level Schema Keys
+</span><span id="__span-12-2"><a href="#__codelineno-12-2" id="__codelineno-12-2" name="__codelineno-12-2"></a>  // Strict Top-Level Schema Keys
 </span><span id="__span-12-3"><a href="#__codelineno-12-3" id="__codelineno-12-3" name="__codelineno-12-3"></a>  "$schema": "https://json-schema.org/draft/2020-12/schema",
 </span><span id="__span-12-4"><a href="#__codelineno-12-4" id="__codelineno-12-4" name="__codelineno-12-4"></a>  "$id": "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json",
-</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a>  "title": "A2UI Basic Catalog Template",
-</span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a>  "description": "An annotated example showcasing structural rules and conventions.",
-</span><span id="__span-12-7"><a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a>  "catalogId": "https://example.com/catalogs/custom-v1",
-</span><span id="__span-12-8"><a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a>  "instructions": "Design instructions for LLMs when generating layouts under this catalog.",
-</span><span id="__span-12-9"><a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a>
-</span><span id="__span-12-10"><a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a>  // Rule 1: Top-level components declared under top-level "components" map.
-</span><span id="__span-12-11"><a href="#__codelineno-12-11" id="__codelineno-12-11" name="__codelineno-12-11"></a>  "components": {
-</span><span id="__span-12-12"><a href="#__codelineno-12-12" id="__codelineno-12-12" name="__codelineno-12-12"></a>    "Text": {
-</span><span id="__span-12-13"><a href="#__codelineno-12-13" id="__codelineno-12-13" name="__codelineno-12-13"></a>      "type": "object",
-</span><span id="__span-12-14"><a href="#__codelineno-12-14" id="__codelineno-12-14" name="__codelineno-12-14"></a>      // Rule 5: Components must combine ComponentCommon and local properties using "allOf".
-</span><span id="__span-12-15"><a href="#__codelineno-12-15" id="__codelineno-12-15" name="__codelineno-12-15"></a>      "allOf": [
-</span><span id="__span-12-16"><a href="#__codelineno-12-16" id="__codelineno-12-16" name="__codelineno-12-16"></a>        {
-</span><span id="__span-12-17"><a href="#__codelineno-12-17" id="__codelineno-12-17" name="__codelineno-12-17"></a>          // Rule 3: External references must reference standard types in common_types.json.
-</span><span id="__span-12-18"><a href="#__codelineno-12-18" id="__codelineno-12-18" name="__codelineno-12-18"></a>          "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/ComponentCommon",
-</span><span id="__span-12-19"><a href="#__codelineno-12-19" id="__codelineno-12-19" name="__codelineno-12-19"></a>        },
-</span><span id="__span-12-20"><a href="#__codelineno-12-20" id="__codelineno-12-20" name="__codelineno-12-20"></a>        {
-</span><span id="__span-12-21"><a href="#__codelineno-12-21" id="__codelineno-12-21" name="__codelineno-12-21"></a>          "type": "object",
-</span><span id="__span-12-22"><a href="#__codelineno-12-22" id="__codelineno-12-22" name="__codelineno-12-22"></a>          "properties": {
-</span><span id="__span-12-23"><a href="#__codelineno-12-23" id="__codelineno-12-23" name="__codelineno-12-23"></a>            // Rule 4: Required "component" property must be a constant matching the component key.
-</span><span id="__span-12-24"><a href="#__codelineno-12-24" id="__codelineno-12-24" name="__codelineno-12-24"></a>            "component": {
-</span><span id="__span-12-25"><a href="#__codelineno-12-25" id="__codelineno-12-25" name="__codelineno-12-25"></a>              "const": "Text",
-</span><span id="__span-12-26"><a href="#__codelineno-12-26" id="__codelineno-12-26" name="__codelineno-12-26"></a>            },
-</span><span id="__span-12-27"><a href="#__codelineno-12-27" id="__codelineno-12-27" name="__codelineno-12-27"></a>            // Leaf properties can be standard JSON primitives or Dynamic wrappers
-</span><span id="__span-12-28"><a href="#__codelineno-12-28" id="__codelineno-12-28" name="__codelineno-12-28"></a>            "text": {
-</span><span id="__span-12-29"><a href="#__codelineno-12-29" id="__codelineno-12-29" name="__codelineno-12-29"></a>              "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
-</span><span id="__span-12-30"><a href="#__codelineno-12-30" id="__codelineno-12-30" name="__codelineno-12-30"></a>              "description": "Text content to display.",
-</span><span id="__span-12-31"><a href="#__codelineno-12-31" id="__codelineno-12-31" name="__codelineno-12-31"></a>            },
-</span><span id="__span-12-32"><a href="#__codelineno-12-32" id="__codelineno-12-32" name="__codelineno-12-32"></a>          },
-</span><span id="__span-12-33"><a href="#__codelineno-12-33" id="__codelineno-12-33" name="__codelineno-12-33"></a>          "required": ["component", "text"],
-</span><span id="__span-12-34"><a href="#__codelineno-12-34" id="__codelineno-12-34" name="__codelineno-12-34"></a>        },
-</span><span id="__span-12-35"><a href="#__codelineno-12-35" id="__codelineno-12-35" name="__codelineno-12-35"></a>      ],
-</span><span id="__span-12-36"><a href="#__codelineno-12-36" id="__codelineno-12-36" name="__codelineno-12-36"></a>      "unevaluatedProperties": false,
-</span><span id="__span-12-37"><a href="#__codelineno-12-37" id="__codelineno-12-37" name="__codelineno-12-37"></a>    },
-</span><span id="__span-12-38"><a href="#__codelineno-12-38" id="__codelineno-12-38" name="__codelineno-12-38"></a>  },
-</span><span id="__span-12-39"><a href="#__codelineno-12-39" id="__codelineno-12-39" name="__codelineno-12-39"></a>
-</span><span id="__span-12-40"><a href="#__codelineno-12-40" id="__codelineno-12-40" name="__codelineno-12-40"></a>  // Rule 1: Top-level functions declared under top-level "functions" map.
-</span><span id="__span-12-41"><a href="#__codelineno-12-41" id="__codelineno-12-41" name="__codelineno-12-41"></a>  "functions": {
-</span><span id="__span-12-42"><a href="#__codelineno-12-42" id="__codelineno-12-42" name="__codelineno-12-42"></a>    "required": {
-</span><span id="__span-12-43"><a href="#__codelineno-12-43" id="__codelineno-12-43" name="__codelineno-12-43"></a>      "type": "object",
-</span><span id="__span-12-44"><a href="#__codelineno-12-44" id="__codelineno-12-44" name="__codelineno-12-44"></a>      "description": "Checks that the value is not null, undefined, or empty.",
-</span><span id="__span-12-45"><a href="#__codelineno-12-45" id="__codelineno-12-45" name="__codelineno-12-45"></a>      // Rule 6: Strict function metadata defined outside the properties block.
-</span><span id="__span-12-46"><a href="#__codelineno-12-46" id="__codelineno-12-46" name="__codelineno-12-46"></a>      "returnType": "boolean",
-</span><span id="__span-12-47"><a href="#__codelineno-12-47" id="__codelineno-12-47" name="__codelineno-12-47"></a>      "callableFrom": "rendererOnly",
-</span><span id="__span-12-48"><a href="#__codelineno-12-48" id="__codelineno-12-48" name="__codelineno-12-48"></a>      "properties": {
-</span><span id="__span-12-49"><a href="#__codelineno-12-49" id="__codelineno-12-49" name="__codelineno-12-49"></a>        // Rule 6: Function call schema requires constant with function's name.
-</span><span id="__span-12-50"><a href="#__codelineno-12-50" id="__codelineno-12-50" name="__codelineno-12-50"></a>        "call": {
-</span><span id="__span-12-51"><a href="#__codelineno-12-51" id="__codelineno-12-51" name="__codelineno-12-51"></a>          "const": "required",
-</span><span id="__span-12-52"><a href="#__codelineno-12-52" id="__codelineno-12-52" name="__codelineno-12-52"></a>        },
-</span><span id="__span-12-53"><a href="#__codelineno-12-53" id="__codelineno-12-53" name="__codelineno-12-53"></a>        "args": {
-</span><span id="__span-12-54"><a href="#__codelineno-12-54" id="__codelineno-12-54" name="__codelineno-12-54"></a>          "type": "object",
-</span><span id="__span-12-55"><a href="#__codelineno-12-55" id="__codelineno-12-55" name="__codelineno-12-55"></a>          "properties": {
-</span><span id="__span-12-56"><a href="#__codelineno-12-56" id="__codelineno-12-56" name="__codelineno-12-56"></a>            "value": {
-</span><span id="__span-12-57"><a href="#__codelineno-12-57" id="__codelineno-12-57" name="__codelineno-12-57"></a>              "description": "The value to check.",
-</span><span id="__span-12-58"><a href="#__codelineno-12-58" id="__codelineno-12-58" name="__codelineno-12-58"></a>            },
-</span><span id="__span-12-59"><a href="#__codelineno-12-59" id="__codelineno-12-59" name="__codelineno-12-59"></a>          },
-</span><span id="__span-12-60"><a href="#__codelineno-12-60" id="__codelineno-12-60" name="__codelineno-12-60"></a>          "required": ["value"],
-</span><span id="__span-12-61"><a href="#__codelineno-12-61" id="__codelineno-12-61" name="__codelineno-12-61"></a>          "additionalProperties": false,
-</span><span id="__span-12-62"><a href="#__codelineno-12-62" id="__codelineno-12-62" name="__codelineno-12-62"></a>        },
-</span><span id="__span-12-63"><a href="#__codelineno-12-63" id="__codelineno-12-63" name="__codelineno-12-63"></a>      },
-</span><span id="__span-12-64"><a href="#__codelineno-12-64" id="__codelineno-12-64" name="__codelineno-12-64"></a>      "required": ["call", "args"],
-</span><span id="__span-12-65"><a href="#__codelineno-12-65" id="__codelineno-12-65" name="__codelineno-12-65"></a>      "unevaluatedProperties": false,
-</span><span id="__span-12-66"><a href="#__codelineno-12-66" id="__codelineno-12-66" name="__codelineno-12-66"></a>    },
-</span><span id="__span-12-67"><a href="#__codelineno-12-67" id="__codelineno-12-67" name="__codelineno-12-67"></a>  },
-</span><span id="__span-12-68"><a href="#__codelineno-12-68" id="__codelineno-12-68" name="__codelineno-12-68"></a>
-</span><span id="__span-12-69"><a href="#__codelineno-12-69" id="__codelineno-12-69" name="__codelineno-12-69"></a>  // Rule 1 &amp; Rule 2: $defs is restricted strictly to surfaceProperties, anyComponent, and anyFunction.
-</span><span id="__span-12-70"><a href="#__codelineno-12-70" id="__codelineno-12-70" name="__codelineno-12-70"></a>  // Custom definitions or helpers inside a catalog are strictly prohibited under $defs.
-</span><span id="__span-12-71"><a href="#__codelineno-12-71" id="__codelineno-12-71" name="__codelineno-12-71"></a>  "$defs": {
-</span><span id="__span-12-72"><a href="#__codelineno-12-72" id="__codelineno-12-72" name="__codelineno-12-72"></a>    "surfaceProperties": {
-</span><span id="__span-12-73"><a href="#__codelineno-12-73" id="__codelineno-12-73" name="__codelineno-12-73"></a>      "type": "object",
-</span><span id="__span-12-74"><a href="#__codelineno-12-74" id="__codelineno-12-74" name="__codelineno-12-74"></a>      "properties": {
-</span><span id="__span-12-75"><a href="#__codelineno-12-75" id="__codelineno-12-75" name="__codelineno-12-75"></a>        "agentDisplayName": {
-</span><span id="__span-12-76"><a href="#__codelineno-12-76" id="__codelineno-12-76" name="__codelineno-12-76"></a>          "type": "string",
-</span><span id="__span-12-77"><a href="#__codelineno-12-77" id="__codelineno-12-77" name="__codelineno-12-77"></a>        },
-</span><span id="__span-12-78"><a href="#__codelineno-12-78" id="__codelineno-12-78" name="__codelineno-12-78"></a>      },
-</span><span id="__span-12-79"><a href="#__codelineno-12-79" id="__codelineno-12-79" name="__codelineno-12-79"></a>    },
-</span><span id="__span-12-80"><a href="#__codelineno-12-80" id="__codelineno-12-80" name="__codelineno-12-80"></a>    "anyComponent": {
-</span><span id="__span-12-81"><a href="#__codelineno-12-81" id="__codelineno-12-81" name="__codelineno-12-81"></a>      "oneOf": [
-</span><span id="__span-12-82"><a href="#__codelineno-12-82" id="__codelineno-12-82" name="__codelineno-12-82"></a>        {
-</span><span id="__span-12-83"><a href="#__codelineno-12-83" id="__codelineno-12-83" name="__codelineno-12-83"></a>          // Rule 3: Local refs restricted to top-level components map.
-</span><span id="__span-12-84"><a href="#__codelineno-12-84" id="__codelineno-12-84" name="__codelineno-12-84"></a>          "$ref": "#/components/Text",
-</span><span id="__span-12-85"><a href="#__codelineno-12-85" id="__codelineno-12-85" name="__codelineno-12-85"></a>        },
-</span><span id="__span-12-86"><a href="#__codelineno-12-86" id="__codelineno-12-86" name="__codelineno-12-86"></a>      ],
-</span><span id="__span-12-87"><a href="#__codelineno-12-87" id="__codelineno-12-87" name="__codelineno-12-87"></a>      "discriminator": {
-</span><span id="__span-12-88"><a href="#__codelineno-12-88" id="__codelineno-12-88" name="__codelineno-12-88"></a>        "propertyName": "component",
-</span><span id="__span-12-89"><a href="#__codelineno-12-89" id="__codelineno-12-89" name="__codelineno-12-89"></a>      },
-</span><span id="__span-12-90"><a href="#__codelineno-12-90" id="__codelineno-12-90" name="__codelineno-12-90"></a>    },
-</span><span id="__span-12-91"><a href="#__codelineno-12-91" id="__codelineno-12-91" name="__codelineno-12-91"></a>    "anyFunction": {
-</span><span id="__span-12-92"><a href="#__codelineno-12-92" id="__codelineno-12-92" name="__codelineno-12-92"></a>      "oneOf": [
-</span><span id="__span-12-93"><a href="#__codelineno-12-93" id="__codelineno-12-93" name="__codelineno-12-93"></a>        {
-</span><span id="__span-12-94"><a href="#__codelineno-12-94" id="__codelineno-12-94" name="__codelineno-12-94"></a>          // Rule 3: Local refs restricted to top-level functions map.
-</span><span id="__span-12-95"><a href="#__codelineno-12-95" id="__codelineno-12-95" name="__codelineno-12-95"></a>          "$ref": "#/functions/required",
-</span><span id="__span-12-96"><a href="#__codelineno-12-96" id="__codelineno-12-96" name="__codelineno-12-96"></a>        },
-</span><span id="__span-12-97"><a href="#__codelineno-12-97" id="__codelineno-12-97" name="__codelineno-12-97"></a>      ],
-</span><span id="__span-12-98"><a href="#__codelineno-12-98" id="__codelineno-12-98" name="__codelineno-12-98"></a>    },
-</span><span id="__span-12-99"><a href="#__codelineno-12-99" id="__codelineno-12-99" name="__codelineno-12-99"></a>  },
-</span><span id="__span-12-100"><a href="#__codelineno-12-100" id="__codelineno-12-100" name="__codelineno-12-100"></a>}
+</span><span id="__span-12-5"><a href="#__codelineno-12-5" id="__codelineno-12-5" name="__codelineno-12-5"></a>  "protocolVersion": "1.0",
+</span><span id="__span-12-6"><a href="#__codelineno-12-6" id="__codelineno-12-6" name="__codelineno-12-6"></a>  "title": "A2UI Basic Catalog Template",
+</span><span id="__span-12-7"><a href="#__codelineno-12-7" id="__codelineno-12-7" name="__codelineno-12-7"></a>  "description": "An annotated example showcasing structural rules and conventions.",
+</span><span id="__span-12-8"><a href="#__codelineno-12-8" id="__codelineno-12-8" name="__codelineno-12-8"></a>  "catalogId": "https://example.com/catalogs/custom-v1",
+</span><span id="__span-12-9"><a href="#__codelineno-12-9" id="__codelineno-12-9" name="__codelineno-12-9"></a>  "instructions": "Design instructions for LLMs when generating layouts under this catalog.",
+</span><span id="__span-12-10"><a href="#__codelineno-12-10" id="__codelineno-12-10" name="__codelineno-12-10"></a>
+</span><span id="__span-12-11"><a href="#__codelineno-12-11" id="__codelineno-12-11" name="__codelineno-12-11"></a>  // Top-level components declared under top-level "components" map.
+</span><span id="__span-12-12"><a href="#__codelineno-12-12" id="__codelineno-12-12" name="__codelineno-12-12"></a>  "components": {
+</span><span id="__span-12-13"><a href="#__codelineno-12-13" id="__codelineno-12-13" name="__codelineno-12-13"></a>    "Text": {
+</span><span id="__span-12-14"><a href="#__codelineno-12-14" id="__codelineno-12-14" name="__codelineno-12-14"></a>      "type": "object",
+</span><span id="__span-12-15"><a href="#__codelineno-12-15" id="__codelineno-12-15" name="__codelineno-12-15"></a>      // Components must combine ComponentCommon and local properties using "allOf".
+</span><span id="__span-12-16"><a href="#__codelineno-12-16" id="__codelineno-12-16" name="__codelineno-12-16"></a>      "allOf": [
+</span><span id="__span-12-17"><a href="#__codelineno-12-17" id="__codelineno-12-17" name="__codelineno-12-17"></a>        {
+</span><span id="__span-12-18"><a href="#__codelineno-12-18" id="__codelineno-12-18" name="__codelineno-12-18"></a>          // External references must reference standard types in common_types.json.
+</span><span id="__span-12-19"><a href="#__codelineno-12-19" id="__codelineno-12-19" name="__codelineno-12-19"></a>          "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/ComponentCommon",
+</span><span id="__span-12-20"><a href="#__codelineno-12-20" id="__codelineno-12-20" name="__codelineno-12-20"></a>        },
+</span><span id="__span-12-21"><a href="#__codelineno-12-21" id="__codelineno-12-21" name="__codelineno-12-21"></a>        {
+</span><span id="__span-12-22"><a href="#__codelineno-12-22" id="__codelineno-12-22" name="__codelineno-12-22"></a>          "type": "object",
+</span><span id="__span-12-23"><a href="#__codelineno-12-23" id="__codelineno-12-23" name="__codelineno-12-23"></a>          "properties": {
+</span><span id="__span-12-24"><a href="#__codelineno-12-24" id="__codelineno-12-24" name="__codelineno-12-24"></a>            // Required "component" property must be a constant matching the component key.
+</span><span id="__span-12-25"><a href="#__codelineno-12-25" id="__codelineno-12-25" name="__codelineno-12-25"></a>            "component": {
+</span><span id="__span-12-26"><a href="#__codelineno-12-26" id="__codelineno-12-26" name="__codelineno-12-26"></a>              "const": "Text",
+</span><span id="__span-12-27"><a href="#__codelineno-12-27" id="__codelineno-12-27" name="__codelineno-12-27"></a>            },
+</span><span id="__span-12-28"><a href="#__codelineno-12-28" id="__codelineno-12-28" name="__codelineno-12-28"></a>            // Leaf properties can be standard JSON primitives or Dynamic wrappers
+</span><span id="__span-12-29"><a href="#__codelineno-12-29" id="__codelineno-12-29" name="__codelineno-12-29"></a>            "text": {
+</span><span id="__span-12-30"><a href="#__codelineno-12-30" id="__codelineno-12-30" name="__codelineno-12-30"></a>              "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+</span><span id="__span-12-31"><a href="#__codelineno-12-31" id="__codelineno-12-31" name="__codelineno-12-31"></a>              "description": "Text content to display.",
+</span><span id="__span-12-32"><a href="#__codelineno-12-32" id="__codelineno-12-32" name="__codelineno-12-32"></a>            },
+</span><span id="__span-12-33"><a href="#__codelineno-12-33" id="__codelineno-12-33" name="__codelineno-12-33"></a>          },
+</span><span id="__span-12-34"><a href="#__codelineno-12-34" id="__codelineno-12-34" name="__codelineno-12-34"></a>          "required": ["component", "text"],
+</span><span id="__span-12-35"><a href="#__codelineno-12-35" id="__codelineno-12-35" name="__codelineno-12-35"></a>        },
+</span><span id="__span-12-36"><a href="#__codelineno-12-36" id="__codelineno-12-36" name="__codelineno-12-36"></a>      ],
+</span><span id="__span-12-37"><a href="#__codelineno-12-37" id="__codelineno-12-37" name="__codelineno-12-37"></a>      "unevaluatedProperties": false,
+</span><span id="__span-12-38"><a href="#__codelineno-12-38" id="__codelineno-12-38" name="__codelineno-12-38"></a>    },
+</span><span id="__span-12-39"><a href="#__codelineno-12-39" id="__codelineno-12-39" name="__codelineno-12-39"></a>  },
+</span><span id="__span-12-40"><a href="#__codelineno-12-40" id="__codelineno-12-40" name="__codelineno-12-40"></a>
+</span><span id="__span-12-41"><a href="#__codelineno-12-41" id="__codelineno-12-41" name="__codelineno-12-41"></a>  // Top-level functions declared under top-level "functions" map.
+</span><span id="__span-12-42"><a href="#__codelineno-12-42" id="__codelineno-12-42" name="__codelineno-12-42"></a>  "functions": {
+</span><span id="__span-12-43"><a href="#__codelineno-12-43" id="__codelineno-12-43" name="__codelineno-12-43"></a>    "required": {
+</span><span id="__span-12-44"><a href="#__codelineno-12-44" id="__codelineno-12-44" name="__codelineno-12-44"></a>      "type": "object",
+</span><span id="__span-12-45"><a href="#__codelineno-12-45" id="__codelineno-12-45" name="__codelineno-12-45"></a>      "description": "Checks that the value is not null, undefined, or empty.",
+</span><span id="__span-12-46"><a href="#__codelineno-12-46" id="__codelineno-12-46" name="__codelineno-12-46"></a>      // Strict function metadata defined outside the properties block.
+</span><span id="__span-12-47"><a href="#__codelineno-12-47" id="__codelineno-12-47" name="__codelineno-12-47"></a>      "returnType": "boolean",
+</span><span id="__span-12-48"><a href="#__codelineno-12-48" id="__codelineno-12-48" name="__codelineno-12-48"></a>      "callableFrom": "rendererOnly",
+</span><span id="__span-12-49"><a href="#__codelineno-12-49" id="__codelineno-12-49" name="__codelineno-12-49"></a>      "properties": {
+</span><span id="__span-12-50"><a href="#__codelineno-12-50" id="__codelineno-12-50" name="__codelineno-12-50"></a>        // Function call schema requires constant with function's name.
+</span><span id="__span-12-51"><a href="#__codelineno-12-51" id="__codelineno-12-51" name="__codelineno-12-51"></a>        "call": {
+</span><span id="__span-12-52"><a href="#__codelineno-12-52" id="__codelineno-12-52" name="__codelineno-12-52"></a>          "const": "required",
+</span><span id="__span-12-53"><a href="#__codelineno-12-53" id="__codelineno-12-53" name="__codelineno-12-53"></a>        },
+</span><span id="__span-12-54"><a href="#__codelineno-12-54" id="__codelineno-12-54" name="__codelineno-12-54"></a>        "args": {
+</span><span id="__span-12-55"><a href="#__codelineno-12-55" id="__codelineno-12-55" name="__codelineno-12-55"></a>          "type": "object",
+</span><span id="__span-12-56"><a href="#__codelineno-12-56" id="__codelineno-12-56" name="__codelineno-12-56"></a>          "properties": {
+</span><span id="__span-12-57"><a href="#__codelineno-12-57" id="__codelineno-12-57" name="__codelineno-12-57"></a>            "value": {
+</span><span id="__span-12-58"><a href="#__codelineno-12-58" id="__codelineno-12-58" name="__codelineno-12-58"></a>              "description": "The value to check.",
+</span><span id="__span-12-59"><a href="#__codelineno-12-59" id="__codelineno-12-59" name="__codelineno-12-59"></a>            },
+</span><span id="__span-12-60"><a href="#__codelineno-12-60" id="__codelineno-12-60" name="__codelineno-12-60"></a>          },
+</span><span id="__span-12-61"><a href="#__codelineno-12-61" id="__codelineno-12-61" name="__codelineno-12-61"></a>          "required": ["value"],
+</span><span id="__span-12-62"><a href="#__codelineno-12-62" id="__codelineno-12-62" name="__codelineno-12-62"></a>          "additionalProperties": false,
+</span><span id="__span-12-63"><a href="#__codelineno-12-63" id="__codelineno-12-63" name="__codelineno-12-63"></a>        },
+</span><span id="__span-12-64"><a href="#__codelineno-12-64" id="__codelineno-12-64" name="__codelineno-12-64"></a>      },
+</span><span id="__span-12-65"><a href="#__codelineno-12-65" id="__codelineno-12-65" name="__codelineno-12-65"></a>      "required": ["call", "args"],
+</span><span id="__span-12-66"><a href="#__codelineno-12-66" id="__codelineno-12-66" name="__codelineno-12-66"></a>      "unevaluatedProperties": false,
+</span><span id="__span-12-67"><a href="#__codelineno-12-67" id="__codelineno-12-67" name="__codelineno-12-67"></a>    },
+</span><span id="__span-12-68"><a href="#__codelineno-12-68" id="__codelineno-12-68" name="__codelineno-12-68"></a>  },
+</span><span id="__span-12-69"><a href="#__codelineno-12-69" id="__codelineno-12-69" name="__codelineno-12-69"></a>
+</span><span id="__span-12-70"><a href="#__codelineno-12-70" id="__codelineno-12-70" name="__codelineno-12-70"></a>  // $defs is restricted strictly to anyComponent and anyFunction.
+</span><span id="__span-12-71"><a href="#__codelineno-12-71" id="__codelineno-12-71" name="__codelineno-12-71"></a>  // Custom definitions or helpers inside a catalog are strictly prohibited under $defs.
+</span><span id="__span-12-72"><a href="#__codelineno-12-72" id="__codelineno-12-72" name="__codelineno-12-72"></a>  "$defs": {
+</span><span id="__span-12-73"><a href="#__codelineno-12-73" id="__codelineno-12-73" name="__codelineno-12-73"></a>    "anyComponent": {
+</span><span id="__span-12-74"><a href="#__codelineno-12-74" id="__codelineno-12-74" name="__codelineno-12-74"></a>      "oneOf": [
+</span><span id="__span-12-75"><a href="#__codelineno-12-75" id="__codelineno-12-75" name="__codelineno-12-75"></a>        {
+</span><span id="__span-12-76"><a href="#__codelineno-12-76" id="__codelineno-12-76" name="__codelineno-12-76"></a>          // Local refs restricted to top-level components map.
+</span><span id="__span-12-77"><a href="#__codelineno-12-77" id="__codelineno-12-77" name="__codelineno-12-77"></a>          "$ref": "#/components/Text",
+</span><span id="__span-12-78"><a href="#__codelineno-12-78" id="__codelineno-12-78" name="__codelineno-12-78"></a>        },
+</span><span id="__span-12-79"><a href="#__codelineno-12-79" id="__codelineno-12-79" name="__codelineno-12-79"></a>      ],
+</span><span id="__span-12-80"><a href="#__codelineno-12-80" id="__codelineno-12-80" name="__codelineno-12-80"></a>      "discriminator": {
+</span><span id="__span-12-81"><a href="#__codelineno-12-81" id="__codelineno-12-81" name="__codelineno-12-81"></a>        "propertyName": "component",
+</span><span id="__span-12-82"><a href="#__codelineno-12-82" id="__codelineno-12-82" name="__codelineno-12-82"></a>      },
+</span><span id="__span-12-83"><a href="#__codelineno-12-83" id="__codelineno-12-83" name="__codelineno-12-83"></a>    },
+</span><span id="__span-12-84"><a href="#__codelineno-12-84" id="__codelineno-12-84" name="__codelineno-12-84"></a>    "anyFunction": {
+</span><span id="__span-12-85"><a href="#__codelineno-12-85" id="__codelineno-12-85" name="__codelineno-12-85"></a>      "oneOf": [
+</span><span id="__span-12-86"><a href="#__codelineno-12-86" id="__codelineno-12-86" name="__codelineno-12-86"></a>        {
+</span><span id="__span-12-87"><a href="#__codelineno-12-87" id="__codelineno-12-87" name="__codelineno-12-87"></a>          // Local refs restricted to top-level functions map.
+</span><span id="__span-12-88"><a href="#__codelineno-12-88" id="__codelineno-12-88" name="__codelineno-12-88"></a>          "$ref": "#/functions/required",
+</span><span id="__span-12-89"><a href="#__codelineno-12-89" id="__codelineno-12-89" name="__codelineno-12-89"></a>        },
+</span><span id="__span-12-90"><a href="#__codelineno-12-90" id="__codelineno-12-90" name="__codelineno-12-90"></a>      ],
+</span><span id="__span-12-91"><a href="#__codelineno-12-91" id="__codelineno-12-91" name="__codelineno-12-91"></a>    },
+</span><span id="__span-12-92"><a href="#__codelineno-12-92" id="__codelineno-12-92" name="__codelineno-12-92"></a>  },
+</span><span id="__span-12-93"><a href="#__codelineno-12-93" id="__codelineno-12-93" name="__codelineno-12-93"></a>}
 </span></code></pre></div>
 <h3 id="ui-composition-the-adjacency-list-model">UI composition: the adjacency list model<a class="headerlink" href="#ui-composition-the-adjacency-list-model" title="Permanent link">¶</a></h3>
 <p>The A2UI protocol defines the UI as a flat list of components. The tree structure is built implicitly using ID references. This is known as an adjacency list model.</p>
@@ -3627,32 +3610,6 @@
 </tr>
 </tbody>
 </table>
-<h3 id="surface-properties">Surface Properties<a class="headerlink" href="#surface-properties" title="Permanent link">¶</a></h3>
-<p>The basic catalog defines the following surface properties that can be set in the <code>createSurface</code> message:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Property</th>
-<th style="text-align: left;">Type</th>
-<th style="text-align: left;">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>iconUrl</strong></td>
-<td style="text-align: left;">URI</td>
-<td style="text-align: left;">A URL for an image (e.g., logo or avatar) that identifies the agent or tool associated with the surface.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>agentDisplayName</strong></td>
-<td style="text-align: left;">String</td>
-<td style="text-align: left;">Text to be displayed next to the surface to identify the agent or tool that created it (e.g. "Weather Bot").</td>
-</tr>
-</tbody>
-</table>
-<h4 id="identity-and-attribution">Identity and attribution<a class="headerlink" href="#identity-and-attribution" title="Permanent link">¶</a></h4>
-<p>The <code>iconUrl</code> and <code>agentDisplayName</code> fields are used to provide attribution to the user, identifying which sub-agent or tool is responsible for a particular UI surface.</p>
-<p>In multi-agent systems or orchestrators, the orchestrator is responsible for setting or validating these fields. This ensures that the identity displayed to the user matches the actual agent being contacted, preventing malicious agents from impersonating trusted services. For example, an orchestrator might overwrite these fields with the verified identity of the sub-agent before forwarding the <code>createSurface</code> message to the renderer.</p>
 <h3 id="the-formatstring-function">The <code>formatString</code> function<a class="headerlink" href="#the-formatstring-function" title="Permanent link">¶</a></h3>
 <p>The <code>formatString</code> function supports embedding dynamic expressions directly within string properties. This allows for mixing static text with data model values and function results.</p>
 <h4 id="formatstring-syntax"><code>formatString</code> syntax<a class="headerlink" href="#formatstring-syntax" title="Permanent link">¶</a></h4>
