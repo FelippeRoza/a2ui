@@ -994,10 +994,19 @@
 <nav aria-label="Syntax and grammar" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#variable-declarations">
+<a class="md-nav__link" href="#variable-declarations-and-component-nesting">
 <span class="md-ellipsis">
       
-        Variable declarations
+        Variable declarations and component nesting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#argument-passing-positional-and-keyword">
+<span class="md-ellipsis">
+      
+        Argument passing (positional and keyword)
       
     </span>
 </a>
@@ -1242,21 +1251,28 @@
 <h2 id="syntax-and-grammar">Syntax and grammar<a class="headerlink" href="#syntax-and-grammar" title="Permanent link">¶</a></h2>
 <p>A2UI Express layout blocks must be enclosed inside the <code>&lt;a2ui&gt;</code> and <code>&lt;/a2ui&gt;</code> sentinel tags to cleanly separate the user interface DSL from any accompanying conversational text:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>&lt;a2ui&gt;
-</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>variable_name = ComponentName(argument1, argument2, ...)
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>variable_name = ComponentName(arg1, arg2, param=value)
 </span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>&lt;/a2ui&gt;
 </span></code></pre></div>
-<p>Every instruction in A2UI Express is a variable assignment statement. Statements are separated by newlines, and a single assignment can format-span multiple lines:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>variable_name = ComponentName(argument1, argument2, ...)
+<p>Every instruction in A2UI Express is a variable assignment statement or standalone lifecycle command. Statements are separated by newlines, and a single assignment can span multiple lines:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>variable_name = ComponentName(arg1, arg2, param=value)
 </span></code></pre></div>
 <p>The syntax rules define how types, structures, data paths, and validation actions are expressed.</p>
-<h3 id="variable-declarations">Variable declarations<a class="headerlink" href="#variable-declarations" title="Permanent link">¶</a></h3>
-<p>Every component definition is assigned to a unique variable identifier. The compiler uses these variables to resolve parent-child hierarchies. A reserved variable named <code>root</code> acts as the primary entry point for the interface tree.</p>
+<h3 id="variable-declarations-and-component-nesting">Variable declarations and component nesting<a class="headerlink" href="#variable-declarations-and-component-nesting" title="Permanent link">¶</a></h3>
+<p>Every component definition is assigned to a unique variable identifier, or constructed inline directly within a parent component's argument list. A reserved variable named <code>root</code> acts as the primary entry point for the interface tree.</p>
 <p>To support multi-lingual models while ensuring syntax safety for future extensions (such as math or conditional expressions), all variable identifiers MUST conform to the Unicode Identifier standard (<a href="https://www.unicode.org/reports/tr31/">UAX #31</a>):</p>
 <ul>
 <li>An identifier must start with a Unicode letter or an underscore <code>_</code>.</li>
 <li>Subsequent characters must be Unicode letters, digits (<code>0-9</code>), or underscores <code>_</code>.</li>
 </ul>
-<p>To eliminate syntax errors from complex bracket structures and enable line-oriented streaming compilation, A2UI Express prohibits inline component nesting. Component constructor calls (e.g., <code>Text(...)</code>, <code>Column(...)</code>) can <strong>only</strong> appear on the right-hand side of a variable assignment (<code>var = ComponentName(...)</code>). They <strong>cannot</strong> be passed directly as positional arguments to other components. Instead, you must declare them separately and reference their variable names.</p>
+<p>A2UI Express supports flexible hybrid component nesting: child components can either be defined inline (e.g., <code>Card(child=Text("Hello"))</code>) or assigned to top-level variables and referenced by name (e.g., <code>header = Text("Hello")</code> and <code>root = Card(child=header)</code>).</p>
+<h3 id="argument-passing-positional-and-keyword">Argument passing (positional and keyword)<a class="headerlink" href="#argument-passing-positional-and-keyword" title="Permanent link">¶</a></h3>
+<p>Component constructors support both positional arguments and keyword argument assignments (<code>param=value</code>):</p>
+<ul>
+<li><strong>Positional Arguments</strong>: Passed in the order defined by the component signature (e.g., <code>Text("Hello")</code>). Optional positional arguments at the end of a signature may be omitted. If an optional argument in the middle is omitted, a placeholder underscore <code>_</code> can be passed.</li>
+<li><strong>Keyword Arguments</strong>: Passed explicitly by parameter name (e.g., <code>Button(child=Text("Submit"), action=Event("click"))</code>). Keyword arguments can be freely mixed with positional arguments.</li>
+<li><strong>Static Parameter Annotations</strong>: Signature parameters annotated as <code>(static)</code> MUST be defined as literal values or arrays inline, and cannot use dynamic data binding paths (<code>$/path</code>).</li>
+</ul>
 <h3 id="core-primitive-types">Core primitive types<a class="headerlink" href="#core-primitive-types" title="Permanent link">¶</a></h3>
 <p>The syntax supports three literal primitive types:</p>
 <ul>
