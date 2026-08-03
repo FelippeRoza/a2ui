@@ -28,6 +28,7 @@ export class SecureIframe extends LitElement {
       width: 100%;
       height: 100%;
       min-height: 400px;
+      max-height: 750px;
     }
     iframe {
       width: 100%;
@@ -107,7 +108,9 @@ export class SecureIframe extends LitElement {
       } else if (event.data?.type === "resize" && typeof event.data.height === "number") {
         const minH = Math.max(400, event.data.height);
         this.style.height = `${minH}px`;
-        this.iframe.style.height = `${minH}px`;
+        // Let the iframe inherit height: 100% from its host.
+        // If host is capped at 600px, iframe is 600px.
+        // Content inside iframe can internally scroll!
       }
     }
   }

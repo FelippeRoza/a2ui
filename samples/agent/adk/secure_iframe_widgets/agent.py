@@ -219,6 +219,7 @@ class SecureWidgetAgent:
       ]
       is_goog_stock = query_lower == "goog" or query_lower == "goog stock" or query_lower == "stock price for goog"
       is_restaurant = "restaurant" in query_lower or "places to eat" in query_lower
+      is_weather_details = query_lower.startswith("show me an interactive detailed weather forecast widget for")
 
       if is_mtv_weather:
         logger.info("--- Fast-path triggered for Mountain View weather ---")
@@ -255,6 +256,16 @@ class SecureWidgetAgent:
                         }]
                     }
                 })
+            ]
+        }
+        return
+
+      if is_weather_details:
+        logger.info("--- Fast-path triggered for Weather Details Action ---")
+        yield {
+            "is_task_complete": True,
+            "parts": [
+                Part(root=TextPart(text="I received your click! Here is the detailed forecast you requested:\n" + user_query)),
             ]
         }
         return

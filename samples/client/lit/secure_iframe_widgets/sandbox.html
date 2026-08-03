@@ -47,6 +47,14 @@
             console.log("[SANDBOX-INNER] Signaling sandbox-ready to parent");
             window.parent.postMessage({ type: "sandbox-ready" }, "*");
           <\/script>
+          <style>
+            /* Use modern scrolling but hide horizontal overflow to prevent messy UI */
+            html, body {
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+                height: auto !important; /* Let content height determine scroll area */
+            }
+          </style>
         `;
 
         document.write(dataInjection + htmlContent + listenerInjection);
@@ -54,22 +62,31 @@
         console.log("[SANDBOX] document.write complete");
 
         setTimeout(() => {
-          const contentContainer = document.getElementById('root') || document.body;
-          const ro = new ResizeObserver((entries) => {
-            if (!contentContainer) return;
-            // Measure the exact bounding box of the content, avoiding viewport-relative scrollHeight
-            let h = 0;
-            if (contentContainer === document.body) {
-                h = document.body.offsetHeight;
-            } else {
-                h = contentContainer.getBoundingClientRect().height;
-            }
-            if (h > 0) {
-               // Add 32px of extra padding to ensure drop shadows aren't clipped
-               window.parent.postMessage({ type: 'resize', height: Math.ceil(h) + 32 }, '*');
-            }
+          let debounceTimer;
+          const observer = new MutationObserver(() => {
+              clearTimeout(debounceTimer);
+              debounceTimer = setTimeout(() => {
+                  let maxBottom = 0;
+                  const scrollY = window.scrollY || 0;
+                  const elements = document.body ? document.body.querySelectorAll('*') : [];
+                  for (let i = 0; i < elements.length; i++) {
+                      const rect = elements[i].getBoundingClientRect();
+                      const absoluteBottom = rect.bottom + scrollY;
+                      if (absoluteBottom > maxBottom) {
+                          maxBottom = absoluteBottom;
+                      }
+                  }
+                  if (maxBottom > 0) {
+                     window.parent.postMessage({ type: 'resize', height: Math.ceil(maxBottom) + 32 }, '*');
+                  }
+              }, 100); // Debounce to allow batches of React renders
           });
-          ro.observe(contentContainer);
+
+          if (document.body) {
+              observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+          } else {
+              console.log("[SANDBOX] No document.body found to observe mutations.");
+          }
         }, 100);
       }
 
@@ -80,6 +97,7 @@
              console.log("[SANDBOX] Bootstrap listener received render-html");
              // Remove the bootstrap listener so we don't accidentally double-fire things after document.write
              window.removeEventListener("message", bootstrapListener);
+             window.LATEST_WIDGET_DATA = event.data.widgetData;
              updateSandbox(event.data.htmlContent);
           } else if (event.data?.type === 'UPDATE_DATA') {
              console.log("[SANDBOX] Bootstrap listener aggressively caching UPDATE_DATA:", event.data.widgetData);

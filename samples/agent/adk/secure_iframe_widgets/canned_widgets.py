@@ -44,7 +44,7 @@ WEATHER_WIDGET_HTML = """
         .forecast-day { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; padding: 8px; border-radius: 12px; transition: background 0.2s; }
         .forecast-day:hover { background: rgba(255,255,255,0.1); }
         .forecast-icon { width: 28px; height: 28px; }
-        .forecast-icon { width: 28px; height: 28px; }
+        .main-icon svg, .forecast-icon svg, .change-icon { width: 100%; height: 100%; display: block; }
     </style>
 </head>
 <body>
