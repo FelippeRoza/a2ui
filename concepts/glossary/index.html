@@ -357,10 +357,68 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#catalog-transformer">
+<span class="md-ellipsis">
+      
+        Catalog Transformer
+      
+    </span>
+</a>
+<nav aria-label="Catalog Transformer" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-catalog-transformers-are-needed">
+<span class="md-ellipsis">
+      
+        Why Catalog Transformers are needed
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#example-catalog-transformers">
+<span class="md-ellipsis">
+      
+        Example catalog transformers
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#surface">
 <span class="md-ellipsis">
       
         Surface
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a2ui-tag">
+<span class="md-ellipsis">
+      
+        A2UI Tag
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tag-unwrapping">
+<span class="md-ellipsis">
+      
+        Tag Unwrapping
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compilation">
+<span class="md-ellipsis">
+      
+        Compilation
       
     </span>
 </a>
@@ -1204,10 +1262,68 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#catalog-transformer">
+<span class="md-ellipsis">
+      
+        Catalog Transformer
+      
+    </span>
+</a>
+<nav aria-label="Catalog Transformer" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-catalog-transformers-are-needed">
+<span class="md-ellipsis">
+      
+        Why Catalog Transformers are needed
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#example-catalog-transformers">
+<span class="md-ellipsis">
+      
+        Example catalog transformers
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#surface">
 <span class="md-ellipsis">
       
         Surface
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a2ui-tag">
+<span class="md-ellipsis">
+      
+        A2UI Tag
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tag-unwrapping">
+<span class="md-ellipsis">
+      
+        Tag Unwrapping
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compilation">
+<span class="md-ellipsis">
+      
+        Compilation
       
     </span>
 </a>
@@ -1399,9 +1515,34 @@
 <h3 id="basic-catalog">Basic Catalog<a class="headerlink" href="#basic-catalog" title="Permanent link">¶</a></h3>
 <p>A catalog maintained by the A2UI team to get up and running quickly with A2UI.</p>
 <p>See the <a href="../../specification/v1_0/catalogs/basic/catalog.json">basic catalog</a>.</p>
+<h3 id="catalog-transformer">Catalog Transformer<a class="headerlink" href="#catalog-transformer" title="Permanent link">¶</a></h3>
+<p>A rule set that programmatically filters, adapts, or mutates a pristine <strong>Catalog</strong> before system prompt instructions are generated or payload validation schemas are compiled.</p>
+<h4 id="why-catalog-transformers-are-needed">Why Catalog Transformers are needed<a class="headerlink" href="#why-catalog-transformers-are-needed" title="Permanent link">¶</a></h4>
+<p>While a catalog provides a complete specification of all UI components and functions supported by a renderer, agent implementations frequently need to prune or restrict the catalog for specific use cases:</p>
+<ul>
+<li><strong>Context Window Token Optimization</strong>: A catalog can define dozens of components and logic functions. Injecting all component JSON schemas into an LLM's system prompt consumes significant context window tokens, increases prompt latency, and inflates LLM inference costs. Pruning transformers restrict system prompt instructions to only the subset of components relevant to that agent's domain task.</li>
+<li><strong>Task-Specific Capability Guardrails</strong>: Specific agent workflows or security roles may require restricting interactive features (e.g. allowing display cards and text, but disabling form inputs or administrative components in guest mode).</li>
+<li><strong>Model Signature Reduction</strong>: Pruning function rules and validation checks to produce compact prompt instruction blocks for smaller or micro LLMs.</li>
+</ul>
+<h4 id="example-catalog-transformers">Example catalog transformers<a class="headerlink" href="#example-catalog-transformers" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><code>ComponentPruningTransformer</code>: a utility class that filters the catalog based on a list of allowed component names.</p>
+</li>
+<li>
+<p><code>FunctionPruningTransformer</code>: a utility class that filters the catalog based on a list of allowed function names.</p>
+</li>
+</ul>
 <h3 id="surface">Surface<a class="headerlink" href="#surface" title="Permanent link">¶</a></h3>
 <p>An area of UI, constructed by A2UI agent and managed by the A2UI renderer,
 which consists of a number of components. Surfaces cannot nest.</p>
+<h3 id="a2ui-tag">A2UI Tag<a class="headerlink" href="#a2ui-tag" title="Permanent link">¶</a></h3>
+<p>Enclosing delimiter tags (such as <code>&lt;a2ui-json&gt;</code>, <code>&lt;a2ui&gt;</code>) used to bound A2UI payload code blocks within LLM text output.</p>
+<p>Because LLMs stream conversational plain text and UI payloads within the same turn, A2UI Tags serve as explicit syntactic boundaries isolating structured UI blocks from conversational text.</p>
+<h3 id="tag-unwrapping">Tag Unwrapping<a class="headerlink" href="#tag-unwrapping" title="Permanent link">¶</a></h3>
+<p>The initial phase of response parsing (<code>unwrap</code>) where a parser scans LLM text responses for opening and closing <strong>A2UI Tags</strong>, isolating non-UI conversational text (e.g., <em>"Here is your summary:"</em>) from enclosed raw UI code blocks.</p>
+<h3 id="compilation">Compilation<a class="headerlink" href="#compilation" title="Permanent link">¶</a></h3>
+<p>The second phase of response parsing (<code>compile</code>) where raw model-generated UI code string blocks extracted during unwrapping (such as standard JSON, Express DSL syntax, or Elemental HTML tags) are parsed, decompiled, and transformed into standardized A2UI protocol payload dictionaries (<code>createSurface</code>, <code>updateDataModel</code>).</p>
 <h3 id="agent-architecture">Agent architecture<a class="headerlink" href="#agent-architecture" title="Permanent link">¶</a></h3>
 <p>There are options for A2UI agent:</p>
 <ul>

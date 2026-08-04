@@ -2461,6 +2461,7 @@
 <li>Identifier naming rules across all catalog entities (component names, function names, and argument keys) must conform to Unicode Standard Annex #31 (UAX #31).</li>
 <li>The <code>@index</code> built-in function dynamically retrieves iteration indices during list template rendering. The <code>@</code> prefix is reserved for core system context evaluations.</li>
 <li>Standardized the names of core architectural components, renaming "client" to <em>renderer</em> and "server" to <em>agent</em> (e.g., <code>server_to_client</code> schemas are renamed to <code>agent_to_renderer</code>), because A2UI is sometimes generated on clients, and rendering sometimes happens on servers, making those terms ambiguous.</li>
+<li>Catalogs can now define composition constraints (<code>allowedParents</code> and <code>allowedChildren</code>) on component definitions, using <code>"Surface"</code> as the canonical root component type. Because JSON Schema cannot natively restrict child component types across a flat adjacency list of ID references, these rules allow catalogs to declare valid parent-child relationships without altering the wire format.</li>
 </ul>
 <h2 id="2-changes">2. Changes<a class="headerlink" href="#2-changes" title="Permanent link">&para;</a></h2>
 <h3 id="21-catalog-definition-schema">2.1. Catalog definition schema<a class="headerlink" href="#21-catalog-definition-schema" title="Permanent link">&para;</a></h3>
@@ -2472,6 +2473,8 @@
 <li>Supported standard JSON Schema metadata fields (<code>$schema</code>, <code>$id</code>, <code>title</code>, and <code>description</code>) in the Catalog object definition. Since the Catalog schema restricts properties with <code>additionalProperties: false</code>, this ensures inline catalogs containing standard schema metadata do not fail schema validation.</li>
 <li>Added a <code>protocolVersion</code> field (e.g., <code>"protocolVersion": "1.0"</code>) to catalog definition metadata (<code>catalog_definition.json</code>). If omitted, <code>protocolVersion</code> defaults to <code>"0.9"</code> for backward compatibility; catalog definitions targeting <code>1.0</code> and beyond MUST specify <code>"protocolVersion"</code>.</li>
 <li>Enforced Unicode Standard Annex #31 (UAX #31) identifier naming constraints (<code>XID_Start</code>, <code>XID_Continue</code>) across component names, function names, and argument keys.</li>
+<li>Added optional <code>allowedParents</code> and <code>allowedChildren</code> properties to catalog component definitions (<code>catalog_definition.json</code>) to define parent-child composition constraints. Because JSON Schema cannot natively restrict child component types across a flat adjacency list of ID references, these rules allow catalogs to declare valid component relationships.</li>
+<li>Added the canonical <code>"Surface"</code> container component type in <code>common_types.json</code> to represent the top-level container of a surface for <code>"allowedParents": ["Surface"]</code> rules. The protocol reserves the <code>"Surface"</code> component name. The <code>createSurface</code> message implicitly creates <code>Surface</code> with <code>"child": "root"</code>, and you cannot modify <code>Surface</code> using <code>updateComponents</code>. These schema additions are catalog-level metadata and do not alter the wire format of component instances in <code>createSurface</code> or <code>updateComponents</code>.</li>
 </ul>
 <h3 id="22-standard-catalogs-basic">2.2. Standard catalogs (basic)<a class="headerlink" href="#22-standard-catalogs-basic" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2494,6 +2497,7 @@
 <li>Added <code>actionId</code> to the <code>action</code> message properties, which the renderer generates if a response is expected (<code>wantResponse: true</code>).</li>
 <li>Added the <code>functionResponse</code> renderer-to-agent message to return the successful result (<code>value</code>) of an agent-initiated function call. Function execution failures are reported via the separate <code>error</code> message (see next item), not via <code>functionResponse</code>.</li>
 <li>Updated renderer <code>error</code> messages to support <code>functionCallId</code> when reporting function execution failures, enforcing mutual exclusivity with <code>surfaceId</code>.</li>
+<li>Added <code>"UNALLOWED_PARENT"</code> and <code>"UNALLOWED_CHILD"</code> error code values to <code>renderer_to_agent.json</code> for reporting validation errors when a component is placed under an unallowed parent or an unallowed child is placed inside a container.</li>
 <li>Updated all protocol version references from <code>v0.9</code> or <code>v0.9.1</code> to <code>v1.0</code>.</li>
 </ul>
 <h3 id="25-catalog-definition-schema">2.5. Catalog definition schema<a class="headerlink" href="#25-catalog-definition-schema" title="Permanent link">&para;</a></h3>

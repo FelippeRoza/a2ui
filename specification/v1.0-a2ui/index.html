@@ -1027,6 +1027,19 @@
       
     </span>
 </a>
+<nav aria-label="UI composition: the adjacency list model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#composition-validation-rules">
+<span class="md-ellipsis">
+      
+        Composition validation rules
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#defining-actions">
@@ -2111,6 +2124,19 @@
       
     </span>
 </a>
+<nav aria-label="UI composition: the adjacency list model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#composition-validation-rules">
+<span class="md-ellipsis">
+      
+        Composition validation rules
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#defining-actions">
@@ -2743,7 +2769,7 @@
 <h3 id="createsurface"><code>createSurface</code><a class="headerlink" href="#createsurface" title="Permanent link">¶</a></h3>
 <p>This message signals the renderer to create a new surface and begin rendering it. A surface must be created before any <code>updateComponents</code> or <code>updateDataModel</code> messages can be sent to it. While typically achieved by the agent sending a <code>createSurface</code> message, an agent may skip this if it knows of a preexisting surface that it has permission to modify. Once a surface is created, its <code>surfaceId</code> and default <code>catalogId</code> (if provided) are fixed; to reconfigure them, the surface must be deleted and recreated.</p>
 <p>It is an error to try to create a surface with a <code>surfaceId</code> that already exists without first deleting it; <code>surfaceId</code> must be globally unique for the renderer's lifetime. Orchestrators with subagents are empowered to manage surface IDs as needed to prevent conflicts (e.g., prefixing the subagent's name to the <code>surfaceId</code> or requiring subagents to use UUIDs).</p>
-<p>One of the components in one of the component lists MUST have an <code>id</code> of <code>root</code> to serve as the root of the component tree.</p>
+<p>The <code>createSurface</code> message implicitly instantiates the canonical <code>Surface</code> container component (<code>common_types.json#/$defs/Surface</code>). The <code>Surface</code> component always has <code>"child": "root"</code> and cannot be modified using <code>updateComponents</code>. To render the component tree, one of the components sent to the surface MUST have <code>"id": "root"</code>, which mounts as the child of <code>Surface</code>.</p>
 <p><strong>Properties:</strong></p>
 <ul>
 <li><code>surfaceId</code> (string, required): The unique identifier for the UI surface to be rendered. This must be globally unique for the renderer's lifetime.</li>
@@ -2778,7 +2804,7 @@
 </span><span id="__span-0-23"><a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="updatecomponents"><code>updateComponents</code><a class="headerlink" href="#updatecomponents" title="Permanent link">¶</a></h3>
-<p>This message provides a list of UI components to be added to or updated within a specific surface. The components are provided as a flat list, and their relationships are defined by ID references in an adjacency list. This message may only be sent to a surface that has already been created. Note that components may reference children or data bindings that do not yet exist; renderers should handle this gracefully by rendering placeholders (progressive rendering).</p>
+<p>This message provides a flat list of UI components to add or update within a specific surface. Relationships between components are defined by ID references in an adjacency list. The component with <code>"id": "root"</code> mounts as the child of the surface's canonical <code>Surface</code> container. You cannot modify the <code>Surface</code> container itself using <code>updateComponents</code>. This message may only be sent to a surface that has already been created. Because components may reference children or data bindings that do not yet exist, renderers should handle missing references gracefully by rendering placeholders (progressive rendering).</p>
 <p><strong>Properties:</strong></p>
 <ul>
 <li><code>surfaceId</code> (string, required): The unique identifier for the UI surface to be updated. This must be globally unique for the renderer's lifetime.</li>
@@ -2976,6 +3002,7 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 <li><strong>Permitted Characters</strong>: Identifiers must begin with a character in the Unicode property class <code>XID_Start</code> or an underscore (<code>_</code>, <code>U+005F</code>). Subsequent characters must belong to the Unicode property class <code>XID_Continue</code>.</li>
 <li><strong>Prohibited Initial Characters</strong>: Identifiers MUST NOT begin with a decimal digit (Unicode general category <code>Nd</code>).</li>
 <li><strong>Prohibited Symbols and Whitespace</strong>: Identifiers MUST NOT contain any whitespace or symbols matching the Unicode character property classes <code>Pattern_Syntax</code> or <code>Pattern_White_Space</code>, other than underscores.</li>
+<li><strong>Reserved Component Names</strong>: The protocol reserves the component type name <code>"Surface"</code> for the canonical surface container created by <code>createSurface</code>. Catalogs MUST NOT define a standard UI component named <code>"Surface"</code>.</li>
 </ol>
 <h5 id="canonical-regular-expression">Canonical Regular Expression<a class="headerlink" href="#canonical-regular-expression" title="Permanent link">¶</a></h5>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a href="#__codelineno-10-1" id="__codelineno-10-1" name="__codelineno-10-1"></a>^[\p{XID_Start}_][\p{XID_Continue}]*$
@@ -3181,6 +3208,52 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
     A -- "Parsed and stored" --&gt; D
     A -- "Parsed and stored" --&gt; E
 </code></pre>
+<h4 id="composition-validation-rules">Composition validation rules<a class="headerlink" href="#composition-validation-rules" title="Permanent link">¶</a></h4>
+<p>To validate component nesting hierarchies, A2UI component catalogs support composition constraints via <code>allowedParents</code> and <code>allowedChildren</code>. You define these constraints on component type definitions in the catalog JSON Schema, and the renderer evaluates them against the component tree at runtime.</p>
+<ol>
+<li><strong>Composition Constraints</strong>:</li>
+<li><code>allowedParents</code> (array of strings, optional): The list of parent component type names that can contain this component type. If omitted, all parent component types are allowed.</li>
+<li><code>allowedChildren</code> (array of strings, optional): The list of child component type names allowed inside this container or slot. If omitted, all child component types are allowed.</li>
+<li><strong><code>"Surface"</code> Container Component</strong>:</li>
+<li>The protocol reserves the component type name <code>"Surface"</code> for the canonical surface container.</li>
+<li>The <code>createSurface</code> message implicitly creates this container (<code>common_types.json#/$defs/Surface</code>) with <code>"child": "root"</code>. You cannot modify <code>Surface</code> using <code>updateComponents</code>.</li>
+<li>Parent-child validation applies uniformly across the entire component tree, with <code>Surface</code> acting as the top-level container parent.</li>
+<li><strong>Catalog Schema Examples</strong>:</li>
+<li><strong>Top-Level Component</strong>: To restrict a component so it can appear only as the top-level component (<code>"id": "root"</code>) of a surface:
+     <div class="language-json highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="p">{</span>
+</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="nt">"AppLayout"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
+</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">    </span><span class="nt">"allowedParents"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Surface"</span><span class="p">],</span>
+</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="w">    </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-6"><a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="w">      </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AppLayout"</span><span class="p">}</span>
+</span><span id="__span-13-7"><a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-13-8"><a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-13-9"><a href="#__codelineno-13-9" id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="p">}</span>
+</span></code></pre></div></li>
+<li><strong>Top-Level or Container Union</strong>: To allow a component as either the top-level component (<code>"id": "root"</code>) of a surface or a child of a specific container:
+     <div class="language-json highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="p">{</span>
+</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">  </span><span class="nt">"Card"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
+</span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="w">    </span><span class="nt">"allowedParents"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Surface"</span><span class="p">,</span><span class="w"> </span><span class="s2">"CanvasContainer"</span><span class="p">]</span>
+</span><span id="__span-14-5"><a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="p">}</span>
+</span></code></pre></div></li>
+<li><strong>Container-Restricted Components</strong>: To restrict a child component so it can appear only within a specific parent container:
+     <div class="language-json highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="p">{</span>
+</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">  </span><span class="nt">"Menu"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
+</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">    </span><span class="nt">"allowedChildren"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"MenuItem"</span><span class="p">]</span>
+</span><span id="__span-15-5"><a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-15-6"><a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">  </span><span class="nt">"MenuItem"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-7"><a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
+</span><span id="__span-15-8"><a href="#__codelineno-15-8" id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="w">    </span><span class="nt">"allowedParents"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Menu"</span><span class="p">]</span>
+</span><span id="__span-15-9"><a href="#__codelineno-15-9" id="__codelineno-15-9" name="__codelineno-15-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-15-10"><a href="#__codelineno-15-10" id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="p">}</span>
+</span></code></pre></div></li>
+<li><strong>Validation Error Codes</strong>:</li>
+<li>If a component is placed under an unallowed parent, the renderer emits a validation error message with <code>code</code> set to <code>"UNALLOWED_PARENT"</code>.</li>
+<li>If an unallowed child component is placed inside a container, the renderer emits a validation error message with <code>code</code> set to <code>"UNALLOWED_CHILD"</code>.</li>
+</ol>
 <h3 id="defining-actions">Defining actions<a class="headerlink" href="#defining-actions" title="Permanent link">¶</a></h3>
 <p>Interactive components (like <code>Button</code>) use an <code>action</code> property to define what happens when the user interacts with them. Actions can either trigger an event sent to the agent or execute a local renderer-side function.</p>
 <h4 id="agent-actions">Agent actions<a class="headerlink" href="#agent-actions" title="Permanent link">¶</a></h4>
@@ -3189,35 +3262,35 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 <li><code>wantResponse</code> (boolean, optional): If true, the renderer expects an <code>actionResponse</code> from the agent. Defaults to false.</li>
 <li><code>responsePath</code> (string, optional): A JSON Pointer path in the local data model where the response <code>value</code> should be saved.</li>
 </ul>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-13-1"><a href="#__codelineno-13-1" id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="p">{</span>
-</span><span id="__span-13-2"><a href="#__codelineno-13-2" id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_button"</span><span class="p">,</span>
-</span><span id="__span-13-3"><a href="#__codelineno-13-3" id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Button"</span><span class="p">,</span>
-</span><span id="__span-13-4"><a href="#__codelineno-13-4" id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">  </span><span class="nt">"child"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_button_label"</span><span class="p">,</span>
-</span><span id="__span-13-5"><a href="#__codelineno-13-5" id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-6"><a href="#__codelineno-13-6" id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-7"><a href="#__codelineno-13-7" id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_form"</span><span class="p">,</span>
-</span><span id="__span-13-8"><a href="#__codelineno-13-8" id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="w">      </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-9"><a href="#__codelineno-13-9" id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="w">        </span><span class="nt">"itemId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span>
-</span><span id="__span-13-10"><a href="#__codelineno-13-10" id="__codelineno-13-10" name="__codelineno-13-10"></a><span class="w">      </span><span class="p">}</span>
-</span><span id="__span-13-11"><a href="#__codelineno-13-11" id="__codelineno-13-11" name="__codelineno-13-11"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-13-12"><a href="#__codelineno-13-12" id="__codelineno-13-12" name="__codelineno-13-12"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-13-13"><a href="#__codelineno-13-13" id="__codelineno-13-13" name="__codelineno-13-13"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="p">{</span>
+</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_button"</span><span class="p">,</span>
+</span><span id="__span-16-3"><a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Button"</span><span class="p">,</span>
+</span><span id="__span-16-4"><a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="w">  </span><span class="nt">"child"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_button_label"</span><span class="p">,</span>
+</span><span id="__span-16-5"><a href="#__codelineno-16-5" id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-6"><a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-7"><a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_form"</span><span class="p">,</span>
+</span><span id="__span-16-8"><a href="#__codelineno-16-8" id="__codelineno-16-8" name="__codelineno-16-8"></a><span class="w">      </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-9"><a href="#__codelineno-16-9" id="__codelineno-16-9" name="__codelineno-16-9"></a><span class="w">        </span><span class="nt">"itemId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span>
+</span><span id="__span-16-10"><a href="#__codelineno-16-10" id="__codelineno-16-10" name="__codelineno-16-10"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-16-11"><a href="#__codelineno-16-11" id="__codelineno-16-11" name="__codelineno-16-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-16-12"><a href="#__codelineno-16-12" id="__codelineno-16-12" name="__codelineno-16-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-16-13"><a href="#__codelineno-16-13" id="__codelineno-16-13" name="__codelineno-16-13"></a><span class="p">}</span>
 </span></code></pre></div>
 <h4 id="local-actions">Local actions<a class="headerlink" href="#local-actions" title="Permanent link">¶</a></h4>
 <p>To execute a local function, use the <code>functionCall</code> property within the <code>action</code> object. This property references a standard <code>FunctionCall</code> object.</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-14-1"><a href="#__codelineno-14-1" id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="p">{</span>
-</span><span id="__span-14-2"><a href="#__codelineno-14-2" id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"open_link_button"</span><span class="p">,</span>
-</span><span id="__span-14-3"><a href="#__codelineno-14-3" id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Button"</span><span class="p">,</span>
-</span><span id="__span-14-4"><a href="#__codelineno-14-4" id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="w">  </span><span class="nt">"child"</span><span class="p">:</span><span class="w"> </span><span class="s2">"open_link_button_label"</span><span class="p">,</span>
-</span><span id="__span-14-5"><a href="#__codelineno-14-5" id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-14-6"><a href="#__codelineno-14-6" id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="w">    </span><span class="nt">"functionCall"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-14-7"><a href="#__codelineno-14-7" id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="w">      </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"openUrl"</span><span class="p">,</span>
-</span><span id="__span-14-8"><a href="#__codelineno-14-8" id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="w">      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-14-9"><a href="#__codelineno-14-9" id="__codelineno-14-9" name="__codelineno-14-9"></a><span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${/url}"</span>
-</span><span id="__span-14-10"><a href="#__codelineno-14-10" id="__codelineno-14-10" name="__codelineno-14-10"></a><span class="w">      </span><span class="p">}</span>
-</span><span id="__span-14-11"><a href="#__codelineno-14-11" id="__codelineno-14-11" name="__codelineno-14-11"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-14-12"><a href="#__codelineno-14-12" id="__codelineno-14-12" name="__codelineno-14-12"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-14-13"><a href="#__codelineno-14-13" id="__codelineno-14-13" name="__codelineno-14-13"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="p">{</span>
+</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"open_link_button"</span><span class="p">,</span>
+</span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Button"</span><span class="p">,</span>
+</span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">  </span><span class="nt">"child"</span><span class="p">:</span><span class="w"> </span><span class="s2">"open_link_button_label"</span><span class="p">,</span>
+</span><span id="__span-17-5"><a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-6"><a href="#__codelineno-17-6" id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">    </span><span class="nt">"functionCall"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-7"><a href="#__codelineno-17-7" id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">      </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"openUrl"</span><span class="p">,</span>
+</span><span id="__span-17-8"><a href="#__codelineno-17-8" id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="w">      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-9"><a href="#__codelineno-17-9" id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${/url}"</span>
+</span><span id="__span-17-10"><a href="#__codelineno-17-10" id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-17-11"><a href="#__codelineno-17-11" id="__codelineno-17-11" name="__codelineno-17-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-17-12"><a href="#__codelineno-17-12" id="__codelineno-17-12" name="__codelineno-17-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-17-13"><a href="#__codelineno-17-13" id="__codelineno-17-13" name="__codelineno-17-13"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="data-model-representation-binding-scope">Data model representation: binding, scope<a class="headerlink" href="#data-model-representation-binding-scope" title="Permanent link">¶</a></h2>
 <p>This section describes how UI components <strong>represent</strong> and reference data from the Data Model. A2UI relies on a strictly defined relationship between the UI structure (Components) and the state (Data Model), defining the mechanics of path resolution, variable scope during iteration.</p>
@@ -3246,40 +3319,40 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 </ul>
 <h4 id="example-scope-resolution">Example: scope resolution<a class="headerlink" href="#example-scope-resolution" title="Permanent link">¶</a></h4>
 <p><strong>Data model:</strong></p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-15-1"><a href="#__codelineno-15-1" id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="p">{</span>
-</span><span id="__span-15-2"><a href="#__codelineno-15-2" id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="w">  </span><span class="nt">"company"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Acme Corp"</span><span class="p">,</span>
-</span><span id="__span-15-3"><a href="#__codelineno-15-3" id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="w">  </span><span class="nt">"employees"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-15-4"><a href="#__codelineno-15-4" id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="w">    </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice"</span><span class="p">,</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Engineer"</span><span class="p">},</span>
-</span><span id="__span-15-5"><a href="#__codelineno-15-5" id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="w">    </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bob"</span><span class="p">,</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Designer"</span><span class="p">}</span>
-</span><span id="__span-15-6"><a href="#__codelineno-15-6" id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="w">  </span><span class="p">]</span>
-</span><span id="__span-15-7"><a href="#__codelineno-15-7" id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="p">{</span>
+</span><span id="__span-18-2"><a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="w">  </span><span class="nt">"company"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Acme Corp"</span><span class="p">,</span>
+</span><span id="__span-18-3"><a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">  </span><span class="nt">"employees"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-18-4"><a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="w">    </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice"</span><span class="p">,</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Engineer"</span><span class="p">},</span>
+</span><span id="__span-18-5"><a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="w">    </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bob"</span><span class="p">,</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Designer"</span><span class="p">}</span>
+</span><span id="__span-18-6"><a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-18-7"><a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><strong>Component definition:</strong></p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-16-1"><a href="#__codelineno-16-1" id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="p">{</span>
-</span><span id="__span-16-2"><a href="#__codelineno-16-2" id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"employee_list"</span><span class="p">,</span>
-</span><span id="__span-16-3"><a href="#__codelineno-16-3" id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"List"</span><span class="p">,</span>
-</span><span id="__span-16-4"><a href="#__codelineno-16-4" id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="w">  </span><span class="nt">"children"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-16-5"><a href="#__codelineno-16-5" id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="w">    </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/employees"</span><span class="p">,</span>
-</span><span id="__span-16-6"><a href="#__codelineno-16-6" id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="w">    </span><span class="nt">"componentId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"employee_card_template"</span>
-</span><span id="__span-16-7"><a href="#__codelineno-16-7" id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-16-8"><a href="#__codelineno-16-8" id="__codelineno-16-8" name="__codelineno-16-8"></a><span class="p">},</span>
-</span><span id="__span-16-9"><a href="#__codelineno-16-9" id="__codelineno-16-9" name="__codelineno-16-9"></a><span class="p">{</span>
-</span><span id="__span-16-10"><a href="#__codelineno-16-10" id="__codelineno-16-10" name="__codelineno-16-10"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"employee_card_template"</span><span class="p">,</span>
-</span><span id="__span-16-11"><a href="#__codelineno-16-11" id="__codelineno-16-11" name="__codelineno-16-11"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span>
-</span><span id="__span-16-12"><a href="#__codelineno-16-12" id="__codelineno-16-12" name="__codelineno-16-12"></a><span class="w">  </span><span class="nt">"children"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"name_text"</span><span class="p">,</span><span class="w"> </span><span class="s2">"company_text"</span><span class="p">]</span>
-</span><span id="__span-16-13"><a href="#__codelineno-16-13" id="__codelineno-16-13" name="__codelineno-16-13"></a><span class="p">},</span>
-</span><span id="__span-16-14"><a href="#__codelineno-16-14" id="__codelineno-16-14" name="__codelineno-16-14"></a><span class="p">{</span>
-</span><span id="__span-16-15"><a href="#__codelineno-16-15" id="__codelineno-16-15" name="__codelineno-16-15"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name_text"</span><span class="p">,</span>
-</span><span id="__span-16-16"><a href="#__codelineno-16-16" id="__codelineno-16-16" name="__codelineno-16-16"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Text"</span><span class="p">,</span>
-</span><span id="__span-16-17"><a href="#__codelineno-16-17" id="__codelineno-16-17" name="__codelineno-16-17"></a><span class="w">  </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name"</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-16-18"><a href="#__codelineno-16-18" id="__codelineno-16-18" name="__codelineno-16-18"></a><span class="w">  </span><span class="c1">// "name" is Relative. Resolves to /employees/N/name</span>
-</span><span id="__span-16-19"><a href="#__codelineno-16-19" id="__codelineno-16-19" name="__codelineno-16-19"></a><span class="p">},</span>
-</span><span id="__span-16-20"><a href="#__codelineno-16-20" id="__codelineno-16-20" name="__codelineno-16-20"></a><span class="p">{</span>
-</span><span id="__span-16-21"><a href="#__codelineno-16-21" id="__codelineno-16-21" name="__codelineno-16-21"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company_text"</span><span class="p">,</span>
-</span><span id="__span-16-22"><a href="#__codelineno-16-22" id="__codelineno-16-22" name="__codelineno-16-22"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Text"</span><span class="p">,</span>
-</span><span id="__span-16-23"><a href="#__codelineno-16-23" id="__codelineno-16-23" name="__codelineno-16-23"></a><span class="w">  </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/company"</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-16-24"><a href="#__codelineno-16-24" id="__codelineno-16-24" name="__codelineno-16-24"></a><span class="w">  </span><span class="c1">// "/company" is Absolute. Resolves to "Acme Corp" globally.</span>
-</span><span id="__span-16-25"><a href="#__codelineno-16-25" id="__codelineno-16-25" name="__codelineno-16-25"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="p">{</span>
+</span><span id="__span-19-2"><a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"employee_list"</span><span class="p">,</span>
+</span><span id="__span-19-3"><a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"List"</span><span class="p">,</span>
+</span><span id="__span-19-4"><a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="w">  </span><span class="nt">"children"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-5"><a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="w">    </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/employees"</span><span class="p">,</span>
+</span><span id="__span-19-6"><a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="w">    </span><span class="nt">"componentId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"employee_card_template"</span>
+</span><span id="__span-19-7"><a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-19-8"><a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="p">},</span>
+</span><span id="__span-19-9"><a href="#__codelineno-19-9" id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="p">{</span>
+</span><span id="__span-19-10"><a href="#__codelineno-19-10" id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"employee_card_template"</span><span class="p">,</span>
+</span><span id="__span-19-11"><a href="#__codelineno-19-11" id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span>
+</span><span id="__span-19-12"><a href="#__codelineno-19-12" id="__codelineno-19-12" name="__codelineno-19-12"></a><span class="w">  </span><span class="nt">"children"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"name_text"</span><span class="p">,</span><span class="w"> </span><span class="s2">"company_text"</span><span class="p">]</span>
+</span><span id="__span-19-13"><a href="#__codelineno-19-13" id="__codelineno-19-13" name="__codelineno-19-13"></a><span class="p">},</span>
+</span><span id="__span-19-14"><a href="#__codelineno-19-14" id="__codelineno-19-14" name="__codelineno-19-14"></a><span class="p">{</span>
+</span><span id="__span-19-15"><a href="#__codelineno-19-15" id="__codelineno-19-15" name="__codelineno-19-15"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name_text"</span><span class="p">,</span>
+</span><span id="__span-19-16"><a href="#__codelineno-19-16" id="__codelineno-19-16" name="__codelineno-19-16"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Text"</span><span class="p">,</span>
+</span><span id="__span-19-17"><a href="#__codelineno-19-17" id="__codelineno-19-17" name="__codelineno-19-17"></a><span class="w">  </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name"</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-19-18"><a href="#__codelineno-19-18" id="__codelineno-19-18" name="__codelineno-19-18"></a><span class="w">  </span><span class="c1">// "name" is Relative. Resolves to /employees/N/name</span>
+</span><span id="__span-19-19"><a href="#__codelineno-19-19" id="__codelineno-19-19" name="__codelineno-19-19"></a><span class="p">},</span>
+</span><span id="__span-19-20"><a href="#__codelineno-19-20" id="__codelineno-19-20" name="__codelineno-19-20"></a><span class="p">{</span>
+</span><span id="__span-19-21"><a href="#__codelineno-19-21" id="__codelineno-19-21" name="__codelineno-19-21"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company_text"</span><span class="p">,</span>
+</span><span id="__span-19-22"><a href="#__codelineno-19-22" id="__codelineno-19-22" name="__codelineno-19-22"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Text"</span><span class="p">,</span>
+</span><span id="__span-19-23"><a href="#__codelineno-19-23" id="__codelineno-19-23" name="__codelineno-19-23"></a><span class="w">  </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/company"</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-19-24"><a href="#__codelineno-19-24" id="__codelineno-19-24" name="__codelineno-19-24"></a><span class="w">  </span><span class="c1">// "/company" is Absolute. Resolves to "Acme Corp" globally.</span>
+</span><span id="__span-19-25"><a href="#__codelineno-19-25" id="__codelineno-19-25" name="__codelineno-19-25"></a><span class="p">}</span>
 </span></code></pre></div>
 <h4 id="type-conversion">Type conversion<a class="headerlink" href="#type-conversion" title="Permanent link">¶</a></h4>
 <p>When a non-string value is interpolated, the renderer converts it to a string:</p>
@@ -3314,14 +3387,14 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 <li><strong>Interact:</strong> User types "jane@example.com". The local model at <code>/formData/email</code> is updated.</li>
 <li>
 <p><strong>Action:</strong> A "Submit" button has the following action definition:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-17-1"><a href="#__codelineno-17-1" id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-17-2"><a href="#__codelineno-17-2" id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-17-3"><a href="#__codelineno-17-3" id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_form"</span><span class="p">,</span>
-</span><span id="__span-17-4"><a href="#__codelineno-17-4" id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">    </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-17-5"><a href="#__codelineno-17-5" id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="w">      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/email"</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-17-6"><a href="#__codelineno-17-6" id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-17-7"><a href="#__codelineno-17-7" id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-17-8"><a href="#__codelineno-17-8" id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-2"><a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="w">  </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-3"><a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_form"</span><span class="p">,</span>
+</span><span id="__span-20-4"><a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="w">    </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-5"><a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="w">      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/email"</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-20-6"><a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-20-7"><a href="#__codelineno-20-7" id="__codelineno-20-7" name="__codelineno-20-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-20-8"><a href="#__codelineno-20-8" id="__codelineno-20-8" name="__codelineno-20-8"></a><span class="p">}</span>
 </span></code></pre></div>
 </li>
 <li>
@@ -3347,36 +3420,36 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 </ul>
 <p><strong>Examples:</strong></p>
 <p><em>Update a specific field:</em></p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-18-1"><a href="#__codelineno-18-1" id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="p">{</span>
-</span><span id="__span-18-2"><a href="#__codelineno-18-2" id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
-</span><span id="__span-18-3"><a href="#__codelineno-18-3" id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="w">  </span><span class="nt">"updateDataModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-18-4"><a href="#__codelineno-18-4" id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"surface_123"</span><span class="p">,</span>
-</span><span id="__span-18-5"><a href="#__codelineno-18-5" id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="w">    </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/user/firstName"</span><span class="p">,</span>
-</span><span id="__span-18-6"><a href="#__codelineno-18-6" id="__codelineno-18-6" name="__codelineno-18-6"></a><span class="w">    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice"</span>
-</span><span id="__span-18-7"><a href="#__codelineno-18-7" id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-18-8"><a href="#__codelineno-18-8" id="__codelineno-18-8" name="__codelineno-18-8"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-21-1"><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="p">{</span>
+</span><span id="__span-21-2"><a href="#__codelineno-21-2" id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
+</span><span id="__span-21-3"><a href="#__codelineno-21-3" id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">  </span><span class="nt">"updateDataModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-21-4"><a href="#__codelineno-21-4" id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"surface_123"</span><span class="p">,</span>
+</span><span id="__span-21-5"><a href="#__codelineno-21-5" id="__codelineno-21-5" name="__codelineno-21-5"></a><span class="w">    </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/user/firstName"</span><span class="p">,</span>
+</span><span id="__span-21-6"><a href="#__codelineno-21-6" id="__codelineno-21-6" name="__codelineno-21-6"></a><span class="w">    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice"</span>
+</span><span id="__span-21-7"><a href="#__codelineno-21-7" id="__codelineno-21-7" name="__codelineno-21-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-21-8"><a href="#__codelineno-21-8" id="__codelineno-21-8" name="__codelineno-21-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><em>Remove a field:</em></p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-19-1"><a href="#__codelineno-19-1" id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="p">{</span>
-</span><span id="__span-19-2"><a href="#__codelineno-19-2" id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
-</span><span id="__span-19-3"><a href="#__codelineno-19-3" id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="w">  </span><span class="nt">"updateDataModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-19-4"><a href="#__codelineno-19-4" id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"surface_123"</span><span class="p">,</span>
-</span><span id="__span-19-5"><a href="#__codelineno-19-5" id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="w">    </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/user/tempData"</span><span class="p">,</span>
-</span><span id="__span-19-6"><a href="#__codelineno-19-6" id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="w">    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
-</span><span id="__span-19-7"><a href="#__codelineno-19-7" id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-19-8"><a href="#__codelineno-19-8" id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-22-1"><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="p">{</span>
+</span><span id="__span-22-2"><a href="#__codelineno-22-2" id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
+</span><span id="__span-22-3"><a href="#__codelineno-22-3" id="__codelineno-22-3" name="__codelineno-22-3"></a><span class="w">  </span><span class="nt">"updateDataModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-22-4"><a href="#__codelineno-22-4" id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"surface_123"</span><span class="p">,</span>
+</span><span id="__span-22-5"><a href="#__codelineno-22-5" id="__codelineno-22-5" name="__codelineno-22-5"></a><span class="w">    </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/user/tempData"</span><span class="p">,</span>
+</span><span id="__span-22-6"><a href="#__codelineno-22-6" id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="w">    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-22-7"><a href="#__codelineno-22-7" id="__codelineno-22-7" name="__codelineno-22-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-22-8"><a href="#__codelineno-22-8" id="__codelineno-22-8" name="__codelineno-22-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><em>Replace the entire data model:</em></p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-20-1"><a href="#__codelineno-20-1" id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="p">{</span>
-</span><span id="__span-20-2"><a href="#__codelineno-20-2" id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
-</span><span id="__span-20-3"><a href="#__codelineno-20-3" id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">  </span><span class="nt">"updateDataModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-4"><a href="#__codelineno-20-4" id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"surface_123"</span><span class="p">,</span>
-</span><span id="__span-20-5"><a href="#__codelineno-20-5" id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="w">    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-20-6"><a href="#__codelineno-20-6" id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="w">      </span><span class="nt">"user"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice"</span><span class="p">,</span><span class="w"> </span><span class="nt">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">},</span>
-</span><span id="__span-20-7"><a href="#__codelineno-20-7" id="__codelineno-20-7" name="__codelineno-20-7"></a><span class="w">      </span><span class="nt">"preferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"theme"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dark"</span><span class="p">}</span>
-</span><span id="__span-20-8"><a href="#__codelineno-20-8" id="__codelineno-20-8" name="__codelineno-20-8"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-20-9"><a href="#__codelineno-20-9" id="__codelineno-20-9" name="__codelineno-20-9"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-20-10"><a href="#__codelineno-20-10" id="__codelineno-20-10" name="__codelineno-20-10"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-23-1"><a href="#__codelineno-23-1" id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="p">{</span>
+</span><span id="__span-23-2"><a href="#__codelineno-23-2" id="__codelineno-23-2" name="__codelineno-23-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
+</span><span id="__span-23-3"><a href="#__codelineno-23-3" id="__codelineno-23-3" name="__codelineno-23-3"></a><span class="w">  </span><span class="nt">"updateDataModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-4"><a href="#__codelineno-23-4" id="__codelineno-23-4" name="__codelineno-23-4"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"surface_123"</span><span class="p">,</span>
+</span><span id="__span-23-5"><a href="#__codelineno-23-5" id="__codelineno-23-5" name="__codelineno-23-5"></a><span class="w">    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-6"><a href="#__codelineno-23-6" id="__codelineno-23-6" name="__codelineno-23-6"></a><span class="w">      </span><span class="nt">"user"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice"</span><span class="p">,</span><span class="w"> </span><span class="nt">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">},</span>
+</span><span id="__span-23-7"><a href="#__codelineno-23-7" id="__codelineno-23-7" name="__codelineno-23-7"></a><span class="w">      </span><span class="nt">"preferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"theme"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dark"</span><span class="p">}</span>
+</span><span id="__span-23-8"><a href="#__codelineno-23-8" id="__codelineno-23-8" name="__codelineno-23-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-23-9"><a href="#__codelineno-23-9" id="__codelineno-23-9" name="__codelineno-23-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-23-10"><a href="#__codelineno-23-10" id="__codelineno-23-10" name="__codelineno-23-10"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="renderer-to-agent-updates">Renderer to agent updates<a class="headerlink" href="#renderer-to-agent-updates" title="Permanent link">¶</a></h3>
 <p>When <code>sendDataModel</code> is set to <code>true</code> for a surface, the renderer automatically appends the <strong>entire data model</strong> of that surface to the metadata of every message (such as <code>action</code> or user query) sent to the agent that created the surface. The data model is included using the transport's metadata facility (the exact location and format are defined by the specific transport binding). The payload follows the schema in <a href="../v1_0/json/renderer_data_model.json"><code>renderer_data_model.json</code></a>.</p>
@@ -3391,65 +3464,65 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 <h3 id="registered-functions">Registered functions<a class="headerlink" href="#registered-functions" title="Permanent link">¶</a></h3>
 <p>The renderer supports a set of named <strong>Functions</strong> (e.g., <code>required</code>, <code>regex</code>, <code>email</code>, <code>add</code>, <code>concat</code>) which are defined in the JSON schema (e.g. <code>catalogs/basic/catalog.json</code>) alongside the component definitions. The agent references these functions by name in <code>FunctionCall</code> objects. This avoids sending executable code.</p>
 <p>Input components (like <code>TextField</code>, <code>CheckBox</code>) can define a list of checks. Each failure produces a specific error message that can be displayed when the component is rendered. Note that for validation checks, the function must return a boolean.</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-21-1"><a href="#__codelineno-21-1" id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="nt">"checks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-21-2"><a href="#__codelineno-21-2" id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-21-3"><a href="#__codelineno-21-3" id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"required"</span><span class="p">,</span>
-</span><span id="__span-21-4"><a href="#__codelineno-21-4" id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="w">    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/zip"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-21-5"><a href="#__codelineno-21-5" id="__codelineno-21-5" name="__codelineno-21-5"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Zip code is required"</span>
-</span><span id="__span-21-6"><a href="#__codelineno-21-6" id="__codelineno-21-6" name="__codelineno-21-6"></a><span class="w">  </span><span class="p">},</span>
-</span><span id="__span-21-7"><a href="#__codelineno-21-7" id="__codelineno-21-7" name="__codelineno-21-7"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-21-8"><a href="#__codelineno-21-8" id="__codelineno-21-8" name="__codelineno-21-8"></a><span class="w">    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"regex"</span><span class="p">,</span>
-</span><span id="__span-21-9"><a href="#__codelineno-21-9" id="__codelineno-21-9" name="__codelineno-21-9"></a><span class="w">    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-21-10"><a href="#__codelineno-21-10" id="__codelineno-21-10" name="__codelineno-21-10"></a><span class="w">      </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/zip"</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-21-11"><a href="#__codelineno-21-11" id="__codelineno-21-11" name="__codelineno-21-11"></a><span class="w">      </span><span class="nt">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^[0-9]{5}$"</span>
-</span><span id="__span-21-12"><a href="#__codelineno-21-12" id="__codelineno-21-12" name="__codelineno-21-12"></a><span class="w">    </span><span class="p">},</span>
-</span><span id="__span-21-13"><a href="#__codelineno-21-13" id="__codelineno-21-13" name="__codelineno-21-13"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Must be a 5-digit zip code"</span>
-</span><span id="__span-21-14"><a href="#__codelineno-21-14" id="__codelineno-21-14" name="__codelineno-21-14"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-21-15"><a href="#__codelineno-21-15" id="__codelineno-21-15" name="__codelineno-21-15"></a><span class="p">]</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-24-1"><a href="#__codelineno-24-1" id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="nt">"checks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-24-2"><a href="#__codelineno-24-2" id="__codelineno-24-2" name="__codelineno-24-2"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-24-3"><a href="#__codelineno-24-3" id="__codelineno-24-3" name="__codelineno-24-3"></a><span class="w">    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"required"</span><span class="p">,</span>
+</span><span id="__span-24-4"><a href="#__codelineno-24-4" id="__codelineno-24-4" name="__codelineno-24-4"></a><span class="w">    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/zip"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-24-5"><a href="#__codelineno-24-5" id="__codelineno-24-5" name="__codelineno-24-5"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Zip code is required"</span>
+</span><span id="__span-24-6"><a href="#__codelineno-24-6" id="__codelineno-24-6" name="__codelineno-24-6"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-24-7"><a href="#__codelineno-24-7" id="__codelineno-24-7" name="__codelineno-24-7"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-24-8"><a href="#__codelineno-24-8" id="__codelineno-24-8" name="__codelineno-24-8"></a><span class="w">    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"regex"</span><span class="p">,</span>
+</span><span id="__span-24-9"><a href="#__codelineno-24-9" id="__codelineno-24-9" name="__codelineno-24-9"></a><span class="w">    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-24-10"><a href="#__codelineno-24-10" id="__codelineno-24-10" name="__codelineno-24-10"></a><span class="w">      </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/zip"</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-24-11"><a href="#__codelineno-24-11" id="__codelineno-24-11" name="__codelineno-24-11"></a><span class="w">      </span><span class="nt">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^[0-9]{5}$"</span>
+</span><span id="__span-24-12"><a href="#__codelineno-24-12" id="__codelineno-24-12" name="__codelineno-24-12"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-24-13"><a href="#__codelineno-24-13" id="__codelineno-24-13" name="__codelineno-24-13"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Must be a 5-digit zip code"</span>
+</span><span id="__span-24-14"><a href="#__codelineno-24-14" id="__codelineno-24-14" name="__codelineno-24-14"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-24-15"><a href="#__codelineno-24-15" id="__codelineno-24-15" name="__codelineno-24-15"></a><span class="p">]</span>
 </span></code></pre></div>
 <h3 id="example-button-validation">Example: button validation<a class="headerlink" href="#example-button-validation" title="Permanent link">¶</a></h3>
 <p>Buttons can also define <code>checks</code>. If any check fails, the button is automatically disabled. This allows the button's state to depend on the validity of data in the model.</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-22-1"><a href="#__codelineno-22-1" id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="p">{</span>
-</span><span id="__span-22-2"><a href="#__codelineno-22-2" id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_button"</span><span class="p">,</span>
-</span><span id="__span-22-3"><a href="#__codelineno-22-3" id="__codelineno-22-3" name="__codelineno-22-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Button"</span><span class="p">,</span>
-</span><span id="__span-22-4"><a href="#__codelineno-22-4" id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="w">  </span><span class="nt">"child"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_button_label"</span><span class="p">,</span>
-</span><span id="__span-22-5"><a href="#__codelineno-22-5" id="__codelineno-22-5" name="__codelineno-22-5"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-22-6"><a href="#__codelineno-22-6" id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-22-7"><a href="#__codelineno-22-7" id="__codelineno-22-7" name="__codelineno-22-7"></a><span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_form"</span>
-</span><span id="__span-22-8"><a href="#__codelineno-22-8" id="__codelineno-22-8" name="__codelineno-22-8"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-22-9"><a href="#__codelineno-22-9" id="__codelineno-22-9" name="__codelineno-22-9"></a><span class="w">  </span><span class="p">},</span>
-</span><span id="__span-22-10"><a href="#__codelineno-22-10" id="__codelineno-22-10" name="__codelineno-22-10"></a><span class="w">  </span><span class="nt">"checks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-22-11"><a href="#__codelineno-22-11" id="__codelineno-22-11" name="__codelineno-22-11"></a><span class="w">    </span><span class="p">{</span>
-</span><span id="__span-22-12"><a href="#__codelineno-22-12" id="__codelineno-22-12" name="__codelineno-22-12"></a><span class="w">      </span><span class="nt">"condition"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-22-13"><a href="#__codelineno-22-13" id="__codelineno-22-13" name="__codelineno-22-13"></a><span class="w">        </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"and"</span><span class="p">,</span>
-</span><span id="__span-22-14"><a href="#__codelineno-22-14" id="__codelineno-22-14" name="__codelineno-22-14"></a><span class="w">        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-22-15"><a href="#__codelineno-22-15" id="__codelineno-22-15" name="__codelineno-22-15"></a><span class="w">          </span><span class="nt">"values"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-22-16"><a href="#__codelineno-22-16" id="__codelineno-22-16" name="__codelineno-22-16"></a><span class="w">            </span><span class="p">{</span>
-</span><span id="__span-22-17"><a href="#__codelineno-22-17" id="__codelineno-22-17" name="__codelineno-22-17"></a><span class="w">              </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"required"</span><span class="p">,</span>
-</span><span id="__span-22-18"><a href="#__codelineno-22-18" id="__codelineno-22-18" name="__codelineno-22-18"></a><span class="w">              </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/terms"</span><span class="p">}}</span>
-</span><span id="__span-22-19"><a href="#__codelineno-22-19" id="__codelineno-22-19" name="__codelineno-22-19"></a><span class="w">            </span><span class="p">},</span>
-</span><span id="__span-22-20"><a href="#__codelineno-22-20" id="__codelineno-22-20" name="__codelineno-22-20"></a><span class="w">            </span><span class="p">{</span>
-</span><span id="__span-22-21"><a href="#__codelineno-22-21" id="__codelineno-22-21" name="__codelineno-22-21"></a><span class="w">              </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"or"</span><span class="p">,</span>
-</span><span id="__span-22-22"><a href="#__codelineno-22-22" id="__codelineno-22-22" name="__codelineno-22-22"></a><span class="w">              </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-22-23"><a href="#__codelineno-22-23" id="__codelineno-22-23" name="__codelineno-22-23"></a><span class="w">                </span><span class="nt">"values"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-22-24"><a href="#__codelineno-22-24" id="__codelineno-22-24" name="__codelineno-22-24"></a><span class="w">                  </span><span class="p">{</span>
-</span><span id="__span-22-25"><a href="#__codelineno-22-25" id="__codelineno-22-25" name="__codelineno-22-25"></a><span class="w">                    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"required"</span><span class="p">,</span>
-</span><span id="__span-22-26"><a href="#__codelineno-22-26" id="__codelineno-22-26" name="__codelineno-22-26"></a><span class="w">                    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/email"</span><span class="p">}}</span>
-</span><span id="__span-22-27"><a href="#__codelineno-22-27" id="__codelineno-22-27" name="__codelineno-22-27"></a><span class="w">                  </span><span class="p">},</span>
-</span><span id="__span-22-28"><a href="#__codelineno-22-28" id="__codelineno-22-28" name="__codelineno-22-28"></a><span class="w">                  </span><span class="p">{</span>
-</span><span id="__span-22-29"><a href="#__codelineno-22-29" id="__codelineno-22-29" name="__codelineno-22-29"></a><span class="w">                    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"required"</span><span class="p">,</span>
-</span><span id="__span-22-30"><a href="#__codelineno-22-30" id="__codelineno-22-30" name="__codelineno-22-30"></a><span class="w">                    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/phone"</span><span class="p">}}</span>
-</span><span id="__span-22-31"><a href="#__codelineno-22-31" id="__codelineno-22-31" name="__codelineno-22-31"></a><span class="w">                  </span><span class="p">}</span>
-</span><span id="__span-22-32"><a href="#__codelineno-22-32" id="__codelineno-22-32" name="__codelineno-22-32"></a><span class="w">                </span><span class="p">]</span>
-</span><span id="__span-22-33"><a href="#__codelineno-22-33" id="__codelineno-22-33" name="__codelineno-22-33"></a><span class="w">              </span><span class="p">}</span>
-</span><span id="__span-22-34"><a href="#__codelineno-22-34" id="__codelineno-22-34" name="__codelineno-22-34"></a><span class="w">            </span><span class="p">}</span>
-</span><span id="__span-22-35"><a href="#__codelineno-22-35" id="__codelineno-22-35" name="__codelineno-22-35"></a><span class="w">          </span><span class="p">]</span>
-</span><span id="__span-22-36"><a href="#__codelineno-22-36" id="__codelineno-22-36" name="__codelineno-22-36"></a><span class="w">        </span><span class="p">}</span>
-</span><span id="__span-22-37"><a href="#__codelineno-22-37" id="__codelineno-22-37" name="__codelineno-22-37"></a><span class="w">      </span><span class="p">},</span>
-</span><span id="__span-22-38"><a href="#__codelineno-22-38" id="__codelineno-22-38" name="__codelineno-22-38"></a><span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"You must accept terms AND provide either email or phone"</span>
-</span><span id="__span-22-39"><a href="#__codelineno-22-39" id="__codelineno-22-39" name="__codelineno-22-39"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-22-40"><a href="#__codelineno-22-40" id="__codelineno-22-40" name="__codelineno-22-40"></a><span class="w">  </span><span class="p">]</span>
-</span><span id="__span-22-41"><a href="#__codelineno-22-41" id="__codelineno-22-41" name="__codelineno-22-41"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-25-1"><a href="#__codelineno-25-1" id="__codelineno-25-1" name="__codelineno-25-1"></a><span class="p">{</span>
+</span><span id="__span-25-2"><a href="#__codelineno-25-2" id="__codelineno-25-2" name="__codelineno-25-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_button"</span><span class="p">,</span>
+</span><span id="__span-25-3"><a href="#__codelineno-25-3" id="__codelineno-25-3" name="__codelineno-25-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Button"</span><span class="p">,</span>
+</span><span id="__span-25-4"><a href="#__codelineno-25-4" id="__codelineno-25-4" name="__codelineno-25-4"></a><span class="w">  </span><span class="nt">"child"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_button_label"</span><span class="p">,</span>
+</span><span id="__span-25-5"><a href="#__codelineno-25-5" id="__codelineno-25-5" name="__codelineno-25-5"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-6"><a href="#__codelineno-25-6" id="__codelineno-25-6" name="__codelineno-25-6"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-7"><a href="#__codelineno-25-7" id="__codelineno-25-7" name="__codelineno-25-7"></a><span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_form"</span>
+</span><span id="__span-25-8"><a href="#__codelineno-25-8" id="__codelineno-25-8" name="__codelineno-25-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-25-9"><a href="#__codelineno-25-9" id="__codelineno-25-9" name="__codelineno-25-9"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-25-10"><a href="#__codelineno-25-10" id="__codelineno-25-10" name="__codelineno-25-10"></a><span class="w">  </span><span class="nt">"checks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-25-11"><a href="#__codelineno-25-11" id="__codelineno-25-11" name="__codelineno-25-11"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-25-12"><a href="#__codelineno-25-12" id="__codelineno-25-12" name="__codelineno-25-12"></a><span class="w">      </span><span class="nt">"condition"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-13"><a href="#__codelineno-25-13" id="__codelineno-25-13" name="__codelineno-25-13"></a><span class="w">        </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"and"</span><span class="p">,</span>
+</span><span id="__span-25-14"><a href="#__codelineno-25-14" id="__codelineno-25-14" name="__codelineno-25-14"></a><span class="w">        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-15"><a href="#__codelineno-25-15" id="__codelineno-25-15" name="__codelineno-25-15"></a><span class="w">          </span><span class="nt">"values"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-25-16"><a href="#__codelineno-25-16" id="__codelineno-25-16" name="__codelineno-25-16"></a><span class="w">            </span><span class="p">{</span>
+</span><span id="__span-25-17"><a href="#__codelineno-25-17" id="__codelineno-25-17" name="__codelineno-25-17"></a><span class="w">              </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"required"</span><span class="p">,</span>
+</span><span id="__span-25-18"><a href="#__codelineno-25-18" id="__codelineno-25-18" name="__codelineno-25-18"></a><span class="w">              </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/terms"</span><span class="p">}}</span>
+</span><span id="__span-25-19"><a href="#__codelineno-25-19" id="__codelineno-25-19" name="__codelineno-25-19"></a><span class="w">            </span><span class="p">},</span>
+</span><span id="__span-25-20"><a href="#__codelineno-25-20" id="__codelineno-25-20" name="__codelineno-25-20"></a><span class="w">            </span><span class="p">{</span>
+</span><span id="__span-25-21"><a href="#__codelineno-25-21" id="__codelineno-25-21" name="__codelineno-25-21"></a><span class="w">              </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"or"</span><span class="p">,</span>
+</span><span id="__span-25-22"><a href="#__codelineno-25-22" id="__codelineno-25-22" name="__codelineno-25-22"></a><span class="w">              </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-25-23"><a href="#__codelineno-25-23" id="__codelineno-25-23" name="__codelineno-25-23"></a><span class="w">                </span><span class="nt">"values"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-25-24"><a href="#__codelineno-25-24" id="__codelineno-25-24" name="__codelineno-25-24"></a><span class="w">                  </span><span class="p">{</span>
+</span><span id="__span-25-25"><a href="#__codelineno-25-25" id="__codelineno-25-25" name="__codelineno-25-25"></a><span class="w">                    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"required"</span><span class="p">,</span>
+</span><span id="__span-25-26"><a href="#__codelineno-25-26" id="__codelineno-25-26" name="__codelineno-25-26"></a><span class="w">                    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/email"</span><span class="p">}}</span>
+</span><span id="__span-25-27"><a href="#__codelineno-25-27" id="__codelineno-25-27" name="__codelineno-25-27"></a><span class="w">                  </span><span class="p">},</span>
+</span><span id="__span-25-28"><a href="#__codelineno-25-28" id="__codelineno-25-28" name="__codelineno-25-28"></a><span class="w">                  </span><span class="p">{</span>
+</span><span id="__span-25-29"><a href="#__codelineno-25-29" id="__codelineno-25-29" name="__codelineno-25-29"></a><span class="w">                    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"required"</span><span class="p">,</span>
+</span><span id="__span-25-30"><a href="#__codelineno-25-30" id="__codelineno-25-30" name="__codelineno-25-30"></a><span class="w">                    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/formData/phone"</span><span class="p">}}</span>
+</span><span id="__span-25-31"><a href="#__codelineno-25-31" id="__codelineno-25-31" name="__codelineno-25-31"></a><span class="w">                  </span><span class="p">}</span>
+</span><span id="__span-25-32"><a href="#__codelineno-25-32" id="__codelineno-25-32" name="__codelineno-25-32"></a><span class="w">                </span><span class="p">]</span>
+</span><span id="__span-25-33"><a href="#__codelineno-25-33" id="__codelineno-25-33" name="__codelineno-25-33"></a><span class="w">              </span><span class="p">}</span>
+</span><span id="__span-25-34"><a href="#__codelineno-25-34" id="__codelineno-25-34" name="__codelineno-25-34"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-25-35"><a href="#__codelineno-25-35" id="__codelineno-25-35" name="__codelineno-25-35"></a><span class="w">          </span><span class="p">]</span>
+</span><span id="__span-25-36"><a href="#__codelineno-25-36" id="__codelineno-25-36" name="__codelineno-25-36"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-25-37"><a href="#__codelineno-25-37" id="__codelineno-25-37" name="__codelineno-25-37"></a><span class="w">      </span><span class="p">},</span>
+</span><span id="__span-25-38"><a href="#__codelineno-25-38" id="__codelineno-25-38" name="__codelineno-25-38"></a><span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"You must accept terms AND provide either email or phone"</span>
+</span><span id="__span-25-39"><a href="#__codelineno-25-39" id="__codelineno-25-39" name="__codelineno-25-39"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-25-40"><a href="#__codelineno-25-40" id="__codelineno-25-40" name="__codelineno-25-40"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-25-41"><a href="#__codelineno-25-41" id="__codelineno-25-41" name="__codelineno-25-41"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="basic-component-catalog">Basic Component Catalog<a class="headerlink" href="#basic-component-catalog" title="Permanent link">¶</a></h2>
 <p>The [<code>catalogs/basic/catalog.json</code>] provides the baseline set of components and functions.</p>
@@ -3621,16 +3694,16 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 <li><code>${firstName}</code>: Relative path (resolved against the current collection scope).</li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-23-1"><a href="#__codelineno-23-1" id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="p">{</span>
-</span><span id="__span-23-2"><a href="#__codelineno-23-2" id="__codelineno-23-2" name="__codelineno-23-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_welcome"</span><span class="p">,</span>
-</span><span id="__span-23-3"><a href="#__codelineno-23-3" id="__codelineno-23-3" name="__codelineno-23-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Text"</span><span class="p">,</span>
-</span><span id="__span-23-4"><a href="#__codelineno-23-4" id="__codelineno-23-4" name="__codelineno-23-4"></a><span class="w">  </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-23-5"><a href="#__codelineno-23-5" id="__codelineno-23-5" name="__codelineno-23-5"></a><span class="w">    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"formatString"</span><span class="p">,</span>
-</span><span id="__span-23-6"><a href="#__codelineno-23-6" id="__codelineno-23-6" name="__codelineno-23-6"></a><span class="w">    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-23-7"><a href="#__codelineno-23-7" id="__codelineno-23-7" name="__codelineno-23-7"></a><span class="w">      </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello, ${/user/firstName}! Welcome back to ${/appName}."</span>
-</span><span id="__span-23-8"><a href="#__codelineno-23-8" id="__codelineno-23-8" name="__codelineno-23-8"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-23-9"><a href="#__codelineno-23-9" id="__codelineno-23-9" name="__codelineno-23-9"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-23-10"><a href="#__codelineno-23-10" id="__codelineno-23-10" name="__codelineno-23-10"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-26-1"><a href="#__codelineno-26-1" id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="p">{</span>
+</span><span id="__span-26-2"><a href="#__codelineno-26-2" id="__codelineno-26-2" name="__codelineno-26-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_welcome"</span><span class="p">,</span>
+</span><span id="__span-26-3"><a href="#__codelineno-26-3" id="__codelineno-26-3" name="__codelineno-26-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Text"</span><span class="p">,</span>
+</span><span id="__span-26-4"><a href="#__codelineno-26-4" id="__codelineno-26-4" name="__codelineno-26-4"></a><span class="w">  </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-5"><a href="#__codelineno-26-5" id="__codelineno-26-5" name="__codelineno-26-5"></a><span class="w">    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"formatString"</span><span class="p">,</span>
+</span><span id="__span-26-6"><a href="#__codelineno-26-6" id="__codelineno-26-6" name="__codelineno-26-6"></a><span class="w">    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-7"><a href="#__codelineno-26-7" id="__codelineno-26-7" name="__codelineno-26-7"></a><span class="w">      </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello, ${/user/firstName}! Welcome back to ${/appName}."</span>
+</span><span id="__span-26-8"><a href="#__codelineno-26-8" id="__codelineno-26-8" name="__codelineno-26-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-26-9"><a href="#__codelineno-26-9" id="__codelineno-26-9" name="__codelineno-26-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-26-10"><a href="#__codelineno-26-10" id="__codelineno-26-10" name="__codelineno-26-10"></a><span class="p">}</span>
 </span></code></pre></div>
 <h4 id="formatstring-renderer-side-functions"><code>formatString</code> renderer-side functions<a class="headerlink" href="#formatstring-renderer-side-functions" title="Permanent link">¶</a></h4>
 <p>Results of renderer-side functions can be interpolated. Function calls are identified by the presence of parentheses <code>()</code>.</p>
@@ -3662,16 +3735,16 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 </ul>
 <h4 id="example-usage">Example usage<a class="headerlink" href="#example-usage" title="Permanent link">¶</a></h4>
 <p>Displaying item positions inside a list row template:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-24-1"><a href="#__codelineno-24-1" id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="p">{</span>
-</span><span id="__span-24-2"><a href="#__codelineno-24-2" id="__codelineno-24-2" name="__codelineno-24-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"todo-index"</span><span class="p">,</span>
-</span><span id="__span-24-3"><a href="#__codelineno-24-3" id="__codelineno-24-3" name="__codelineno-24-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Text"</span><span class="p">,</span>
-</span><span id="__span-24-4"><a href="#__codelineno-24-4" id="__codelineno-24-4" name="__codelineno-24-4"></a><span class="w">  </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-24-5"><a href="#__codelineno-24-5" id="__codelineno-24-5" name="__codelineno-24-5"></a><span class="w">    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"formatString"</span><span class="p">,</span>
-</span><span id="__span-24-6"><a href="#__codelineno-24-6" id="__codelineno-24-6" name="__codelineno-24-6"></a><span class="w">    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-24-7"><a href="#__codelineno-24-7" id="__codelineno-24-7" name="__codelineno-24-7"></a><span class="w">      </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#${@index(offset: 1)}"</span>
-</span><span id="__span-24-8"><a href="#__codelineno-24-8" id="__codelineno-24-8" name="__codelineno-24-8"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-24-9"><a href="#__codelineno-24-9" id="__codelineno-24-9" name="__codelineno-24-9"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-24-10"><a href="#__codelineno-24-10" id="__codelineno-24-10" name="__codelineno-24-10"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-27-1"><a href="#__codelineno-27-1" id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="p">{</span>
+</span><span id="__span-27-2"><a href="#__codelineno-27-2" id="__codelineno-27-2" name="__codelineno-27-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"todo-index"</span><span class="p">,</span>
+</span><span id="__span-27-3"><a href="#__codelineno-27-3" id="__codelineno-27-3" name="__codelineno-27-3"></a><span class="w">  </span><span class="nt">"component"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Text"</span><span class="p">,</span>
+</span><span id="__span-27-4"><a href="#__codelineno-27-4" id="__codelineno-27-4" name="__codelineno-27-4"></a><span class="w">  </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-27-5"><a href="#__codelineno-27-5" id="__codelineno-27-5" name="__codelineno-27-5"></a><span class="w">    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"formatString"</span><span class="p">,</span>
+</span><span id="__span-27-6"><a href="#__codelineno-27-6" id="__codelineno-27-6" name="__codelineno-27-6"></a><span class="w">    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-27-7"><a href="#__codelineno-27-7" id="__codelineno-27-7" name="__codelineno-27-7"></a><span class="w">      </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#${@index(offset: 1)}"</span>
+</span><span id="__span-27-8"><a href="#__codelineno-27-8" id="__codelineno-27-8" name="__codelineno-27-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-27-9"><a href="#__codelineno-27-9" id="__codelineno-27-9" name="__codelineno-27-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-27-10"><a href="#__codelineno-27-10" id="__codelineno-27-10" name="__codelineno-27-10"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="usage-pattern-the-prompt-generate-validate-loop">Usage pattern: the prompt-generate-validate loop<a class="headerlink" href="#usage-pattern-the-prompt-generate-validate-loop" title="Permanent link">¶</a></h2>
 <p>The A2UI protocol is designed to be used in a three-step loop with a Large Language Model:</p>
@@ -3695,20 +3768,20 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 <h3 id="standard-validation-error-format">Standard validation error format<a class="headerlink" href="#standard-validation-error-format" title="Permanent link">¶</a></h3>
 <p>If validation fails, the renderer (or the system acting on behalf of the renderer) should send an <code>error</code> message back to the LLM. To ensure the LLM can understand and correct the error, use the following standard format within the <code>error</code> message payload:</p>
 <ul>
-<li><code>code</code> (string, required): Must be <code>"VALIDATION_FAILED"</code>.</li>
+<li><code>code</code> (string, required): Must be <code>"VALIDATION_FAILED"</code>, <code>"UNALLOWED_PARENT"</code>, or <code>"UNALLOWED_CHILD"</code>. Use <code>"UNALLOWED_PARENT"</code> if a component is placed under an unallowed parent, and <code>"UNALLOWED_CHILD"</code> if an unallowed child is placed inside a container.</li>
 <li><code>surfaceId</code> (string, required): The ID of the surface where the error occurred.</li>
 <li><code>path</code> (string, required): The JSON pointer to the field that failed validation (e.g. <code>/components/0/text</code>).</li>
 <li><code>message</code> (string, required): A short one-sentence description of why validation failed.</li>
 </ul>
 <p><strong>Example error message:</strong></p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-25-1"><a href="#__codelineno-25-1" id="__codelineno-25-1" name="__codelineno-25-1"></a><span class="p">{</span>
-</span><span id="__span-25-2"><a href="#__codelineno-25-2" id="__codelineno-25-2" name="__codelineno-25-2"></a><span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-25-3"><a href="#__codelineno-25-3" id="__codelineno-25-3" name="__codelineno-25-3"></a><span class="w">    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VALIDATION_FAILED"</span><span class="p">,</span>
-</span><span id="__span-25-4"><a href="#__codelineno-25-4" id="__codelineno-25-4" name="__codelineno-25-4"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_profile_card"</span><span class="p">,</span>
-</span><span id="__span-25-5"><a href="#__codelineno-25-5" id="__codelineno-25-5" name="__codelineno-25-5"></a><span class="w">    </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/components/0/text"</span><span class="p">,</span>
-</span><span id="__span-25-6"><a href="#__codelineno-25-6" id="__codelineno-25-6" name="__codelineno-25-6"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Expected stringOrPath, got integer"</span>
-</span><span id="__span-25-7"><a href="#__codelineno-25-7" id="__codelineno-25-7" name="__codelineno-25-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-25-8"><a href="#__codelineno-25-8" id="__codelineno-25-8" name="__codelineno-25-8"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-28-1"><a href="#__codelineno-28-1" id="__codelineno-28-1" name="__codelineno-28-1"></a><span class="p">{</span>
+</span><span id="__span-28-2"><a href="#__codelineno-28-2" id="__codelineno-28-2" name="__codelineno-28-2"></a><span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-28-3"><a href="#__codelineno-28-3" id="__codelineno-28-3" name="__codelineno-28-3"></a><span class="w">    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VALIDATION_FAILED"</span><span class="p">,</span>
+</span><span id="__span-28-4"><a href="#__codelineno-28-4" id="__codelineno-28-4" name="__codelineno-28-4"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_profile_card"</span><span class="p">,</span>
+</span><span id="__span-28-5"><a href="#__codelineno-28-5" id="__codelineno-28-5" name="__codelineno-28-5"></a><span class="w">    </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/components/0/text"</span><span class="p">,</span>
+</span><span id="__span-28-6"><a href="#__codelineno-28-6" id="__codelineno-28-6" name="__codelineno-28-6"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Expected stringOrPath, got integer"</span>
+</span><span id="__span-28-7"><a href="#__codelineno-28-7" id="__codelineno-28-7" name="__codelineno-28-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-28-8"><a href="#__codelineno-28-8" id="__codelineno-28-8" name="__codelineno-28-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="renderer-to-agent-event-messages">Renderer-to-agent event messages<a class="headerlink" href="#renderer-to-agent-event-messages" title="Permanent link">¶</a></h2>
 <p>The protocol defines messages that the renderer can send to the agent to report user interactions, execution results of agent-initiated function calls, or renderer-side runtime errors. Every renderer-to-agent message must validate against the [<code>renderer_to_agent.json</code>] schema and contain exactly one of the following top-level keys: <code>action</code>, <code>functionResponse</code>, or <code>error</code>.</p>
@@ -3725,20 +3798,20 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 <li><code>actionId</code> (string, optional): A unique ID for this specific action instance. This field is REQUIRED if <code>wantResponse</code> is set to <code>true</code>.</li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-26-1"><a href="#__codelineno-26-1" id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="p">{</span>
-</span><span id="__span-26-2"><a href="#__codelineno-26-2" id="__codelineno-26-2" name="__codelineno-26-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
-</span><span id="__span-26-3"><a href="#__codelineno-26-3" id="__codelineno-26-3" name="__codelineno-26-3"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-26-4"><a href="#__codelineno-26-4" id="__codelineno-26-4" name="__codelineno-26-4"></a><span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submitForm"</span><span class="p">,</span>
-</span><span id="__span-26-5"><a href="#__codelineno-26-5" id="__codelineno-26-5" name="__codelineno-26-5"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contact_form_1"</span><span class="p">,</span>
-</span><span id="__span-26-6"><a href="#__codelineno-26-6" id="__codelineno-26-6" name="__codelineno-26-6"></a><span class="w">    </span><span class="nt">"sourceComponentId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_button"</span><span class="p">,</span>
-</span><span id="__span-26-7"><a href="#__codelineno-26-7" id="__codelineno-26-7" name="__codelineno-26-7"></a><span class="w">    </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-06-02T08:57:23Z"</span><span class="p">,</span>
-</span><span id="__span-26-8"><a href="#__codelineno-26-8" id="__codelineno-26-8" name="__codelineno-26-8"></a><span class="w">    </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-26-9"><a href="#__codelineno-26-9" id="__codelineno-26-9" name="__codelineno-26-9"></a><span class="w">      </span><span class="nt">"isSubscribed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-</span><span id="__span-26-10"><a href="#__codelineno-26-10" id="__codelineno-26-10" name="__codelineno-26-10"></a><span class="w">    </span><span class="p">},</span>
-</span><span id="__span-26-11"><a href="#__codelineno-26-11" id="__codelineno-26-11" name="__codelineno-26-11"></a><span class="w">    </span><span class="nt">"wantResponse"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-26-12"><a href="#__codelineno-26-12" id="__codelineno-26-12" name="__codelineno-26-12"></a><span class="w">    </span><span class="nt">"actionId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"form_submit_773"</span>
-</span><span id="__span-26-13"><a href="#__codelineno-26-13" id="__codelineno-26-13" name="__codelineno-26-13"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-26-14"><a href="#__codelineno-26-14" id="__codelineno-26-14" name="__codelineno-26-14"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-29-1"><a href="#__codelineno-29-1" id="__codelineno-29-1" name="__codelineno-29-1"></a><span class="p">{</span>
+</span><span id="__span-29-2"><a href="#__codelineno-29-2" id="__codelineno-29-2" name="__codelineno-29-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
+</span><span id="__span-29-3"><a href="#__codelineno-29-3" id="__codelineno-29-3" name="__codelineno-29-3"></a><span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-29-4"><a href="#__codelineno-29-4" id="__codelineno-29-4" name="__codelineno-29-4"></a><span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submitForm"</span><span class="p">,</span>
+</span><span id="__span-29-5"><a href="#__codelineno-29-5" id="__codelineno-29-5" name="__codelineno-29-5"></a><span class="w">    </span><span class="nt">"surfaceId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contact_form_1"</span><span class="p">,</span>
+</span><span id="__span-29-6"><a href="#__codelineno-29-6" id="__codelineno-29-6" name="__codelineno-29-6"></a><span class="w">    </span><span class="nt">"sourceComponentId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"submit_button"</span><span class="p">,</span>
+</span><span id="__span-29-7"><a href="#__codelineno-29-7" id="__codelineno-29-7" name="__codelineno-29-7"></a><span class="w">    </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-06-02T08:57:23Z"</span><span class="p">,</span>
+</span><span id="__span-29-8"><a href="#__codelineno-29-8" id="__codelineno-29-8" name="__codelineno-29-8"></a><span class="w">    </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-29-9"><a href="#__codelineno-29-9" id="__codelineno-29-9" name="__codelineno-29-9"></a><span class="w">      </span><span class="nt">"isSubscribed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-29-10"><a href="#__codelineno-29-10" id="__codelineno-29-10" name="__codelineno-29-10"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-29-11"><a href="#__codelineno-29-11" id="__codelineno-29-11" name="__codelineno-29-11"></a><span class="w">    </span><span class="nt">"wantResponse"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-29-12"><a href="#__codelineno-29-12" id="__codelineno-29-12" name="__codelineno-29-12"></a><span class="w">    </span><span class="nt">"actionId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"form_submit_773"</span>
+</span><span id="__span-29-13"><a href="#__codelineno-29-13" id="__codelineno-29-13" name="__codelineno-29-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-29-14"><a href="#__codelineno-29-14" id="__codelineno-29-14" name="__codelineno-29-14"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="functionresponse"><code>functionResponse</code><a class="headerlink" href="#functionresponse" title="Permanent link">¶</a></h3>
 <p>This message is sent by the renderer to return the successful execution result of an agent-initiated function call. It is required only if the agent sent the <code>callFunction</code> request with <code>wantResponse: true</code>.</p>
@@ -3749,14 +3822,14 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 <li><code>value</code> (any, required): The returned execution value of the function call.</li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-27-1"><a href="#__codelineno-27-1" id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="p">{</span>
-</span><span id="__span-27-2"><a href="#__codelineno-27-2" id="__codelineno-27-2" name="__codelineno-27-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
-</span><span id="__span-27-3"><a href="#__codelineno-27-3" id="__codelineno-27-3" name="__codelineno-27-3"></a><span class="w">  </span><span class="nt">"functionResponse"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-27-4"><a href="#__codelineno-27-4" id="__codelineno-27-4" name="__codelineno-27-4"></a><span class="w">    </span><span class="nt">"functionCallId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ping-call-id-102"</span><span class="p">,</span>
-</span><span id="__span-27-5"><a href="#__codelineno-27-5" id="__codelineno-27-5" name="__codelineno-27-5"></a><span class="w">    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pingAgent"</span><span class="p">,</span>
-</span><span id="__span-27-6"><a href="#__codelineno-27-6" id="__codelineno-27-6" name="__codelineno-27-6"></a><span class="w">    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-</span><span id="__span-27-7"><a href="#__codelineno-27-7" id="__codelineno-27-7" name="__codelineno-27-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-27-8"><a href="#__codelineno-27-8" id="__codelineno-27-8" name="__codelineno-27-8"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-30-1"><a href="#__codelineno-30-1" id="__codelineno-30-1" name="__codelineno-30-1"></a><span class="p">{</span>
+</span><span id="__span-30-2"><a href="#__codelineno-30-2" id="__codelineno-30-2" name="__codelineno-30-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
+</span><span id="__span-30-3"><a href="#__codelineno-30-3" id="__codelineno-30-3" name="__codelineno-30-3"></a><span class="w">  </span><span class="nt">"functionResponse"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-30-4"><a href="#__codelineno-30-4" id="__codelineno-30-4" name="__codelineno-30-4"></a><span class="w">    </span><span class="nt">"functionCallId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ping-call-id-102"</span><span class="p">,</span>
+</span><span id="__span-30-5"><a href="#__codelineno-30-5" id="__codelineno-30-5" name="__codelineno-30-5"></a><span class="w">    </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pingAgent"</span><span class="p">,</span>
+</span><span id="__span-30-6"><a href="#__codelineno-30-6" id="__codelineno-30-6" name="__codelineno-30-6"></a><span class="w">    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-30-7"><a href="#__codelineno-30-7" id="__codelineno-30-7" name="__codelineno-30-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-30-8"><a href="#__codelineno-30-8" id="__codelineno-30-8" name="__codelineno-30-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="error"><code>error</code><a class="headerlink" href="#error" title="Permanent link">¶</a></h3>
 <p>This message is sent by the renderer to report runtime or execution errors to the agent (such as execution boundary violations, or missing catalog-registered handlers).</p>
@@ -3768,14 +3841,14 @@ There is <strong>no fallback</strong> to the list of catalogs declared in <code>
 <li><code>functionCallId</code> (string, optional): The unique ID of the function invocation that failed. This field is mutually exclusive with <code>surfaceId</code> and MUST be included if the error is triggered by an agent-initiated function call failure.</li>
 </ul>
 <p><strong>Example (Execution Boundary Failure):</strong></p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-28-1"><a href="#__codelineno-28-1" id="__codelineno-28-1" name="__codelineno-28-1"></a><span class="p">{</span>
-</span><span id="__span-28-2"><a href="#__codelineno-28-2" id="__codelineno-28-2" name="__codelineno-28-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
-</span><span id="__span-28-3"><a href="#__codelineno-28-3" id="__codelineno-28-3" name="__codelineno-28-3"></a><span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-28-4"><a href="#__codelineno-28-4" id="__codelineno-28-4" name="__codelineno-28-4"></a><span class="w">    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"INVALID_FUNCTION_CALL"</span><span class="p">,</span>
-</span><span id="__span-28-5"><a href="#__codelineno-28-5" id="__codelineno-28-5" name="__codelineno-28-5"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Function 'deleteLocalFile' is rendererOnly and cannot be called from the agent."</span><span class="p">,</span>
-</span><span id="__span-28-6"><a href="#__codelineno-28-6" id="__codelineno-28-6" name="__codelineno-28-6"></a><span class="w">    </span><span class="nt">"functionCallId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"delete_file_call_9"</span>
-</span><span id="__span-28-7"><a href="#__codelineno-28-7" id="__codelineno-28-7" name="__codelineno-28-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-28-8"><a href="#__codelineno-28-8" id="__codelineno-28-8" name="__codelineno-28-8"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-31-1"><a href="#__codelineno-31-1" id="__codelineno-31-1" name="__codelineno-31-1"></a><span class="p">{</span>
+</span><span id="__span-31-2"><a href="#__codelineno-31-2" id="__codelineno-31-2" name="__codelineno-31-2"></a><span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1.0"</span><span class="p">,</span>
+</span><span id="__span-31-3"><a href="#__codelineno-31-3" id="__codelineno-31-3" name="__codelineno-31-3"></a><span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-31-4"><a href="#__codelineno-31-4" id="__codelineno-31-4" name="__codelineno-31-4"></a><span class="w">    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"INVALID_FUNCTION_CALL"</span><span class="p">,</span>
+</span><span id="__span-31-5"><a href="#__codelineno-31-5" id="__codelineno-31-5" name="__codelineno-31-5"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Function 'deleteLocalFile' is rendererOnly and cannot be called from the agent."</span><span class="p">,</span>
+</span><span id="__span-31-6"><a href="#__codelineno-31-6" id="__codelineno-31-6" name="__codelineno-31-6"></a><span class="w">    </span><span class="nt">"functionCallId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"delete_file_call_9"</span>
+</span><span id="__span-31-7"><a href="#__codelineno-31-7" id="__codelineno-31-7" name="__codelineno-31-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-31-8"><a href="#__codelineno-31-8" id="__codelineno-31-8" name="__codelineno-31-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr/>
 <h2 id="capabilities-and-metadata">Capabilities and metadata<a class="headerlink" href="#capabilities-and-metadata" title="Permanent link">¶</a></h2>
