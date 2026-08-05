@@ -47,6 +47,17 @@ jobs:
               core.setFailed(`User ${context.actor} does not have write access to trigger remediation.`);
             }
 
+      - name: React with Eyes to Trigger Comment
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'eyes',
+            });
+
       - name: Parse Recommendation Index
         id: parse-command
         env:
