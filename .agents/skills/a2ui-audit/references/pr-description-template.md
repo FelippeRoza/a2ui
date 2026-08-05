@@ -4,6 +4,14 @@ This reference defines the required structure, writing guidelines, and standard 
 
 ---
 
+## PR Title Guidelines
+
+1. **Descriptive & Actionable**: The title must clearly describe the specific code or documentation fix being made so anyone reviewing PR lists immediately understands what it addresses (e.g., `fix(swift): create missing top-level README in swift/core` or `docs(spec): sync component schema with core types`).
+2. **Conventional Commits Format**: Follow standard conventional commit format (`type(scope): concise summary`).
+3. **No Generic Numbers**: Do **NOT** include generic issue or recommendation numbers (such as `issue #2178 recommendation 3`) in the PR title. The issue reference belongs exclusively in the PR body.
+
+---
+
 ## Writing Guidelines
 
 1. **Focus on Intent ("Why") over Mechanics ("How")**: Explain what problem in the compliance report is being solved and why the specific code/doc change addresses it.

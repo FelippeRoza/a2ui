@@ -75,14 +75,15 @@ The agent execution environment must provide the following environment variables
 
 ### Step 5: Create Draft PR & Notify Issue
 
-1. Draft the PR description into a temporary file `pr_description.md` following the exact guidelines and structure in `.agents/skills/a2ui-audit/references/pr-description-template.md`. Ensure that `${ISSUE_NUMBER}` and `${RECOMMENDATION_INDEX}` are substituted with their actual values, including the local checkout and inspection section.
-2. Create a Draft Pull Request against the `main` branch using `--body-file`:
+1. Generate a clear, descriptive PR title following the Conventional Commits format that concisely explains the specific fix being made (e.g. `fix(swift): create missing top-level README in swift/core`). **Do NOT include generic issue or recommendation numbers in the PR title.**
+2. Draft the PR description into a temporary file `pr_description.md` following the exact guidelines and structure in `.agents/skills/a2ui-audit/references/pr-description-template.md`. Ensure that `${ISSUE_NUMBER}` and `${RECOMMENDATION_INDEX}` are referenced in the `## Summary` section of the body and the local checkout/inspection block is included.
+3. Create a Draft Pull Request against the `main` branch using `--title` and `--body-file`:
    ```bash
    PR_URL=$(gh pr create --draft \
      --repo a2ui-project/a2ui \
      --head "remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}" \
      --base main \
-     --title "fix(compliance): address issue #${ISSUE_NUMBER} recommendation ${RECOMMENDATION_INDEX}" \
+     --title "${PR_TITLE}" \
      --body-file pr_description.md)
    ```
 3. Clean up the temporary PR description file:
