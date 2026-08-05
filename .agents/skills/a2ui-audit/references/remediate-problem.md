@@ -75,48 +75,21 @@ The agent execution environment must provide the following environment variables
 
 ### Step 5: Create Draft PR & Notify Issue
 
-1. Read and follow all guidelines and structure in `.agents/skills/a2ui-audit/references/pr-description-template.md` to construct a well-written PR title and body for recommendation `${RECOMMENDATION_INDEX}`.
-2. Create a Draft Pull Request against the `main` branch:
+1. Draft the PR description into a temporary file `pr_description.md` following the exact guidelines and structure in `.agents/skills/a2ui-audit/references/pr-description-template.md`. Ensure that `${ISSUE_NUMBER}` and `${RECOMMENDATION_INDEX}` are substituted with their actual values, including the local checkout and inspection section.
+2. Create a Draft Pull Request against the `main` branch using `--body-file`:
    ```bash
-   PR_BODY=$(cat <<EOF
-## Summary
-Addresses recommendation #${RECOMMENDATION_INDEX} from compliance report issue #${ISSUE_NUMBER}.
-
-## Changes
-- Applied remediation fix for item #${RECOMMENDATION_INDEX}.
-
-## Impact & Risks
-- No breaking changes or external dependency impacts.
-
-## Testing
-- Automated and static verification checks completed.
-
----
-
-### How to Inspect or Modify This Branch Locally
-
-To check out and make additional changes to this remediation branch:
-
-\`\`\`bash
-# Fetch and check out the remediation branch
-git fetch upstream remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}
-git checkout remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}
-
-# Make your edits, then commit and push back to upstream
-git commit -am "fix: additional adjustments for recommendation #${RECOMMENDATION_INDEX}"
-git push upstream remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}
-\`\`\`
-EOF
-)
-
    PR_URL=$(gh pr create --draft \
      --repo a2ui-project/a2ui \
      --head "remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}" \
      --base main \
      --title "fix(compliance): address issue #${ISSUE_NUMBER} recommendation ${RECOMMENDATION_INDEX}" \
-     --body "$PR_BODY")
+     --body-file pr_description.md)
    ```
-3. Comment on the original issue to notify maintainers of the new Draft PR and branch:
+3. Clean up the temporary PR description file:
+   ```bash
+   rm -f pr_description.md
+   ```
+4. Comment on the original issue to notify maintainers of the new Draft PR and branch:
    ```bash
    gh issue comment "${ISSUE_NUMBER}" \
      --repo a2ui-project/a2ui \
