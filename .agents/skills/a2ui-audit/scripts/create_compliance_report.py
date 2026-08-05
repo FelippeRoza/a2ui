@@ -43,12 +43,7 @@ def inject_remediation_links(report_content: str) -> str:
             in_recommendations = False
 
         if in_recommendations:
-            if (
-                line.strip().startswith(">")
-                or "Automated Remediation" in line
-                or "/remediate" in line
-                or "/fix" in line
-            ):
+            if line.strip().startswith(">"):
                 continue
 
             match = rec_pattern.match(line.strip())
