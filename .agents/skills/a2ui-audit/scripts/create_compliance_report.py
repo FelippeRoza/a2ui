@@ -43,13 +43,24 @@ def inject_remediation_links(report_content: str) -> str:
             in_recommendations = False
 
         if in_recommendations:
+            if (
+                line.strip().startswith(">")
+                or "Automated Remediation" in line
+                or "/remediate" in line
+                or "/fix" in line
+            ):
+                continue
+
             match = rec_pattern.match(line.strip())
             if match:
                 idx = match.group(1)
                 new_lines.append(line)
                 new_lines.append(
-                    f"   > 🤖 **Automated Remediation**: Comment `/remediate {idx}` on"
-                    " this issue to trigger an agent draft PR."
+                    "   > 🤖 **Automated Remediation**: Copy and comment the"
+                    " command below on this issue to trigger an agent-created draft PR:\n"
+                    "   > ```text\n"
+                    f"   > /fix {idx}\n"
+                    "   > ```"
                 )
                 continue
 

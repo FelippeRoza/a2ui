@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 60
     if: >
       !github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/remediate ') &&
+      contains(github.event.comment.body, '/fix ') &&
       contains(github.event.issue.title, 'A2UI Compliance Report')
 
     steps:
@@ -52,7 +52,7 @@ jobs:
         env:
           COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
-          RECOMMENDATION_INDEX=$(echo "$COMMENT_BODY" | sed -n 's/.*\/remediate \([0-9]\+\).*/\1/p')
+          RECOMMENDATION_INDEX=$(echo "$COMMENT_BODY" | sed -n 's/.*\/fix \([0-9]\+\).*/\1/p')
           if [ -z "$RECOMMENDATION_INDEX" ]; then
             echo "Failed to parse recommendation index from comment body."
             exit 1

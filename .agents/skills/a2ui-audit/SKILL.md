@@ -30,15 +30,68 @@ fix issues.
    - Append the returned Markdown report to `compliance_report.md` under a new header `## Test Quality & Assertions Audit`.
 
 4. **Summarize the report**:
-   - Add a `## Summary` section at the top of the `compliance_report.md` file that includes a brief overview of what was checked, and a `## Recommendations` section with a list of recommendations for follow-up actions, ordered by priority.
+   - Add a `## Summary` section at the top of the `compliance_report.md` file with a detailed overview of the audit scope and key findings.
+   - Add a `## Recommendations` section listing actionable, prioritized follow-up items formatted as a numbered list (e.g. `1. **P0**: ...`). Each numbered item MUST represent a concrete, self-contained remediation task.
 
-5. **Publish Report**:
+5. **Format and Detail Requirements**:
+   - Do NOT produce vague high-level summaries. For each audit section, provide specific evidence:
+     - Exact file paths (e.g. `agent_sdks/python/a2ui_agent/transport.py:L45-L60`).
+     - Specific function/class names, parameter mismatches, or missing feature descriptions.
+     - Concrete examples of weak assertions (e.g. `assert response is not None` in `eval/tests/test_strategies.py`).
+   - Follow the structure provided in the **Report Format Template** below.
+
+6. **Publish Report**:
    - Execute the local Python helper script to create the GitHub issue containing the combined reports:
      ```bash
      python3 .agents/skills/a2ui-audit/scripts/create_compliance_report.py compliance_report.md --repo a2ui-project/a2ui
      ```
    - Ensure the helper script runs successfully.
    - Clean up the temporary file `compliance_report.md` after completion.
+
+---
+
+## **Report Format Template**
+
+When compiling `compliance_report.md`, use the following structure:
+
+```markdown
+## Summary
+[Provide a 2-3 paragraph detailed summary explaining the repository state, key areas audited across SDKs, renderers, and tests, and major findings.]
+
+## Recommendations
+1. **[Priority]**: [Clear title and detailed explanation of the fix needed, specifying affected directories or modules.]
+2. **[Priority]**: [Clear title and detailed explanation of the fix needed, specifying affected directories or modules.]
+
+## Codebase Blueprint Compliance Audit
+| Codebase Implementation | Associated Module | Status | Commits Behind | Current Commit | Latest Commit |
+|---|---|---|---|---|---|
+| `path/to/codebase` | `associated_module` | Status | X | `commit_hash` | `latest_hash` |
+
+### Detailed Findings & Discrepancies
+- **[Codebase Path]**: [Detailed description of missing specifications, missing required features, or frontmatter commit hash drift.]
+
+## Code & Documentation Sync Audit
+| Directory | Status | Identified Issues |
+|---|---|---|
+| `path/to/dir` | Status | Brief Summary |
+
+### Detailed Findings
+- **README Mismatches**:
+  - `path/to/README.md`: [Exact invalid command or outdated setup step found in README.]
+- **Docstring / API Drift**:
+  - `path/to/file.ext:L12-L34`: [Specific parameter or return type mismatch between implementation and docstring/comments.]
+
+## Test Quality & Assertions Audit
+| Suite / Module | Status | Observations |
+|---|---|---|
+| `path/to/tests` | Status | Brief Summary |
+
+### Detailed Findings
+- **Weak Assertions**:
+  - `path/to/test_file.ext` (`test_function_name`): [Explanation of weak assertion, e.g. using `assertNotNull` instead of schema/type check.]
+- **Missing Edge Case Tests**:
+  - `path/to/module`: [Boundary conditions, error cases, or invalid inputs that lack test coverage.]
+```
 
 ---
 
