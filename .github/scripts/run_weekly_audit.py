@@ -32,9 +32,10 @@ def main() -> None:
     from google import genai  # type: ignore[import-not-found]
 
     client = genai.Client(api_key=api_key)
+    ref_name = os.environ.get("GITHUB_REF_NAME", "main")
 
-    prompt = inspect.cleandoc("""
-        1. Clone the target repository: https://github.com/a2ui-project/a2ui (branch: main).
+    prompt = inspect.cleandoc(f"""
+        1. Clone the target repository: https://github.com/a2ui-project/a2ui (branch: {ref_name}).
         2. Find and execute the compliance audit skill at `.agents/skills/a2ui-audit/SKILL.md`.
         """)
 
