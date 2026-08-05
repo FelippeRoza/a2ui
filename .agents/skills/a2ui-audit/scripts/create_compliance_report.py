@@ -52,7 +52,7 @@ def inject_remediation_links(report_content: str) -> str:
                 new_lines.append(line)
                 new_lines.append(
                     "   > 🤖 **Automated Remediation**: Copy and comment the"
-                    " command below on this issue to trigger an agent-created draft PR:\n"
+                    " command below on this issue to have an agent create a draft PR:\n"
                     "   > ```text\n"
                     f"   > /fix {idx}\n"
                     "   > ```"
