@@ -75,10 +75,21 @@ The agent execution environment must provide the following environment variables
 
 ### Step 5: Create Draft PR & Notify Issue
 
-1. Create a Draft Pull Request against the `main` branch:
+1. Read and follow all guidelines and structure in `.agents/skills/a2ui-audit/references/pr-description-template.md` to construct a well-written PR title and body for recommendation `${RECOMMENDATION_INDEX}`.
+2. Create a Draft Pull Request against the `main` branch:
    ```bash
    PR_BODY=$(cat <<EOF
-This draft PR automatically remediates recommendation #${RECOMMENDATION_INDEX} from compliance report issue #${ISSUE_NUMBER}. Please review carefully.
+## Summary
+Addresses recommendation #${RECOMMENDATION_INDEX} from compliance report issue #${ISSUE_NUMBER}.
+
+## Changes
+- Applied remediation fix for item #${RECOMMENDATION_INDEX}.
+
+## Impact & Risks
+- No breaking changes or external dependency impacts.
+
+## Testing
+- Automated and static verification checks completed.
 
 ---
 
@@ -102,12 +113,12 @@ EOF
      --repo a2ui-project/a2ui \
      --head "remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}" \
      --base main \
-     --title "remediation: address issue #${ISSUE_NUMBER} recommendation ${RECOMMENDATION_INDEX}" \
+     --title "fix(compliance): address issue #${ISSUE_NUMBER} recommendation ${RECOMMENDATION_INDEX}" \
      --body "$PR_BODY")
    ```
-2. Comment on the original issue to notify maintainers of the new Draft PR:
+3. Comment on the original issue to notify maintainers of the new Draft PR and branch:
    ```bash
    gh issue comment "${ISSUE_NUMBER}" \
      --repo a2ui-project/a2ui \
-     --body "🤖 Automated remediation triggered! Created draft PR to address recommendation #${RECOMMENDATION_INDEX}: ${PR_URL}"
+     --body "🤖 Automated remediation triggered! Created draft PR (${PR_URL}) on branch \`remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}\` to address recommendation #${RECOMMENDATION_INDEX}."
    ```
