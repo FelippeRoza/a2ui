@@ -77,12 +77,33 @@ The agent execution environment must provide the following environment variables
 
 1. Create a Draft Pull Request against the `main` branch:
    ```bash
+   PR_BODY=$(cat <<EOF
+This draft PR automatically remediates recommendation #${RECOMMENDATION_INDEX} from compliance report issue #${ISSUE_NUMBER}. Please review carefully.
+
+---
+
+### How to Inspect or Modify This Branch Locally
+
+To check out and make additional changes to this remediation branch:
+
+\`\`\`bash
+# Fetch and check out the remediation branch
+git fetch upstream remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}
+git checkout remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}
+
+# Make your edits, then commit and push back to upstream
+git commit -am "fix: additional adjustments for recommendation #${RECOMMENDATION_INDEX}"
+git push upstream remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}
+\`\`\`
+EOF
+)
+
    PR_URL=$(gh pr create --draft \
      --repo a2ui-project/a2ui \
      --head "remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}" \
      --base main \
      --title "remediation: address issue #${ISSUE_NUMBER} recommendation ${RECOMMENDATION_INDEX}" \
-     --body "This draft PR automatically remediates recommendation #${RECOMMENDATION_INDEX} from compliance report issue #${ISSUE_NUMBER}. Please review carefully.")
+     --body "$PR_BODY")
    ```
 2. Comment on the original issue to notify maintainers of the new Draft PR:
    ```bash
