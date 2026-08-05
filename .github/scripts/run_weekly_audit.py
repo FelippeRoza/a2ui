@@ -52,7 +52,10 @@ def main() -> None:
                         "domain": "api.github.com",
                         "transform": [{"Authorization": f"Bearer {gh_token}"}],
                     },
-                    {"domain": "github.com"},
+                    {
+                        "domain": "github.com",
+                        "transform": [{"Authorization": f"Bearer {gh_token}"}],
+                    },
                 ]
             },
         },
@@ -67,9 +70,12 @@ def main() -> None:
         if attempts >= max_attempts:
             raise TimeoutError("Audit interaction timed out after 60 minutes.")
         time.sleep(30)
-        interaction = client.interactions.get(id=interaction.id)
         attempts += 1
-        print(f"Current status: {interaction.status}...")
+        try:
+            interaction = client.interactions.get(id=interaction.id)
+            print(f"Current status: {interaction.status}...")
+        except Exception as err:
+            print(f"Transient error fetching interaction status: {err}")
 
     print("--- Audit Completed ---")
     print(interaction.output_text)

@@ -84,9 +84,12 @@ def main() -> None:
         if attempts >= max_attempts:
             raise TimeoutError("Remediation interaction timed out after 60 minutes.")
         time.sleep(30)
-        interaction = client.interactions.get(id=interaction.id)
         attempts += 1
-        print(f"Current status: {interaction.status}...")
+        try:
+            interaction = client.interactions.get(id=interaction.id)
+            print(f"Current status: {interaction.status}...")
+        except Exception as err:
+            print(f"Transient error fetching interaction status: {err}")
 
     print("--- Remediation Completed ---")
     print(interaction.output_text)
