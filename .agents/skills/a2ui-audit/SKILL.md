@@ -62,6 +62,8 @@ When compiling `compliance_report.md`, use the following structure:
 1. **[Priority]**: [Clear title and detailed explanation of the fix needed, specifying affected directories or modules.]
 2. **[Priority]**: [Clear title and detailed explanation of the fix needed, specifying affected directories or modules.]
 
+> 🤖 **Automated Remediation**: Comment `/fix <number>` (e.g., `/fix 1`) on this issue to have an agent create a draft PR for that recommendation.
+
 ## Codebase Blueprint Compliance Audit
 | Codebase Implementation | Associated Module | Status | Commits Behind | Current Commit | Latest Commit |
 |---|---|---|---|---|---|
