@@ -66,7 +66,10 @@ def main() -> None:
                         "domain": "api.github.com",
                         "transform": [{"Authorization": f"Bearer {gh_token}"}],
                     },
-                    {"domain": "github.com"},
+                    {
+                        "domain": "github.com",
+                        "transform": [{"Authorization": f"Bearer {gh_token}"}],
+                    },
                 ]
             },
         },

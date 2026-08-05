@@ -43,10 +43,11 @@ The agent execution environment must provide the following environment variables
 
 ### Step 3: Configure Git & Create Branch
 
-1. Configure git bot identity:
+1. Configure git bot identity and HTTP authorization header:
    ```bash
    git config user.name "github-actions[bot]"
    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+   git config extraheader "AUTHORIZATION: bearer ${GITHUB_TOKEN}"
    ```
 2. Create and checkout a new branch named `remediation/issue-${ISSUE_NUMBER}-${RECOMMENDATION_INDEX}`:
    ```bash
