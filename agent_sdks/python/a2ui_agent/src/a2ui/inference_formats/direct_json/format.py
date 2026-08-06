@@ -52,7 +52,7 @@ class DirectJsonFormat(InferenceFormat):
 
         Args:
             version: The A2UI protocol specification version (e.g. "0.9").
-            catalogs: Optional list of catalog configurations.
+            catalogs: Optional list of catalog configurations (list of CatalogConfig objects).
             accepts_inline_catalogs: Whether inline catalog definitions are allowed.
             schema_modifiers: Optional schema modifier functions to post-process schemas.
             experiments: Optional set of enabled experimental feature flags.
